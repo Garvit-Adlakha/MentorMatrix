@@ -6,26 +6,64 @@ import { AppError } from "../middleware/error.middleware.js";
 import crypto from 'crypto'
 import { sendEmail } from "../utils/sendEmail.js";
 
-export const createUserAccount=catchAsync(async(req,res)=>{
-    const {name,email,password,role="student"}=req.body
-    
-    const existingUser = await User.findOne({
-        email:email.toLowerCase()
-    }) 
-    if(existingUser){
-        throw new AppError("User already exists",400)
+export const createUserAccount = catchAsync(async (req, res) => {
+    const { 
+        name, 
+        email, 
+        password, 
+        role = "student", 
+        university, 
+        department, 
+        yearOfStudy, 
+        skills = [], 
+        expertise = [], 
+        roll_no, 
+        sap_id 
+    } = req.body;
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+        throw new AppError("User already exists", 400);
     }
-    const user=await User.create(
-        {
-            name,
-            email:email.toLowerCase(),
-            password,
-            role
-        }
-    )
-    await user.updateLastActive()
-    generateToken(res,user._id,"Accound created successfully")
-})
+
+    // Validate roll_no and sap_id for students
+    if (role === "student" && (!roll_no || !sap_id)) {
+        throw new AppError("Roll number and SAP ID are required for students", 400);
+    }
+
+    // Create new user
+    const user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password,
+        role,
+        university,
+        department, 
+        roll_no: role === "student" ? roll_no : undefined,
+        sap_id: role === "student" ? sap_id : undefined,
+        yearOfStudy: role === "student" ? yearOfStudy : undefined,
+        skills: role === "student" ? skills : [],
+        expertise: role === "mentor" ? expertise : [],
+    });
+
+    // Update last active timestamp
+    await user.updateLastActive();
+
+    // Generate authentication token
+    generateToken(res, user._id, "Account created successfully");
+
+    res.status(201).json({
+        success: true,
+        message: "Account created successfully",
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        },
+    });
+});
 
 export const authenticateUser=catchAsync(async (req,res)=>{
     const {email,password}=req.body
@@ -60,53 +98,76 @@ export const getCurrentUserProfile = catchAsync(async(req,res)=>{
 })
 
 
-export const updateUserProfile = catchAsync(async(req,res)=>{
-    const {name,email,bio}=req.body
-    const updateData={
-        name,
-        email:email?.toLowerCase(),
-        bio
+export const updateUserProfile = catchAsync(async (req, res) => {
+    const { name, email, bio, skills, expertise } = req.body;
+    const updateData = {};
+
+    // Fetch the user
+    const user = await User.findById(req.id);
+    if (!user) {
+        throw new AppError("User not found", 404);
     }
-    
-    if (email) {
+
+    // Update fields only if provided
+    if (name) updateData.name = name;
+    if (bio) updateData.bio = bio;
+
+    // Validate email update
+    if (email && email.toLowerCase() !== user.email) {
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser && existingUser._id.toString() !== req.id) {
             throw new AppError("Email is already in use", 400);
         }
+        updateData.email = email.toLowerCase();
     }
-    // check for avatar and handle it if provided
-    if(req.file){
-        const avatarResult = await uploadMedia(req.file.path)
-        updateData.avatar = avatarResult?.secure_url || req.file.path
 
-        //delete old avatar if it's not default-avatar png
-        const user=await User.findById(req.id)
-        if(!user){
-            throw new AppError("User not found",404)
-        }
-        if(user.avatar && user.avatar!=='default-avatar.png'){
-            await deleteMediaFromCloudinary(user.avatar)
+    // Update skills only if the user is a student
+    if (skills && user.role === "student") {
+        const uniqueSkills = [...new Set(skills.map(skill => skill.trim().toLowerCase()))];
+        updateData.skills = uniqueSkills;
+    }
+
+    // Update expertise only if the user is a mentor
+    if (expertise && user.role === "mentor") {
+        const uniqueExpertise = [...new Set(expertise.map(exp => exp.trim().toLowerCase()))];
+        updateData.expertise = uniqueExpertise;
+    }
+
+    // Handle avatar upload if file is provided
+    if (req.file) {
+        const avatarResult = await uploadMedia(req.file.path);
+        updateData.avatar = avatarResult?.secure_url || req.file.path;
+
+        // Delete old avatar if it's not the default one
+        if (user.avatar && user.avatar !== "default-avatar.png") {
+            await deleteMediaFromCloudinary(user.avatar);
         }
     }
-        
-        const updatedUser= await User.findByIdAndUpdate(
-            req.id, updateData,
-            {
-                new:true,
-                runValidators:true
-            }
-        )
-        if(!updatedUser){
-            throw new AppError("User not found",404)
-        }
-        res
-        .status(200)
-        .json({
-            success:true,
-            message:"Profile updated successfully",
-            data:updateData
-        })
-})
+
+    // Update the user
+    const updatedUser = await User.findByIdAndUpdate(req.id, updateData, {
+        new: true,
+        runValidators: true,
+    });
+
+    if (!updatedUser) {
+        throw new AppError("User not found", 404);
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        data: {
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            bio: updatedUser.bio,
+            skills: updatedUser.skills,
+            expertise: updatedUser.expertise,
+            avatar: updatedUser.avatar,
+        },
+    });
+});
 
 
 export const changeUserPassword=catchAsync(async(req,res)=>{
