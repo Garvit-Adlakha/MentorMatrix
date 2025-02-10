@@ -15,7 +15,7 @@ export const sendEmail = async ({ email, subject, message }) => {
 
         // Email options
         const mailOptions = {
-            from: `"Your App Name" <${process.env.SMTP_USER}>`,
+            from: `"MentorMatrix" <${process.env.SMTP_USER}>`,
             to: email,
             subject,
             html: `<p>${message}</p>`, // HTML version
