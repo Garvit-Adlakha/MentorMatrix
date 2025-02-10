@@ -101,3 +101,30 @@ export const validatePasswordChange = validate([
         .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
         .withMessage('Password must contain at least one number, one uppercase letter, one lowercase letter, and one special character')
 ]);
+
+export const validateDescription = validate([
+    body('description')
+        .isObject()
+        .withMessage('Description must be an object')
+        .custom((value) => {
+            if (!value.abstract || !value.problemStatement || !value.proposedMethodology) {
+                throw new Error("Abstract, problemStatement, and proposedMethodology are required fields");
+            }
+            return true;
+        }),
+    body('description.abstract')
+        .isString()
+        .trim()
+        .notEmpty()
+        .withMessage('Abstract is required'),
+    body('description.problemStatement')
+        .isString()
+        .trim()
+        .notEmpty()
+        .withMessage('Problem statement is required'),
+    body('description.proposedMethodology')
+        .isString()
+        .trim()
+        .notEmpty()
+        .withMessage('Proposed methodology is required'),
+]);
