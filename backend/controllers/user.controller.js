@@ -5,8 +5,9 @@ import { catchAsync } from "../middleware/error.middleware.js";
 import { AppError } from "../middleware/error.middleware.js";
 import crypto from 'crypto'
 import { sendEmail } from "../utils/sendEmail.js";
+import mongoose from "mongoose";
 
-export const createUserAccount = catchAsync(async (req, res) => {
+export const createUserAccount = catchAsync(async (req, res, next) => {
     const { 
         name, 
         email, 
@@ -18,18 +19,19 @@ export const createUserAccount = catchAsync(async (req, res) => {
         skills = [], 
         expertise = [], 
         roll_no, 
-        sap_id 
+        sap_id,
+        cgpa
     } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-        throw new AppError("User already exists", 400);
+        return next(new AppError("User already exists", 400));
     }
 
     // Validate roll_no and sap_id for students
     if (role === "student" && (!roll_no || !sap_id)) {
-        throw new AppError("Roll number and SAP ID are required for students", 400);
+        return next(new AppError("Roll number and SAP ID are required for students", 400));
     }
 
     // Create new user
@@ -40,6 +42,7 @@ export const createUserAccount = catchAsync(async (req, res) => {
         role,
         university,
         department, 
+        cgpa,
         roll_no: role === "student" ? roll_no : undefined,
         sap_id: role === "student" ? sap_id : undefined,
         yearOfStudy: role === "student" ? yearOfStudy : undefined,
@@ -50,20 +53,10 @@ export const createUserAccount = catchAsync(async (req, res) => {
     // Update last active timestamp
     await user.updateLastActive();
 
-    // Generate authentication token
+    // ✅ Fix: Ensure only ONE response is sent
     generateToken(res, user._id, "Account created successfully");
-
-    res.status(201).json({
-        success: true,
-        message: "Account created successfully",
-        user: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
-    });
 });
+
 
 export const authenticateUser=catchAsync(async (req,res)=>{
     const {email,password}=req.body
@@ -93,9 +86,56 @@ export const signOutUser = catchAsync(async(_,res)=>{
 })
 
 
-export const getCurrentUserProfile = catchAsync(async(req,res)=>{
-    //write aggregations to get project details
-})
+export const getCurrentUserProfile = catchAsync(async (req, res) => {
+    const userId = new mongoose.Types.ObjectId(req.id)
+    console.log(userId)
+
+    const userProfile = await User.aggregate([
+        {
+            $match: { _id: userId }, // ✅ Match user
+        },
+        {
+            $lookup: {
+                from: "projects",
+                localField: "_id",
+                foreignField: "createdBy",
+                as: "leaderProjects", // ✅ Projects where user is team leader
+            },
+        },
+        {
+            $lookup: {
+                from: "projects",
+                localField: "_id",
+                foreignField: "teamMembers",
+                as: "memberProjects", // ✅ Projects where user is a team member
+            },
+        },
+        {
+            $addFields: {
+                projects: { $setUnion: ["$leaderProjects", "$memberProjects"] }, // ✅ Merge both arrays
+            },
+        },
+        {
+            $project: {
+                password: 0, // ✅ Exclude sensitive fields
+                resetPasswordToken: 0,
+                resetPasswordExpire: 0,
+                leaderProjects: 0,
+                memberProjects: 0, // ✅ Remove temporary arrays
+            },
+        },
+    ]);
+
+    if (!userProfile.length) {
+        throw new AppError("User not found", 404);
+    }
+
+    res.status(200).json({
+        success: true,
+        message:"profile fetched successfully",
+        user: userProfile[0], 
+    });
+});
 
 
 export const updateUserProfile = catchAsync(async (req, res) => {
