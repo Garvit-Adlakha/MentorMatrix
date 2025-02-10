@@ -8,6 +8,7 @@ import hpp from 'hpp'
 import rateLimit from 'express-rate-limit'
 import connectDB from './database/db.js'
 import userRoute from './routes/user.route.js'
+import projectRoute from './routes/project.route.js'
 
 dotenv.config();
 await connectDB()
@@ -57,7 +58,7 @@ app.use(
 
 //API routes
 app.use('/api/v1/user',userRoute)
-
+app.use('/api/v1/project',projectRoute)
 
 
 
