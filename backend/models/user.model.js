@@ -5,6 +5,13 @@ import crypto from "crypto";
 
 dotenv.config();
 
+/*
+    @todo list
+*/
+//add gender for male female default png
+//add phone no. for whastapp Api msg or nomal msg
+
+
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -73,7 +80,13 @@ const userSchema = new mongoose.Schema(
             min: [0, "CGPA cannot be negative"],
             max: [10, "CGPA cannot exceed 10"],
         },
-        expertise: [{ type: String }], // Relevant for mentors
+        expertise: [
+            {
+                type: String, 
+                default:null    
+            }
+            
+        ], // Relevant for mentors
         projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
         availability: {
             type: Boolean,
