@@ -72,12 +72,22 @@ app.use((req,res)=>{
 // Global Error Handler.
 app.use((err, req, res, next) => {
     console.error(err);
-    return res.status(err.statusCode || 500).json({
-      status: "error",
-      message: err.message || "Internal server error",
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+
+    // ✅ Prevent "Cannot set headers after they are sent" error
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Internal Server Error";
+
+    return res.status(statusCode).json({
+        status: "error",
+        message,
+        ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
     });
-  });
+});
+
   
   // Start server
   app.listen(PORT, () => {
