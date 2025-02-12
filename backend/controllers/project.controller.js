@@ -58,9 +58,8 @@ export const addMemberToProject = catchAsync(async(req,res,next)=>{
     }
     const usersToAdd= await User.find(
     {    $or:[
-            
             {roll_no:{$in:teamMembers}},
-          {  email:{$in:teamMembers}}
+          { email:{$in:teamMembers}}
         ]}
     ).select("_id")
 
@@ -114,12 +113,22 @@ export const requestMentor = catchAsync(async (req, res, next) => {
     project.mentorRequests.push(mentor._id);
     await project.save();
 
+    await sendEmail({
+        email: mentor.email,
+        subject: "Mentor Request",
+        message: `You have a new mentor request for project '${project.title}'.`,
+    })
+    await sendEmail({
+        email: userId,
+        subject: "Mentor Request Sent",
+        message: `Your mentor request for project '${project.title}' has been sent successfully.`,
+    });
+
     res.status(200).json({
         success: true,
         message: "Mentor request sent successfully",
     });
 });
-
 export const mentorDecision = catchAsync(async (req, res, next) => {
     const { projectId } = req.params;
     const { decision } = req.body;
@@ -131,6 +140,7 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
         return next(new AppError("Only mentors can accept/reject projects", 403));
     }
 
+    // Find project
     const project = await Project.findById(projectId);
     if (!project) return next(new AppError("Project not found", 404));
 
@@ -139,30 +149,52 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
         return next(new AppError("You are not requested as a mentor for this project", 403));
     }
 
+    // Fetch team member emails (only once)
+    const usersEmails = await User.find({ _id: { $in: project.teamMembers } }).select("email");
+    const emails = usersEmails.map(user => user.email).filter(email => email);
+
     if (decision === "accept") {
         project.assignedMentor = mentorId;
+        project.status = "approved";
         project.mentorRequests = []; 
         await project.save();
 
+        if (emails.length) {
+            await sendEmail({
+                email: emails,
+                subject: "Mentor Request Accepted",
+                message: `Your mentor request for project '${project.title}' has been accepted. You will be contacted soon.`,
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: "Mentor assigned successfully"
+            message: "Mentor assigned successfully",
         });
     }
 
     if (decision === "reject") {
-        await Project.findByIdAndUpdate(projectId, {
-            $pull: { mentorRequests: mentorId }  
-        });
+        project.mentorRequests = project.mentorRequests.filter(id => id.toString() !== mentorId);
+        project.status = "rejected";
+        await project.save();
+
+        if (emails.length) {
+            await sendEmail({
+                email: emails,
+                subject: "Mentor Request Rejected",
+                message: `Your mentor request for project '${project.title}' has been rejected.`,
+            });
+        }
 
         return res.status(200).json({
             success: true,
-            message: "Mentor request rejected"
+            message: "Mentor request rejected",
         });
     }
 
     return next(new AppError("Invalid decision value. Use 'accept' or 'reject'", 400));
 });
+
 
 export const updateProject = catchAsync(async (req, res, next) => {
     const { projectId } = req.params; 
@@ -236,6 +268,7 @@ export const deleteProject = catchAsync(async (req, res, next) => {
         message: "Project deleted successfully",
     });
 });
+
 export const listProjects = catchAsync(async (req, res, next) => {
     const userId = req.id;
     let { page = 1, limit = 10, status, mentor, search } = req.query;
@@ -252,8 +285,8 @@ export const listProjects = catchAsync(async (req, res, next) => {
     // Build Filter
     const filter = {};
     if (status) filter.status = status;
-    if (mentor && mongoose.Types.ObjectId.isValid(mentor)) filter.assignedMentor = mentor; // ✅ Ensure valid ObjectId
-    if (search) filter.title = { $regex: search, $options: "i" }; // ✅ Case-insensitive search
+    if (mentor && mongoose.Types.ObjectId.isValid(mentor)) filter.assignedMentor = mentor; 
+    if (search) filter.title = { $regex: search, $options: "i" }; 
 
     // **Fetch Projects**
     const [projects, totalProjects] = await Promise.all([
@@ -274,7 +307,6 @@ export const listProjects = catchAsync(async (req, res, next) => {
         projects,
     });
 });
-
 
 export const getProject = catchAsync(async (req, res, next) => {
     const userId = req.id;
@@ -303,8 +335,6 @@ export const getProject = catchAsync(async (req, res, next) => {
 });
 
 //-------------------todo-------------------
-//Implement Notifications & Emails
 //Improve File Management
-//Implement file deletion when a project is deleted (deleteProject).
 //Allow users to remove specific files from a project
-//Project Status Management (Approval & Rejection)
+
