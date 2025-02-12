@@ -53,7 +53,6 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
     // Update last active timestamp
     await user.updateLastActive();
 
-    // ✅ Fix: Ensure only ONE response is sent
     generateToken(res, user._id, "Account created successfully");
 });
 
@@ -92,14 +91,14 @@ export const getCurrentUserProfile = catchAsync(async (req, res) => {
 
     const userProfile = await User.aggregate([
         {
-            $match: { _id: userId }, // ✅ Match user
+            $match: { _id: userId }, 
         },
         {
             $lookup: {
                 from: "projects",
                 localField: "_id",
                 foreignField: "createdBy",
-                as: "leaderProjects", // ✅ Projects where user is team leader
+                as: "leaderProjects", 
             },
         },
         {
@@ -107,7 +106,7 @@ export const getCurrentUserProfile = catchAsync(async (req, res) => {
                 from: "projects",
                 localField: "_id",
                 foreignField: "teamMembers",
-                as: "memberProjects", // ✅ Projects where user is a team member
+                as: "memberProjects", 
             },
         },
         {
@@ -117,11 +116,11 @@ export const getCurrentUserProfile = catchAsync(async (req, res) => {
         },
         {
             $project: {
-                password: 0, // ✅ Exclude sensitive fields
+                password: 0, 
                 resetPasswordToken: 0,
                 resetPasswordExpire: 0,
                 leaderProjects: 0,
-                memberProjects: 0, // ✅ Remove temporary arrays
+                memberProjects: 0, 
             },
         },
     ]);
@@ -248,7 +247,7 @@ export const forgotPassword = catchAsync(async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/reset-password/${resetToken}`;
+    const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/user/reset-password/${resetToken}`;
 
     await sendEmail({
         email: user.email,
@@ -290,12 +289,8 @@ export const resetPassword = catchAsync(async (req, res) => {
       message: "Password reset successful",
     });
   });
-  
-  /**
-   * Delete user account
-   * @route DELETE /api/v1/users/account
-   */
-  export const deleteUserAccount = catchAsync(async (req, res) => {
+
+export const deleteUserAccount = catchAsync(async (req, res) => {
     const user = await User.findById(req.id);
   
     // Delete avatar if not default
