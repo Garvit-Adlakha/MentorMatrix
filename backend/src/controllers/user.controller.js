@@ -57,7 +57,7 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
 });
 
 
-export const authenticateUser=catchAsync(async (req,res)=>{
+export const authenticateUser=catchAsync(async (req,res,next)=>{
     const {email,password}=req.body
     
     const user=await User.findOne({
