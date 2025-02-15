@@ -56,7 +56,7 @@ Mentor Matrix is a web application designed to streamline mentor-student interac
 3. Set up environment variables in `.env` files for both backend and frontend.
 4. Run development servers:
    ```bash
-   cd backend && npm run dev
+   cd backend && npm run start
    cd ../frontend && npm run dev
    ```
 
