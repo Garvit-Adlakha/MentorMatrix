@@ -46,7 +46,7 @@ Mentor Matrix is a web application designed to streamline mentor-student interac
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/mentor-matrix.git
+   git clone hhttps://github.com/Garvit-Adlakha/MentorMatrix.git
    ```
 2. Install dependencies:
    ```bash
