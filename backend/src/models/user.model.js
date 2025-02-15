@@ -87,7 +87,6 @@ const userSchema = new mongoose.Schema(
             }
             
         ], // Relevant for mentors
-        projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
         availability: {
             type: Boolean,
             default: true, // Only for mentors
