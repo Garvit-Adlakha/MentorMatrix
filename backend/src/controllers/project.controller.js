@@ -6,6 +6,7 @@ import { User } from "../models/user.model.js";
 import { catchAsync } from "../middleware/error.middleware.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { deleteMediaFromCloudinary,uploadMedia } from "../utils/cloudinary.js";
+import { createGroup } from "./chat.controller.js";
 
 export const createProject = catchAsync(async (req, res, next) => {
     const { title, description } = req.body;
@@ -129,34 +130,31 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         message: "Mentor request sent successfully",
     });
 });
+
 export const mentorDecision = catchAsync(async (req, res, next) => {
     const { projectId } = req.params;
     const { decision } = req.body;
-    const mentorId = req.id;  
+    const mentorId = req.id;
 
-    // Ensure user is a mentor
     const mentor = await User.findById(mentorId);
     if (!mentor || mentor.role !== "mentor") {
         return next(new AppError("Only mentors can accept/reject projects", 403));
     }
 
-    // Find project
     const project = await Project.findById(projectId);
     if (!project) return next(new AppError("Project not found", 404));
 
-    // Ensure the mentor was actually requested
     if (!project.mentorRequests.includes(mentorId)) {
         return next(new AppError("You are not requested as a mentor for this project", 403));
     }
 
-    // Fetch team member emails (only once)
     const usersEmails = await User.find({ _id: { $in: project.teamMembers } }).select("email");
     const emails = usersEmails.map(user => user.email).filter(email => email);
 
     if (decision === "accept") {
         project.assignedMentor = mentorId;
         project.status = "approved";
-        project.mentorRequests = []; 
+        project.mentorRequests = [];
         await project.save();
 
         if (emails.length) {
@@ -167,13 +165,26 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
             });
         }
 
-        return res.status(200).json({
-            success: true,
-            message: "Mentor assigned successfully",
-        });
-    }
+        // Create group chat and log if any issue
+        try {
+            const chatGroup = await createGroup(projectId);
+            if (!chatGroup) {
+                console.error("Group chat creation failed or returned undefined.");
+                return next(new AppError("Failed to create group chat", 500));
 
-    if (decision === "reject") {
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Mentor assigned successfully and Group Created",
+                chatGroup: chatGroup || {}
+            });
+        } catch (error) {
+            console.error("Error creating group chat:", error);
+            return next(new AppError("Group chat creation failed", 500));
+        }
+
+    } else if (decision === "reject") {
         project.mentorRequests = project.mentorRequests.filter(id => id.toString() !== mentorId);
         project.status = "rejected";
         await project.save();
@@ -190,9 +201,9 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
             success: true,
             message: "Mentor request rejected",
         });
+    } else {
+        return next(new AppError("Invalid decision value. Use 'accept' or 'reject'", 400));
     }
-
-    return next(new AppError("Invalid decision value. Use 'accept' or 'reject'", 400));
 });
 
 
