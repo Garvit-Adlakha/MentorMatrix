@@ -6,7 +6,7 @@ import {Chat} from '../models/chat.model.js'
 
 export const createGroup = async (projectId) => {
   try {
-    if (!projectId.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!mongoose.isValidObjectId(projectId)) {
       throw new AppError('Invalid project ID', 400);
     }
 
@@ -34,9 +34,17 @@ export const createGroup = async (projectId) => {
 
     const groupChat = await Chat.create({
       name: `${project.title} - Group Chat`,
-      participants,
       project: projectId,
+      participants,
       isGroupChat: true,
+    });
+
+    const io=req.io
+    // Broadcast to all participants that they have joined the chat
+    io.to(participants).emit('joinedChat', {
+      chatId: groupChat._id,
+      chatName: groupChat.name,
+      projectId: projectId,
     });
 
     // Return populated chat
@@ -51,25 +59,66 @@ export const createGroup = async (projectId) => {
   }
 };
 export const getUserChats = catchAsync(async (req, res, next) => {
-  const { id: userId } = req.user;
+  const { userId } = req.user; // Assuming user ID from auth middleware
 
-  // Find all group chats where user is a participant
-  const chats = await Chat.find({ participants: userId })
-    .populate('project', 'title') // Include project title
-    .populate({
-      path: 'lastMessage',
-      select: 'content createdAt sender',
-      populate: { path: 'sender', select: 'name' }
-    })
-    .sort({ updatedAt: -1 });
+  const chats = await Chat.aggregate([
+    // 1️⃣ Match chats where the user is a participant
+    { $match: { participants: new mongoose.Types.ObjectId(userId) } },
 
-  if (!chats.length) {
-    return next(new AppError("No group chats found", 404));
-  }
+    // 2️⃣ Lookup latest message for each chat
+    {
+      $lookup: {
+        from: 'messages',
+        let: { chatId: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$chat', '$$chatId'] } } },
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 }
+        ],
+        as: 'lastMessage'
+      }
+    },
+
+    // 3️⃣ Unwind to make lastMessage a single object
+    { $unwind: { path: '$lastMessage', preserveNullAndEmptyArrays: true } },
+
+    // 4️⃣ Lookup sender details
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'lastMessage.sender',
+        foreignField: '_id',
+        as: 'lastMessage.sender'
+      }
+    },
+    { $unwind: { path: '$lastMessage.sender', preserveNullAndEmptyArrays: true } },
+
+    // 5️⃣ Project only required fields
+    {
+      $project: {
+        name: 1,
+        participants: 1,
+        project: 1,
+        createdAt: 1,
+        lastMessage: {
+          content: '$lastMessage.content',
+          createdAt: '$lastMessage.createdAt',
+          sender: {
+            name: '$lastMessage.sender.name',
+            email: '$lastMessage.sender.email'
+          }
+        }
+      }
+    },
+
+    // 6️⃣ Sort chats by latest message or creation time
+    { $sort: { 'lastMessage.createdAt': -1, createdAt: -1 } }
+  ]);
 
   res.status(200).json({
     success: true,
     results: chats.length,
-    chats,
+    chats
   });
 });
+

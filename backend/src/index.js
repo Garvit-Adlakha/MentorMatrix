@@ -11,7 +11,12 @@ import rateLimit from 'express-rate-limit';
 import connectDB from './database/db.js';
 import userRoute from './routes/user.route.js';
 import projectRoute from './routes/project.route.js';
+import chatRoute from './routes/chat.route.js';
+import messageRoute from './routes/message.route.js';
+
 import { initializeSocket } from './socket/socket.js';
+
+
 dotenv.config();
 await connectDB();
 
@@ -53,6 +58,10 @@ app.use(cors({
 // API Routes
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/project', projectRoute);
+app.use('/api/v1/chat',chatRoute)
+app.use('api/v1/message',messageRoute)
+
+//sockets routes
 app.get('/ws', (req, res) => {
     res.send('WebSocket server is running');
   });
