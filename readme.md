@@ -1,4 +1,4 @@
-# MentorMatrix Documentation
+# MentorMatrix
 
 ## Overview
 
