@@ -1,8 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { lazy, Suspense } from "react"
-
+import HomePage from "./Pages/HomePage"
 // ... your lazy imports ...
-const Home=lazy(()=>import('./Pages/HomePage'))
 
 
 // Move this to AuthContext
@@ -13,7 +12,7 @@ const App = () => {
     <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePage />} />
           
           {/* 404 route */}
           <Route path="*" element={<>Not Found</>} />
