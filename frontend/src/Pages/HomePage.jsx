@@ -1,12 +1,11 @@
-import React from 'react'
 import Main from '../Components/shared/Main'
-import Navbar from '../Components/shared/navbar'
+import {Footer} from '../Components/shared/Footer'
 
 const HomePage = () => {
   return (
     <>
-    <Navbar />
     <Main />
+    <Footer />
     </>
   )
 }
