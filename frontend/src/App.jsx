@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { lazy, Suspense } from "react"
 
 // ... your lazy imports ...
-
+const Home=lazy(()=>import('./Pages/HomePage'))
 
 
 // Move this to AuthContext
