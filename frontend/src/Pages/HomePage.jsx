@@ -1,13 +1,12 @@
-import Main from '../components/shared/Main'
-import Footer from '../components/shared/footer'
-import Navbar from '../components/shared/Navbar'
-
+import Main from '../Components/shared/Main'
+import Footer from '../Components/shared/footer'
+import Header from '../Components/shared/Header'
 const HomePage = () => {
   return (
     <>
-      <Navbar />
-      <Main />
-      <Footer />
+    <Header />
+    <Main />
+    <Footer />
     </>
   )
 }

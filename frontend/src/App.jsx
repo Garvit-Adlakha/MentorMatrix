@@ -3,8 +3,8 @@ import { lazy, Suspense } from "react"
 
 // Lazy load page components
 const HomePage = lazy(() => import("./Pages/HomePage"))
-const Login = lazy(() => import("./components/auth/Login"))
-const Signup = lazy(() => import("./components/auth/Signup"))
+const Login = lazy(() => import("./Components/auth/Login"))
+const Signup = lazy(() => import("./Components/auth/Signup"))
 // Move this to AuthContext
 const user = true
 
