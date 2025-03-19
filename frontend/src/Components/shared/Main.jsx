@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconArrowRight, IconArrowUpRight, IconCircleCheck } from '@tabler/icons-react';
+import { IconArrowRight, IconArrowUpRight, IconCircleCheck } from "@tabler/icons-react";
 import { motion } from 'framer-motion';
 
 const Main = () => {
