@@ -3,8 +3,8 @@ import { lazy, Suspense } from "react"
 
 // Lazy load page components
 const HomePage = lazy(() => import("./Pages/HomePage"))
-const LoginSignupPage = lazy(() => import("./Pages/LoginSignupPage"))
-
+const Login = lazy(() => import("./Components/auth/Login"))
+const Signup = lazy(() => import("./Components/auth/Signup"))
 // Move this to AuthContext
 const user = true
 
@@ -15,7 +15,8 @@ const App = () => {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginSignupPage />} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/signup" element={<Signup />} />
           
           {/* 404 route */}
           <Route path="*" element={<>Not Found</>} />
