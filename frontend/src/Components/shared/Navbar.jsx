@@ -1,17 +1,10 @@
 import { useRef, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-<<<<<<< HEAD
-export const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-=======
 export const Navbar = ({ navOpen }) => {
   const lastActiveLink = useRef(null);
   const activeBox = useRef(null);
   const [activeSection, setActiveSection] = useState("home"); // State to track the active section
->>>>>>> 81dd1ef (feat: add Header component with responsive Navbar; update HomePage to import Navbar with correct casing; remove unused tailwindcss dependency)
-
   const navItems = [
     { label: "Home", link: "#home", className: "nav-link",  },
     { label: "About", link: "#about", className: "nav-link" },
