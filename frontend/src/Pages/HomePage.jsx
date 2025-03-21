@@ -1,12 +1,11 @@
 import Main from '../components/shared/Main'
 import Footer from '../components/shared/footer'
-import Navbar from '../components/shared/Navbar'
 import FacultyCards from '../components/FacultyCards'
-
+import Header from '../components/shared/Header'
 const HomePage = () => {
   return (
     <>
-      <Navbar />
+      <Header />
       <Main />
       <FacultyCards />
       <Footer />
