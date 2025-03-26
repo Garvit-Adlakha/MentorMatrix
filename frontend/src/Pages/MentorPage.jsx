@@ -1,12 +1,10 @@
 import React from 'react'
 import AppLayout from '../components/layouts/AppLayout'
-import FacultyCards from '../components/FacultyCards'
+import Mentor from '../components/Mentor'
 
 const MentorPage = () => {
   return (
-    <>
-    <FacultyCards />
-    </>
+    <Mentor />
   )
 }
 
