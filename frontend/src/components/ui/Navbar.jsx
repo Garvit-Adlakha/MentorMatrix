@@ -4,71 +4,138 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-} from "motion/react";
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import PropTypes from 'prop-types';
+
+const navVariants = {
+  hidden: { opacity: 0, y: -100 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: "easeInOut"
+    }
+  }
+};
+
+const linkVariants = {
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 }
+};
 
 export const FloatingNav = ({
-  navItems,
-  className
+  navItems = [],
+  className = ""
 }) => {
   const { scrollYProgress } = useScroll();
-
   const [visible, setVisible] = useState(false);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
-    // Check if current is not undefined and is a number
-    if (typeof current === "number") {
-      let direction = current - scrollYProgress.getPrevious();
-
-      if (scrollYProgress.get() < 0.05) {
-        setVisible(false);
-      } else {
-        if (direction < 0) {
-          setVisible(true);
-        } else {
-          setVisible(false);
-        }
-      }
-    }
+    if (typeof current !== "number") return;
+    
+    const direction = current - scrollYProgress.getPrevious();
+    const isAtTop = scrollYProgress.get() < 0.05;
+    
+    setVisible(!isAtTop && direction < 0);
   });
 
   return (
     <AnimatePresence mode="wait">
-      <motion.div
-        initial={{
-          opacity: 1,
-          y: -100,
-        }}
-        animate={{
-          y: visible ? 0 : -100,
-          opacity: visible ? 1 : 0,
-        }}
-        transition={{
-          duration: 0.2,
-        }}
+      <motion.nav
+        role="navigation"
+        aria-label="Main navigation"
+        variants={navVariants}
+        initial="hidden"
+        animate={visible ? "visible" : "hidden"}
         className={cn(
-          "flex max-w-fit  fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-8 py-2  items-center justify-center space-x-4",
+          "fixed top-10 inset-x-0 mx-auto z-50",
+          "max-w-fit flex items-center justify-center space-x-4",
+          "rounded-full border border-transparent dark:border-white/20",
+          "bg-white/80 dark:bg-black/80 backdrop-blur-md",
+          "shadow-lg shadow-black/5 dark:shadow-white/5",
+          "py-2 px-6",
           className
-        )}>
+        )}
+      >
         {navItems.map((navItem, idx) => (
-          <Link
-            key={`link=${idx}`}
-            href={navItem.link}
-            className={cn(
-              "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
-            )}>
-            <span className="block sm:hidden">{navItem.icon}</span>
-            <span className="hidden sm:block text-sm">{navItem.name}</span>
-          </Link>
+          <motion.div
+            key={`nav-item-${idx}`}
+            variants={linkVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Link
+              href={navItem.link}
+              className={cn(
+                "relative flex items-center space-x-2",
+                "text-neutral-600 dark:text-neutral-300",
+                "hover:text-neutral-900 dark:hover:text-white",
+                "transition-colors duration-200"
+              )}
+              aria-label={navItem.name}
+            >
+              <span className="block sm:hidden" aria-hidden="true">
+                {navItem.icon}
+              </span>
+              <span className="hidden sm:block text-sm font-medium">
+                {navItem.name}
+              </span>
+              <motion.span
+                className="absolute -bottom-1 left-0 w-full h-[2px] bg-primary"
+                initial={{ scaleX: 0 }}
+                whileHover={{ scaleX: 1 }}
+                transition={{ duration: 0.2 }}
+              />
+            </Link>
+          </motion.div>
         ))}
-        <button
-          className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
+        
+        <NavButton>
           <span>Login</span>
-          <span
-            className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent  h-px" />
-        </button>
-      </motion.div>
+        </NavButton>
+      </motion.nav>
     </AnimatePresence>
   );
+};
+
+const NavButton = ({ children }) => (
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className={cn(
+      "relative px-4 py-2 rounded-full",
+      "text-sm font-medium",
+      "bg-primary text-primary-foreground",
+      "hover:bg-primary/90",
+      "transition-colors duration-200",
+      "focus:outline-none focus:ring-2 focus:ring-primary/50",
+      "disabled:opacity-50 disabled:pointer-events-none"
+    )}
+  >
+    {children}
+    <motion.span
+      className="absolute inset-x-0 mx-auto -bottom-px h-px bg-gradient-to-r from-transparent via-primary-foreground/50 to-transparent"
+      initial={{ scaleX: 0 }}
+      whileHover={{ scaleX: 1 }}
+      transition={{ duration: 0.2 }}
+    />
+  </motion.button>
+);
+
+NavButton.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+FloatingNav.propTypes = {
+  navItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      link: PropTypes.string.isRequired,
+      icon: PropTypes.node.isRequired,
+    })
+  ),
+  className: PropTypes.string,
 };

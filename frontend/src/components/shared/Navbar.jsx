@@ -104,7 +104,7 @@ export const Navbar = ({ navOpen }) => {
   }, []);
 
   return (
-    <nav className={`navbar ${navOpen ? "active" : ""}`}>
+    <nav className={`navbar  dark:bg-zinc-50/10  ${navOpen ? "active" : ""}`}>
       {navItems.map(({ label, link, className }, key) => (
         <a
           href={link}

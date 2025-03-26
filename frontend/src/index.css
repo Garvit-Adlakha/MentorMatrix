@@ -113,7 +113,7 @@
 }
 
 .navbar {
-    @apply absolute mt-2 min-w-40  max-w-fit p-2 bg-zinc-50/10 
+    @apply absolute mt-2 min-w-40  max-w-fit p-2 bg-gradient-to-r from-primary to-primary/70
     rounded-2xl ring-inset ring-1 ring-zinc-50/5 scale-90 isolate 
     blur-sm opacity-0 invisible transition-all duration-300 ease-in-out md:static md:flex md:items-center md:mt-0 md:opacity-100 md:blur-none md:visible md:scale-100 backdrop-blur-2xl;
 }
@@ -122,7 +122,7 @@
     @apply opacity-100 scale-100 blur-none visible;
 }
 .nav-link{
-    @apply grid items-center h-9 px-4 text-sm font-medium tracking-wide text-zinc-50/50 hover:text-zinc-50 transition-colors ;
+    @apply grid items-center h-9 px-4 text-sm font-medium tracking-wide text-zinc-100 hover:text-zinc-950 transition-colors ;
     transition: all 0.3s ease
 }
 .nav-link.active {

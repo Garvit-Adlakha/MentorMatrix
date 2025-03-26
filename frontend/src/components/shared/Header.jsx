@@ -18,7 +18,7 @@ const Header = () => {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 w-full h-20 flex items-center z-40 transition-all duration-500 ${
+      className={`fixed top-0 left-0 w-full h-20 flex items-center z-40 transition-all duration-500  ${
         scrolled
           ? "bg-background/90 backdrop-blur-md shadow-lg"
           : "bg-gradient-to-b from-background to-background/50"
@@ -98,7 +98,7 @@ const Header = () => {
         >
           <Link
             to="/login"
-            className="btn bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-lg max-md:hidden 
+            className="btn btn-outline bg-gradient-to-r from-primary to-primary/70 hover:bg-slate-800 text-white px-6 py-2 rounded-lg max-md:hidden 
             transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
           >
             Login
