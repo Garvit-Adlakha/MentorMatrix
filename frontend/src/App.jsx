@@ -6,6 +6,7 @@ const HomePage = lazy(() => import("./Pages/HomePage"))
 const Login = lazy(() => import("./components/auth/Login"))
 const Signup = lazy(() => import("./components/auth/Signup"))
 const MentorPage=lazy(()=> import("./Pages/MentorPage"))
+const Dashboard=lazy(()=> import("./Pages/Dashboard"))
 // Move this to AuthContext
 const user = true
 
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/mentor" element={<MentorPage />} />
           <Route path="/login" element={<Login/>} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           
           {/* 404 route */}
           <Route path="*" element={<>Not Found</>} />
