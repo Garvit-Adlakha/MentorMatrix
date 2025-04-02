@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { IconSearch, IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import FacultyCards from './FacultyCards';
 import { useState } from 'react';

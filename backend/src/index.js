@@ -15,12 +15,11 @@ import chatRoute from './routes/chat.route.js';
 import messageRoute from './routes/message.route.js';
 
 import { initializeSocket } from './socket/socket.js';
-import generateUsers from './seeder/user.js';
 
 
 dotenv.config();
 await connectDB();
-generateUsers(10)
+// generateUsers(10)
 
 const app = express();
 const PORT = process.env.PORT || 4000;

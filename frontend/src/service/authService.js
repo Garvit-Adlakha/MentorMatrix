@@ -1,10 +1,10 @@
 import axiosInstance from "../axios/axiosInstance";
 
-export const login= async (email, password) => {
+export const login = async (email, password) => {
   try {
-    const response = await axiosInstance.post('/user/signin/', {
+    const response = await axiosInstance.post('/user/signin', {
       email,
-      password,
+      password
     });
     return response.data;
   } catch (error) {
@@ -14,7 +14,7 @@ export const login= async (email, password) => {
 
 export const currentUser = async () => {
   try {
-    const response = await axiosInstance.get('/user/profile/');
+    const response = await axiosInstance.get('/user/profile');
     return response.data;
   } catch (error) {
     return Promise.reject(error);

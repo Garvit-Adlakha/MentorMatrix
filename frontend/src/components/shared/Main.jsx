@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconArrowRight, IconArrowUpRight, IconCircleCheck } from "@tabler/icons-react";
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 const Main = () => {
   const fadeInUp = {
