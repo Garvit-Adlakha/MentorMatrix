@@ -7,7 +7,9 @@ const AppLayout = () =>(WrappedComponent)=> {
         return (
             <>
             <Header />
+            <div className='h-[calc(100vh-6rem)]'>
             <WrappedComponent />
+            </div>
             <Footer />
             </>
         )
