@@ -1,120 +1,170 @@
 import { useRef, useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { Link, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import authService from "../../service/authService";
 
 export const Navbar = ({ navOpen }) => {
   const lastActiveLink = useRef(null);
   const activeBox = useRef(null);
-  const [activeSection, setActiveSection] = useState("home"); // State to track the active section
-  const navItems = [
-    { label: "Home", link: "#home", className: "nav-link",  },
-    { label: "About", link: "#about", className: "nav-link" },
-    { label: "Work", link: "#work", className: "nav-link",},
-    { label: "Contact", link: "#contact", className: "nav-link md:hidden md:block" },
-  ];
+  const navRef = useRef(null);
+  const [activeSection, setActiveSection] = useState("home");
+  const location = useLocation();
+  
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => authService.currentUser(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+  
+  // Define navigation items based on authentication status
+  const getNavItems = () => {
+    const items = [
+      { label: "Home", link: "/", className: "nav-link", id: "home" },
+      { label: "Mentor", link: "/mentor", className: "nav-link", id: "mentor" },
+    ];
+    
+    // Add authenticated-only routes
+    if (user) {
+      items.push(
+        { label: "Dashboard", link: "/dashboard", className: "nav-link", id: "dashboard" },
+        { label: "Profile", link: "/profile", className: "nav-link", id: "profile" }
+      );
+    }
+    
+    return items;
+  };
 
-  // Initialize the active box position
+  const navItems = getNavItems();
+
+  // Initialize the active box position with proper containment
   const initActiveBox = () => {
-    if (lastActiveLink.current && activeBox.current) {
-      activeBox.current.style.top = `${lastActiveLink.current.offsetTop}px`;
-      activeBox.current.style.left = `${lastActiveLink.current.offsetLeft}px`;
-      activeBox.current.style.width = `${lastActiveLink.current.offsetWidth}px`;
-      activeBox.current.style.height = `${lastActiveLink.current.offsetHeight}px`;
+    if (lastActiveLink.current && activeBox.current && !navOpen) {
+      // Get the nav container's position for relative calculations
+      const navRect = navRef.current.getBoundingClientRect();
+      const linkRect = lastActiveLink.current.getBoundingClientRect();
+      
+      // Calculate position relative to the nav container
+      const top = linkRect.top - navRect.top;
+      const left = linkRect.left - navRect.left;
+      
+      // Apply the calculated positions with a small padding
+      activeBox.current.style.top = `${top - 2}px`;
+      activeBox.current.style.left = `${left - 2}px`;
+      activeBox.current.style.width = `${linkRect.width + 4}px`;
+      activeBox.current.style.height = `${linkRect.height + 4}px`;
+      activeBox.current.style.opacity = '1';
+    } else if (activeBox.current && navOpen) {
+      // Hide the active box in mobile view
+      activeBox.current.style.opacity = '0';
     }
   };
 
   // Handle link click
-  const activeCurrentLink = (event) => {
+  const handleLinkClick = (event, id) => {
     if (lastActiveLink.current) {
       lastActiveLink.current.classList.remove("active");
     }
-    event.target.classList.add("active");
-    lastActiveLink.current = event.target;
-    initActiveBox();
+    
+    // Use currentTarget instead of target to ensure we get the Link element
+    event.currentTarget.classList.add("active");
+    lastActiveLink.current = event.currentTarget;
+    setActiveSection(id);
+    
+    // Small delay to allow for any animations/state changes
+    setTimeout(initActiveBox, 50);
   };
-
-  // Set up Intersection Observer to detect active section
+  // Update active section based on current route
   useEffect(() => {
-    const observerOptions = {
-      root: null, // Use the viewport as the root
-      rootMargin: "0px",
-      threshold: 0.5, // Trigger when 50% of the section is visible
-    };
-
-    const observerCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.id;
-          setActiveSection(sectionId); // Update the active section state
-        }
-      });
-
-      // Check if the user has scrolled to the very top of the page
-      if (window.scrollY === 0) {
-        setActiveSection("home"); // Set "home" as the active section
-      }
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-    // Observe all sections
-    navItems.forEach(({ link }) => {
-      const section = document.querySelector(link);
-      if (section) {
-        observer.observe(section);
-      }
-    });
-
-    // Add a scroll event listener to detect when the user scrolls to the top
-    const handleScroll = () => {
-      if (window.scrollY === 0) {
-        setActiveSection("home"); 
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    // Cleanup observer and scroll listener on unmount
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [navItems]);
+    const currentPath = location.pathname;
+    
+    // Direct path matching to ensure accuracy
+    if (currentPath === "/") {
+      setActiveSection("home");
+    } else if (currentPath === "/mentor") {
+      setActiveSection("mentor");
+    } else if (currentPath === "/dashboard") {
+      setActiveSection("dashboard");
+    } else if (currentPath === "/profile") {
+      setActiveSection("profile");
+    }
+  }, [location.pathname]);
 
   // Update the active link and box when the active section changes
   useEffect(() => {
-    const activeLink = document.querySelector(`a[href="#${activeSection}"]`);
+    const linkSelector = activeSection.startsWith('#') 
+      ? `a[href="${activeSection}"]` 
+      : `a[href="/${activeSection === 'home' ? '' : activeSection}"]`;
+      
+    const activeLink = document.querySelector(linkSelector);
+    
     if (activeLink) {
       if (lastActiveLink.current) {
         lastActiveLink.current.classList.remove("active");
       }
       activeLink.classList.add("active");
       lastActiveLink.current = activeLink;
-      initActiveBox();
+      
+      // Small delay to ensure DOM is updated
+      setTimeout(initActiveBox, 50);
     }
   }, [activeSection]);
 
-  // Initialize the active box on mount
+  // Initialize the active box on mount and when navOpen changes
   useEffect(() => {
-    const homeLink = document.querySelector('a[href="#home"]');
-    if (homeLink) {
-      homeLink.classList.add("active");
-      lastActiveLink.current = homeLink;
-      initActiveBox();
+    // Find the initial active link based on current path
+    const initialLink = document.querySelector(`a[href="${location.pathname}"]`) || 
+                        document.querySelector('a[href="/"]');
+                         
+    if (initialLink) {
+      initialLink.classList.add("active");
+      lastActiveLink.current = initialLink;
+      
+      // Small delay to ensure DOM is updated
+      setTimeout(initActiveBox, 50);
     }
+  }, [location.pathname, navOpen]);
+
+  // Update active box position when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      initActiveBox();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
-    <nav className={`navbar  dark:bg-zinc-50/10  ${navOpen ? "active" : ""}`}>
-      {navItems.map(({ label, link, className }, key) => (
-        <a
-          href={link}
+    <nav 
+      ref={navRef} 
+      className={`navbar relative ${
+        navOpen 
+          ? "active flex flex-col items-center space-y-4 py-4" 
+          : "flex items-center space-x-4"
+      }`}
+    >
+      {navItems.map(({ label, link, className, id }, key) => (
+        <Link
+          to={link}
           key={key}
-          className={className}
+          className={`${className} px-4 py-2 rounded-lg transition-all duration-300 hover:bg-accent/10 
+            ${navOpen ? 'w-full text-center' : ''} 
+            ${activeSection === id ? 'text-primary font-medium' : 'text-foreground/80'}`}
+          onClick={(e) => handleLinkClick(e, id)}
         >
           {label}
-        </a>
+        </Link>
       ))}
-      <div className="active-box" ref={activeBox}></div>
+      <div 
+        className="active-box absolute bg-accent/20 rounded-lg transition-all duration-300 z-0" 
+        ref={activeBox} 
+        style={{ opacity: navOpen ? 0 : 1 }}
+      />
     </nav>
   );
 };
@@ -123,4 +173,4 @@ Navbar.propTypes = {
   navOpen: PropTypes.bool.isRequired,
 };
 
-export default Navbar
+export default Navbar;

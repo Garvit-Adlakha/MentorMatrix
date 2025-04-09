@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconArrowRight, IconArrowUpRight, IconCircleCheck } from "@tabler/icons-react";
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
 const Main = () => {
   const fadeInUp = {
@@ -15,10 +16,15 @@ const Main = () => {
     { text: "Progress tracking & insights", icon: <IconCircleCheck /> }
   ];
 
+  const navigate=useNavigate()
+  const clickHandler=()=>{
+    navigate('/mentor')
+  }
+
   return (
-    <section className="relative min-h-screen pt-32 pb-20 overflow-hidden">
+    <section className="relative min-h-screen pt-32` pb-20 overflow-hidden">
       {/* Enhanced background gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/30 via-background to-background"></div>
+      <div className="absolute inset-0 -z-10"></div>
       
       {/* Animated background shapes */}
       <motion.div 
@@ -75,7 +81,9 @@ const Main = () => {
             {...fadeInUp}
             className="flex flex-col sm:flex-row gap-4 mb-16"
           >
-            <button className="btn bg-primary text-white hover:bg-primary/90 font-medium group px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <button className="btn bg-primary text-white hover:bg-primary/90 font-medium group px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+              onClick={clickHandler}
+            >
               Get Started
               <IconArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </button>

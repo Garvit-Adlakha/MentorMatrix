@@ -15,7 +15,19 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['motion'],
+    include: ['motion', '@tabler/icons-react'],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-libs': ['motion/react', '@tabler/icons-react'],
+          'data-libs': ['@tanstack/react-query', 'axios', 'zustand']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   },
   server: {
     proxy: {

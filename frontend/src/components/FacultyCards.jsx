@@ -1,23 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import FacultyCard from './FacultyCard';
-import { facultyData } from '../data/facultyData';
 
-const FacultyCards = ({ searchTerm = '' }) => {
-  const filteredFaculty = useMemo(() => 
-    facultyData.filter(faculty => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        faculty.name.toLowerCase().includes(searchLower) ||
-        faculty.department.toLowerCase().includes(searchLower) ||
-        faculty.specialization.toLowerCase().includes(searchLower) ||
-        faculty.researchInterests.some(interest => 
-          interest.toLowerCase().includes(searchLower)
-        )
-      );
-    }), [searchTerm]
-  );
-
+const FacultyCards = ({ mentors, searchTerm, isLoading }) => {
+ 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -33,6 +19,31 @@ const FacultyCards = ({ searchTerm = '' }) => {
     visible: { y: 0, opacity: 1 }
   };
 
+  if (isLoading) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="col-span-full flex flex-col items-center justify-center py-16 text-center"
+      >
+        <p className="text-xl text-muted-foreground mb-4">Loading mentors...</p>
+        <motion.div
+          className="w-16 h-1 bg-primary/50 rounded-full"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity
+          }}
+        />
+      </motion.div>
+    );
+  }
+
+  const hasNoMentors = !mentors || mentors.length === 0;
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -41,10 +52,10 @@ const FacultyCards = ({ searchTerm = '' }) => {
         animate="visible"
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min"
       >
-        {filteredFaculty.length > 0 ? (
-          filteredFaculty.map((faculty) => (
+        {!hasNoMentors ? (
+          mentors.map((faculty) => (
             <motion.div
-              key={faculty.id}
+              key={faculty._id || faculty.id}
               variants={cardVariants}
               layout
               className="h-full"
@@ -63,7 +74,7 @@ const FacultyCards = ({ searchTerm = '' }) => {
             className="col-span-full flex flex-col items-center justify-center py-16 text-center"
           >
             <p className="text-xl text-muted-foreground mb-4">
-              No faculty members found matching "{searchTerm}"
+              No mentors found {searchTerm ? `matching "${searchTerm}"` : ""}
             </p>
             <motion.div
               className="w-16 h-1 bg-primary/50 rounded-full"

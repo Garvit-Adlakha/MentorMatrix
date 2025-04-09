@@ -10,23 +10,24 @@ import { createGroup } from "./chat.controller.js";
 
 export const createProject = catchAsync(async (req, res, next) => {
     const { title, description } = req.body;
+    console.log("user id from create project",req.id)
     const userId = req.id;
 
     if (!title || !description) {
         return next(new AppError("Title and description are required", 400));
     }
 
-    // Check if user already has a project
-    const existingProject = await Project.findOne({
-        $or: [
-            { createdBy: userId },
-            { teamMembers: { $in: [userId] } },
-        ]
-    });
+    // // Check if user already has a project
+    // const existingProject = await Project.findOne({
+    //     $or: [
+    //         { createdBy: userId },
+    //         { teamMembers: { $in: [userId] } },
+    //     ]
+    // });
 
-    if (existingProject) {
-        return next(new AppError("You are already part of a project", 400));
-    }
+    // if (existingProject) {
+    //     return next(new AppError("You are already part of a project", 400));
+    // }
 
     // Create new project
     const newProject = await Project.create({
@@ -83,19 +84,23 @@ export const addMemberToProject = catchAsync(async(req,res,next)=>{
 
 export const requestMentor = catchAsync(async (req, res, next) => {
     // Only team leader can request mentor
-    const { mentorName, email } = req.body;
+    const { mentorName, email,mentorId,projectId} = req.body;
     const userId = req.id;
-
     if (!userId) {
         return next(new AppError("User not found", 404));
     }
 
-    const project = await Project.findOne({ createdBy: userId });
+    const project = await Project.findById(projectId);
     if (!project) {
-        return next(new AppError("You don’t lead any project", 403));
+        return next(new AppError("You don't lead any project", 403));
     }
 
-    const mentor = await User.findOne({ name: mentorName, email, role: "mentor" });
+    const mentor = await User.findOne({
+        $or: [
+            { name: mentorName, email },
+            { _id: mentorId }
+        ]
+    }) 
     if (!mentor) {
         return next(new AppError("Mentor not found", 404));
     }
@@ -120,7 +125,7 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         message: `You have a new mentor request for project '${project.title}'.`,
     })
     await sendEmail({
-        email: userId,
+        email: req.user.email,
         subject: "Mentor Request Sent",
         message: `Your mentor request for project '${project.title}' has been sent successfully.`,
     });
@@ -206,7 +211,6 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
     }
 });
 
-
 export const updateProject = catchAsync(async (req, res, next) => {
     const { projectId } = req.params; 
     const { title, description } = req.body;
@@ -280,6 +284,7 @@ export const deleteProject = catchAsync(async (req, res, next) => {
     });
 });
 
+//for mentors only
 export const listProjects = catchAsync(async (req, res, next) => {
     const userId = req.id;
     let { page = 1, limit = 10, status, mentor, search } = req.query;
@@ -319,6 +324,7 @@ export const listProjects = catchAsync(async (req, res, next) => {
     });
 });
 
+//for students
 export const getProject = catchAsync(async (req, res, next) => {
     const userId = req.id;
 

@@ -8,7 +8,8 @@ import {
     signOutUser,
     updateUserProfile,
     forgotPassword,
-    resetPassword, 
+    resetPassword,
+    getAllMentors, 
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import upload from "../utils/multer.js";
@@ -34,6 +35,8 @@ router.post(
     "/forgot-password",
     forgotPassword
 );
+
+router.get('/mentor',getAllMentors)
 
 // Reset Password Route (validate new password)
 router.post(
