@@ -59,8 +59,8 @@ app.use(cors({
 // API Routes
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/project', projectRoute);
-app.use('/api/v1/chat',chatRoute)
-app.use('api/v1/message',messageRoute)
+app.use('/api/v1/chat', chatRoute);
+app.use('/api/v1/message', messageRoute); // Fix: Added missing slash
 
 //sockets routes
 app.get('/ws', (req, res) => {

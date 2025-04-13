@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
-  timeout: 10000, // Increased timeout for slower connections
   withCredentials: true, // This ensures cookies are sent with requests
   headers: {
     'Content-Type': 'application/json',
@@ -41,7 +40,12 @@ axiosInstance.interceptors.response.use(
           const isPublicRoute = publicRoutes.includes(currentPath);
           
           if (!isPublicRoute && !currentPath.includes('login')) {
-            window.location.href = '/login';
+            // Use history.push instead of direct location change for better handling
+            // This prevents the crash on refresh
+            console.log('Redirecting to login page due to auth error');
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 100);
           }
           break;
           

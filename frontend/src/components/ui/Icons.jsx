@@ -4,8 +4,9 @@ import {
   IconMail, 
   IconSearch, 
   IconAdjustmentsHorizontal,
-  IconAlertCircle
-, IconEye, IconEyeOff,
+  IconAlertCircle,
+  IconEye, 
+  IconEyeOff,
   IconX,
   IconPlus,
   IconTrash,
@@ -16,7 +17,15 @@ import {
   IconUserMinus,
   IconUserOff,
   IconUserCheck,
-  IconUserExclamation
+  IconUserExclamation,
+  // New icons added for ProjectCardModel
+  IconCalendar,
+  IconUserCircle,
+  IconClipboardList,
+  IconFileText,
+  IconBriefcase,
+  IconCode,
+  IconFileDescription
 } from '@tabler/icons-react';
 
 export {
@@ -24,8 +33,9 @@ export {
   IconMail,
   IconSearch,
   IconAdjustmentsHorizontal,
-  IconAlertCircle
-, IconEye, IconEyeOff,
+  IconAlertCircle,
+  IconEye, 
+  IconEyeOff,
   IconX,
   IconPlus,
   IconTrash,
@@ -36,5 +46,13 @@ export {
   IconUserMinus,
   IconUserOff,
   IconUserCheck,
-  IconUserExclamation
+  IconUserExclamation,
+  // New icons added for ProjectCardModel
+  IconCalendar,
+  IconUserCircle,
+  IconClipboardList,
+  IconFileText,
+  IconBriefcase,
+  IconCode,
+  IconFileDescription
 };

@@ -31,7 +31,10 @@ const Header = () => {
     mutationFn: () => authService.logout(),
     onSuccess: (data) => {
       console.log("Logout successful:", data);
+
       queryClient.invalidateQueries(['user'])
+      queryClient.removeQueries(['user'])
+      queryClient.invalidateQueries(['projects'])
       // Redirect to home page or show a success message
       navigate("/");
     },
@@ -85,8 +88,8 @@ const Header = () => {
         </motion.div>
 
         {/* Navigation Section */}
-        <div className="flex-1 flex justify-center">
-          <nav className="hidden md:flex space-x-10">
+        <div className=" justify-center">
+          <nav className="hidden md:flex">
             <Navbar navOpen={false} />
           </nav>
           <motion.button

@@ -2,16 +2,11 @@ import axiosInstance from "../axios/axiosInstance";
 
 const ProjectService = {
     // Get projects based on user role
-    getAllProjects: async (query = "", role = "student") => {
+    getAllProjects: async () => {
         try {
             // Use the appropriate endpoint based on user role
-            const endpoint = role === "mentor" ? "/project/list-projects" : "/project/get-project";
-            const encodedQuery = encodeURIComponent(query);
-            
-            // Add query parameters if it's the mentor endpoint
-            const queryString = role === "mentor" && query ? `?search=${encodedQuery}` : "";
-            const response = await axiosInstance.get(`${endpoint}${queryString}`);
-            
+            const endpoint ="/project/get-project";
+            const response = await axiosInstance.get(`${endpoint}`);
             console.log("Projects fetched successfully:", response.data);
             return response.data;
         } catch (error) {
@@ -33,6 +28,25 @@ const ProjectService = {
             console.error("Error creating project:", error);
             throw {
                 message: error.response?.data?.message || "Failed to create project. Please try again.",
+                originalError: error
+            };
+        }
+    },
+    
+    // Get a single project by ID
+    getProjectById: async (projectId) => {
+        try {
+            if (!projectId) {
+                throw new Error("Project ID is required");
+            }
+            
+            const response = await axiosInstance.get(`/project/get-project/${projectId}`);
+            console.log("Project fetched successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching project:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to fetch project details. Please try again.",
                 originalError: error
             };
         }
@@ -71,6 +85,42 @@ const ProjectService = {
             console.error("Error sending mentor request:", error);
             throw {
                 message: error.response?.data?.message || "Failed to send mentor request. Please try again.",
+                originalError: error
+            };
+        }
+    },
+
+    acceptProjectRequest:async(projectId)=>{
+        try {
+            if (!projectId) {
+                throw new Error("Project ID is required");
+            }
+            
+            const response = await axiosInstance.post(`/project/accept-project/${projectId}`);
+            console.log("Project request accepted successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error accepting project request:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to accept project request. Please try again.",
+                originalError: error
+            };
+        }
+    },
+    mentorDecision:async({projectId , decision})=>{
+        try {
+            if (!projectId) {
+                throw new Error("Project ID is required");
+            }
+            const response = await axiosInstance.post(`/project/assign-mentor/${projectId}`,{
+                decision
+            });
+            console.log("Mentor decision made successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error making mentor decision:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to make mentor decision. Please try again.",
                 originalError: error
             };
         }

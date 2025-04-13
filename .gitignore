@@ -131,3 +131,7 @@ dist
 jsconfig.json
 backend/src/seeds/seedUsers.js
 backend/src/socket/websocket-test.html
+start-services.sh
+SummarizerApi/model.pkl
+SummarizerApi/Project_Summarizer_Demo.ipynb
+SummarizerApi/__pycache__/app.cpython-313.pyc

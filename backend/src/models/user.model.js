@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema(
         roll_no: {
             type: String,
             unique: true,
+            partialFilterExpression:{role:"student"},
             required: function () {
                 return this.role === "student"; 
             },
@@ -52,6 +53,7 @@ const userSchema = new mongoose.Schema(
         sap_id: {
             type: String, 
             unique: true,
+            partialFilterExpression:{role:"student"},
             required: function () {
                 return this.role === "student"; 
             },
@@ -69,7 +71,20 @@ const userSchema = new mongoose.Schema(
         bio: {
             type: String,
             maxlength: [300, "Bio cannot exceed 300 characters"],
-            default: "Everyday regular normal student",
+            defaul: function(){
+                if(this.role === "mentor"){
+                    return "Mentor";
+                }
+                else if(this.role === "admin"){
+                    return "Admin";
+                }
+                else if(this.role === "student"){
+                    return "Student";
+                }
+                else{
+                    return "User";
+                }
+            }
         },
         university: {
             type: String,

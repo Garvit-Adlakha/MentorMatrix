@@ -1,5 +1,3 @@
-//todo:attach users to project
-
 import { AppError } from "../middleware/error.middleware.js";
 import { Project } from "../models/project.model.js";
 import { User } from "../models/user.model.js";
@@ -7,35 +5,37 @@ import { catchAsync } from "../middleware/error.middleware.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { deleteMediaFromCloudinary,uploadMedia } from "../utils/cloudinary.js";
 import { createGroup } from "./chat.controller.js";
+import mongoose from "mongoose";
+import { getSummary } from "../utils/summarizer.js";
 
 export const createProject = catchAsync(async (req, res, next) => {
     const { title, description } = req.body;
-    console.log("user id from create project",req.id)
+    console.log("user id from create project",req.id);
     const userId = req.id;
 
     if (!title || !description) {
         return next(new AppError("Title and description are required", 400));
     }
 
-    // // Check if user already has a project
-    // const existingProject = await Project.findOne({
-    //     $or: [
-    //         { createdBy: userId },
-    //         { teamMembers: { $in: [userId] } },
-    //     ]
-    // });
-
-    // if (existingProject) {
-    //     return next(new AppError("You are already part of a project", 400));
-    // }
-
-    // Create new project
+    // Create new project with basic details
     const newProject = await Project.create({
         title,
         description,
         createdBy: userId,
         teamMembers: [userId] // Add user as the first team member
     });
+
+    // Generate project summary
+    try {
+        const summary = await getSummary(newProject);
+        if (summary) {
+            newProject.summary = summary;
+            await newProject.save();
+        }
+    } catch (error) {
+        console.error("Error generating project summary:", error);
+        // Continue even if summary generation fails
+    }
 
     // Populate project data before sending response
     const populatedProject = await Project.findById(newProject._id)
@@ -95,6 +95,10 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         return next(new AppError("You don't lead any project", 403));
     }
 
+    if(project.mentorRequests.length>0){
+        return next(new AppError("You have already requested a mentor", 403));
+    }
+
     const mentor = await User.findOne({
         $or: [
             { name: mentorName, email },
@@ -124,11 +128,16 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         subject: "Mentor Request",
         message: `You have a new mentor request for project '${project.title}'.`,
     })
-    await sendEmail({
-        email: req.user.email,
-        subject: "Mentor Request Sent",
-        message: `Your mentor request for project '${project.title}' has been sent successfully.`,
-    });
+    
+    // Get the user's email for confirmation
+    const user = await User.findById(userId).select("email");
+    if (user && user.email) {
+        await sendEmail({
+            email: user.email,
+            subject: "Mentor Request Sent",
+            message: `Your mentor request for project '${project.title}' has been sent successfully.`,
+        });
+    }
 
     res.status(200).json({
         success: true,
@@ -157,37 +166,41 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
     const emails = usersEmails.map(user => user.email).filter(email => email);
 
     if (decision === "accept") {
+        // Update project first
         project.assignedMentor = mentorId;
         project.status = "approved";
+        // Clear all mentor requests when accepting
         project.mentorRequests = [];
         await project.save();
 
+        // Send emails to team members
         if (emails.length) {
-            await sendEmail({
-                email: emails,
-                subject: "Mentor Request Accepted",
-                message: `Your mentor request for project '${project.title}' has been accepted. You will be contacted soon.`,
-            });
-        }
-
-        // Create group chat and log if any issue
-        try {
-            const chatGroup = await createGroup(projectId);
-            if (!chatGroup) {
-                console.error("Group chat creation failed or returned undefined.");
-                return next(new AppError("Failed to create group chat", 500));
-
+            try {
+                await sendEmail({
+                    email: emails,
+                    subject: "Mentor Request Accepted",
+                    message: `Your mentor request for project '${project.title}' has been accepted. You will be contacted soon.`,
+                });
+            } catch (emailError) {
+                console.error("Error sending emails:", emailError);
+                // Continue with the process even if emails fail
             }
-
-            return res.status(200).json({
-                success: true,
-                message: "Mentor assigned successfully and Group Created",
-                chatGroup: chatGroup || {}
-            });
-        } catch (error) {
-            console.error("Error creating group chat:", error);
-            return next(new AppError("Group chat creation failed", 500));
         }
+
+        // Try to create group chat but don't stop the process if it fails
+        let chatGroup = null;
+        try {
+            chatGroup = await createGroup(projectId);
+        } catch (chatError) {
+            console.error("Error creating group chat:", chatError);
+            // Don't block the mentor assignment if chat creation fails
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: chatGroup ? "Mentor assigned successfully and Group Created" : "Mentor assigned successfully, but group chat creation failed",
+            chatGroup: chatGroup || {}
+        });
 
     } else if (decision === "reject") {
         project.mentorRequests = project.mentorRequests.filter(id => id.toString() !== mentorId);
@@ -195,11 +208,16 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
         await project.save();
 
         if (emails.length) {
-            await sendEmail({
-                email: emails,
-                subject: "Mentor Request Rejected",
-                message: `Your mentor request for project '${project.title}' has been rejected.`,
-            });
+            try {
+                await sendEmail({
+                    email: emails,
+                    subject: "Mentor Request Rejected",
+                    message: `Your mentor request for project '${project.title}' has been rejected.`,
+                });
+            } catch (emailError) {
+                console.error("Error sending rejection emails:", emailError);
+                // Continue with the process even if emails fail
+            }
         }
 
         return res.status(200).json({
@@ -235,15 +253,29 @@ export const updateProject = catchAsync(async (req, res, next) => {
         }
     }
 
+    const updateFields = {
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(documentToUpload && { documents: [...(project.documents || []), documentToUpload] })
+    };
+
     const updatedProject = await Project.findByIdAndUpdate(
         projectId,
-        {
-            ...(title && { title }),
-            ...(description && { description }),
-            ...(documentToUpload && { documents: [...(project.documents || []), documentToUpload] }) // ✅ Fix: Ensure documents array exists
-        },
+        updateFields,
         { new: true, runValidators: true }
     );
+
+    // Generate updated project summary
+    try {
+        const summary = await getSummary(updatedProject);
+        if (summary) {
+            updatedProject.summary = summary;
+            await updatedProject.save();
+        }
+    } catch (error) {
+        console.error("Error generating updated project summary:", error);
+        // Continue even if summary generation fails
+    }
 
     res.status(200).json({
         success: true,
@@ -335,11 +367,11 @@ export const getProject = catchAsync(async (req, res, next) => {
     if (user.role === "student") {
         filter = { $or: [{ createdBy: userId }, { teamMembers: userId }] };
     } else if (user.role === "mentor") {
-        filter = { assignedMentor: userId }; 
+        filter ={ $or:[{ assignedMentor: userId },{mentorRequests: userId}]}; 
     }
     const projects = await Project.find(filter)
-        .populate("createdBy assignedMentor teamMembers")
-        .select("-documents -mentorRequests") 
+        .populate("createdBy assignedMentor teamMembers mentorRequests")
+        .select("-documents") 
         .lean(); //  Convert to plain objects for better performance
 
     if (!projects.length) return next(new AppError("No projects found", 404));
@@ -350,6 +382,22 @@ export const getProject = catchAsync(async (req, res, next) => {
         projects,
     });
 });
+
+export const getProjectById=catchAsync(async(req,res,next)=>{
+    const {projectId}=req.params
+    const userId=req.id
+    const user=await User.findById(userId).select("role")
+    if(!user) return next(new AppError("User not found",404))
+    
+    const project=await Project.findById(projectId).populate("createdBy assignedMentor teamMembers")
+
+    return res.status(201)
+    .json({
+        success:true,
+        message:"Project fetched successfully",
+        project
+    })
+})
 
 //-------------------todo-------------------
 //Improve File Management

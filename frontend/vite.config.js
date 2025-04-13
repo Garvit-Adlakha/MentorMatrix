@@ -22,9 +22,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-libs': ['motion/react', '@tabler/icons-react'],
-          'data-libs': ['@tanstack/react-query', 'axios', 'zustand']
-        }
+          'ui-libs': ['motion/react', '@tabler/icons-react'],        }
       }
     },
     chunkSizeWarningLimit: 1000
@@ -36,6 +34,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
-    }
+    },
+    historyApiFallback: true,
   }
 })

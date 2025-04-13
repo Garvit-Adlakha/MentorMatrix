@@ -21,8 +21,8 @@ const Profile = () => {
   })
 
   const{data:projects,isLoading:projectLoading}=useQuery({
-    queryKey: ['projects',user?.user?.role],
-    queryFn:()=> ProjectService.getAllProjects(user?.user?.role),
+    queryKey: ['projects'],
+    queryFn:()=> ProjectService.getAllProjects(),
     enabled: !!user?.user?.role,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })

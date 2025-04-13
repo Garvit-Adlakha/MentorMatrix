@@ -7,12 +7,16 @@ import ProjectService from '../service/ProjectService';
 import authService from '../service/authService';
 import { IconAlertCircle } from '../components/ui/Icons';
 import Loader from '../components/ui/Loader';
+import { set } from 'react-hook-form';
+import ProjectCardModel from '../components/ui/ProjectCardModel';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
   const [showNewProposalForm, setShowNewProposalForm] = useState(false);
+  const [projectModal, setProjectModal] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   // Get the current user data from React Query cache
   const { data: userData } = useQuery({
@@ -23,7 +27,7 @@ const Dashboard = () => {
   });
 
   const [userRole, setUserRole] = useState(userData?.user?.role || 'student');
-  
+
   // Update userRole when userData changes
   useEffect(() => {
     if (userData?.user?.role) {
@@ -33,8 +37,8 @@ const Dashboard = () => {
 
   // Fetch projects based on user role
   const { data: projectsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['projects', userRole, searchTerm],
-    queryFn: () => ProjectService.getAllProjects(searchTerm, userRole),
+    queryKey: ['projects'],
+    queryFn: () => ProjectService.getAllProjects(),
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false,
@@ -45,10 +49,10 @@ const Dashboard = () => {
   // Format projects for display (handle different API response structures)
   const projects = React.useMemo(() => {
     if (!projectsData) return [];
-    
+
     // Handle different API response formats
     const projectsList = projectsData.projects || [];
-    
+
     return projectsList.map(project => ({
       id: project._id,
       studentId: project.createdBy?._id,
@@ -56,8 +60,8 @@ const Dashboard = () => {
       studentName: project.createdBy?.name || 'Unknown Student',
       facultyName: project.assignedMentor?.name || 'Unassigned',
       title: project.title,
-      description: typeof project.description === 'object' 
-        ? project.description.abstract || 'No description' 
+      description: typeof project.description === 'object'
+        ? project.description.abstract || 'No description'
         : project.description || 'No description',
       status: project.status || 'pending',
       createdAt: project.createdAt,
@@ -72,12 +76,12 @@ const Dashboard = () => {
     setViewMode(viewMode === 'table' ? 'card' : 'table');
   };
 
-  const filteredProposals = searchTerm 
+  const filteredProposals = searchTerm
     ? projects.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.facultyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.facultyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : projects;
 
   // Calculate statistics
@@ -86,9 +90,11 @@ const Dashboard = () => {
   const pendingProposals = projects.filter(p => p.status === 'pending').length;
   const rejectedProposals = projects.filter(p => p.status === 'rejected').length;
 
-  const handleViewDetails = (proposalId) => {
-    // Navigate to proposal details
-    navigate(`/proposal/${proposalId}`);
+  const handleViewDetails = (projectId) => {
+    // Set the selected project ID and open the modal
+    console.log("project id fron handle view details",projectId)
+    setSelectedProjectId(projectId);
+    setProjectModal(true);
   };
 
   const handleNewProposalForm = () => {
@@ -138,12 +144,12 @@ const Dashboard = () => {
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
             </svg>
           </div>
-          <input 
-            type="search" 
-            className="input input-bordered w-full pl-10" 
+          <input
+            type="search"
+            className="input input-bordered w-full pl-10"
             placeholder="Search proposals by title, faculty, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -162,8 +168,8 @@ const Dashboard = () => {
         <div className="bg-destructive/10 text-destructive p-5 rounded-lg flex items-center gap-2 mb-6">
           <IconAlertCircle size={20} />
           <p>{error.message || "Error loading projects. Please try again."}</p>
-          <button 
-            className="ml-auto btn btn-sm btn-outline" 
+          <button
+            className="ml-auto btn btn-sm btn-outline"
             onClick={() => refetch()}
           >
             Retry
@@ -211,16 +217,16 @@ const Dashboard = () => {
                   <td className="px-4 py-3">{new Date(proposal.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold 
-                      ${proposal.status === 'accepted' ? 'bg-green-100 text-green-800' : 
-                        proposal.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                        'bg-yellow-100 text-yellow-800'}`}
+                      ${proposal.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                        proposal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'}`}
                     >
                       {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button 
-                      className="btn btn-sm btn-ghost" 
+                    <button
+                      className="btn btn-sm btn-ghost"
                       onClick={() => handleViewDetails(proposal.id)}
                     >
                       View Details
@@ -242,9 +248,9 @@ const Dashboard = () => {
                 <h2 className="card-title">
                   {proposal.title}
                   <span className={`badge 
-                    ${proposal.status === 'accepted' ? 'badge-success' : 
-                      proposal.status === 'rejected' ? 'badge-error' : 
-                      'badge-warning'}`}
+                    ${proposal.status === 'accepted' ? 'badge-success' :
+                      proposal.status === 'rejected' ? 'badge-error' :
+                        'badge-warning'}`}
                   >
                     {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                   </span>
@@ -259,7 +265,7 @@ const Dashboard = () => {
                 </p>
                 <p className="text-sm line-clamp-2">{proposal.description}</p>
                 <div className="card-actions justify-end mt-4">
-                  <button 
+                  <button
                     className="btn btn-sm btn-primary"
                     onClick={() => handleViewDetails(proposal.id)}
                   >
@@ -272,15 +278,30 @@ const Dashboard = () => {
         </div>
       )}
 
+      {
+        // Project Modal - Rendered conditionally based on state
+        projectModal && (
+          <ProjectCardModel 
+            open={projectModal}
+            onOpenChange={setProjectModal}
+            projectId={selectedProjectId}
+            onSuccess={() => {
+              // Refresh data after modal submission
+              refetch();
+            }}
+          />
+        )
+      }
+
       {/* Project Form Modal - Rendered at the root level so it appears above everything */}
       {showNewProposalForm && (
-        <ProjectForm 
-          open={showNewProposalForm} 
+        <ProjectForm
+          open={showNewProposalForm}
           onOpenChange={setShowNewProposalForm}
           onSuccess={() => {
             // Refresh data after form submission
             refetch();
-          }} 
+          }}
         />
       )}
     </main>

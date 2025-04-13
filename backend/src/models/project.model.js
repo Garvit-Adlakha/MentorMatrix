@@ -35,6 +35,10 @@ const projectSchema = new mongoose.Schema(
                 },
             },
         },
+        summary: {
+            type: String,
+            default: "",
+        },
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

@@ -6,8 +6,11 @@ const onlineUsers = new Map();
 const userRooms = new Map(); // Store user-to-room mapping
 const messageRateLimits = new Map(); // Store rate limits per user
 
+// Create a global io variable to be exported and used in other modules
+let io;
+
 export const initializeSocket = (server) => {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL,
       methods: ["GET", "POST"],
@@ -143,4 +146,7 @@ export const initializeSocket = (server) => {
 
   return io;
 };
+
+// Export the io object so it can be imported in other modules
+export { io };
 

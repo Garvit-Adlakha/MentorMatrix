@@ -1,8 +1,10 @@
 import { User } from "../models/user.model.js";
-import {Project} from "../models/project.model.js";
+import { Project } from "../models/project.model.js";
 import { AppError } from "../middleware/error.middleware.js";
 import { catchAsync } from "../middleware/error.middleware.js";
-import {Chat} from '../models/chat.model.js'
+import { Chat } from '../models/chat.model.js';
+import mongoose from 'mongoose';
+import { io } from '../socket/socket.js';
 
 export const createGroup = async (projectId) => {
   try {
@@ -29,7 +31,7 @@ export const createGroup = async (projectId) => {
         project.createdBy?._id.toString(),
         project.assignedMentor?._id.toString(),
         ...project.teamMembers.map(member => member._id.toString()),
-      ])
+      ]).filter(Boolean) // Filter out any undefined values
     );
 
     const groupChat = await Chat.create({
@@ -39,13 +41,22 @@ export const createGroup = async (projectId) => {
       isGroupChat: true,
     });
 
-    const io=req.io
-    // Broadcast to all participants that they have joined the chat
-    io.to(participants).emit('joinedChat', {
-      chatId: groupChat._id,
-      chatName: groupChat.name,
-      projectId: projectId,
-    });
+    // Socket events can be handled here if io is available
+    try {
+      if (io) {
+        // Broadcast to all participants that they have joined the chat
+        participants.forEach(participantId => {
+          io.to(participantId).emit('joinedChat', {
+            chatId: groupChat._id,
+            chatName: groupChat.name,
+            projectId: projectId,
+          });
+        });
+      }
+    } catch (socketError) {
+      console.error("Socket notification error:", socketError);
+      // Don't let socket errors fail the whole operation
+    }
 
     // Return populated chat
     const populatedGroupChat = await Chat.findById(groupChat._id)
@@ -58,6 +69,7 @@ export const createGroup = async (projectId) => {
     throw error; // Rethrow for the caller to handle
   }
 };
+
 export const getUserChats = catchAsync(async (req, res, next) => {
   const { userId } = req.user; // Assuming user ID from auth middleware
 

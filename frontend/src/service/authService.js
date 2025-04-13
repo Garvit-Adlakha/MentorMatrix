@@ -26,12 +26,18 @@ const authService = {
     }
   },
 
-  // Get current user profile
+  // Get current user profile with error handling specifically for refresh scenarios
   currentUser: async () => {
     try {
       const response = await axiosInstance.get('/user/profile');
       return response.data;
     } catch (error) {
+      // Don't throw errors on auth failures when checking current user
+      // This helps prevent refresh loops
+      if (error.response && error.response.status === 401) {
+        console.log('User not authenticated');
+        return null;
+      }
       return Promise.reject(error);
     }
   },
@@ -44,7 +50,8 @@ const authService = {
       return response.data;
     } catch (error) {
       console.error("Logout error:", error);
-      return Promise.reject(error);
+      // Even if the API call fails, clear local state
+      return {success: true, message: "Logged out locally"};
     }
   },
 
