@@ -7,24 +7,44 @@ import { deleteMediaFromCloudinary,uploadMedia } from "../utils/cloudinary.js";
 import { createGroup } from "./chat.controller.js";
 import mongoose from "mongoose";
 import { getSummary } from "../utils/summarizer.js";
+import { Chat } from "../models/chat.model.js";
 
 export const createProject = catchAsync(async (req, res, next) => {
-    const { title, description } = req.body;
-    console.log("user id from create project",req.id);
+    const { title, description, teamMembers, targetFaculty } = req.body;
     const userId = req.id;
 
-    if (!title || !description) {
-        return next(new AppError("Title and description are required", 400));
+    // Validate required fields based on the schema structure
+    if (!title || !description || !description.abstract || !description.problemStatement || !description.proposedMethodology) {
+        return next(new AppError("Title and complete description with abstract, problem statement, and methodology are required", 400));
     }
 
-    // Create new project with basic details
+    // Add tech stack if provided or default to empty array
+    if (!description.techStack) {
+        description.techStack = [];
+    }
+
+    let teamMembersIds = [];
+    
+    // Only process team members if provided
+    if (teamMembers && teamMembers.length > 0) {
+        const foundUsers = await User.find({
+            $or: [
+                { roll_no: { $in: teamMembers } },
+                { email: { $in: teamMembers } }
+            ]
+        }).select("_id email");
+        
+        teamMembersIds = foundUsers.map(user => user._id);
+    }
+    
+    // Create new project with properly structured details
     const newProject = await Project.create({
         title,
         description,
         createdBy: userId,
-        teamMembers: [userId] // Add user as the first team member
+        teamMembers: [userId, ...teamMembersIds] // Add user as the first team member, followed by any found team members
     });
-
+    
     // Generate project summary
     try {
         const summary = await getSummary(newProject);
@@ -37,6 +57,42 @@ export const createProject = catchAsync(async (req, res, next) => {
         // Continue even if summary generation fails
     }
 
+    // Handle mentor request if targetFaculty is provided
+    let mentorRequestResult = null;
+    if (targetFaculty) {
+        try {
+            const potentialMentor = await User.findOne({
+                name: { $regex: targetFaculty, $options: 'i' },
+                role: "mentor"
+            });
+            
+            if (potentialMentor) {
+                // Add mentor request to the project
+                newProject.mentorRequests.push(potentialMentor._id);
+                await newProject.save();
+                
+                // Send email to the mentor
+                await sendEmail({
+                    email: potentialMentor.email,
+                    subject: "Mentor Request",
+                    message: `You have a new mentor request for project '${newProject.title}'.`,
+                });
+                
+                mentorRequestResult = {
+                    success: true,
+                    mentorName: potentialMentor.name
+                };
+            }
+        } catch (mentorError) {
+            console.error("Error handling mentor request:", mentorError);
+            mentorRequestResult = {
+                success: false,
+                error: "Failed to process mentor request"
+            };
+            // Continue even if mentor request fails
+        }
+    }
+
     // Populate project data before sending response
     const populatedProject = await Project.findById(newProject._id)
         .populate("createdBy assignedMentor teamMembers");
@@ -44,43 +100,109 @@ export const createProject = catchAsync(async (req, res, next) => {
     res.status(201).json({
         success: true,
         message: "Project created successfully",
-        project: populatedProject
+        project: populatedProject,
+         mentorRequest: mentorRequestResult
     });
 });
 
-//todo: add more fields for matching users
-export const addMemberToProject = catchAsync(async(req,res,next)=>{
-  const {teamMembers}=req.body
-    const userId=req.id
-    const project=await Project.findOne({
-        createdBy:userId
-    })
-    if(!project){
-        return next(new AppError("Project not found",404))
+export const addMemberToProject = catchAsync(async(req, res, next) => {
+    const { teamMembers, projectId } = req.body;
+    const userId = req.id;
+    
+    if (!teamMembers || !Array.isArray(teamMembers) || teamMembers.length === 0) {
+        return next(new AppError("Please provide valid team members", 400));
     }
-    const usersToAdd= await User.find(
-    {    $or:[
-            {roll_no:{$in:teamMembers}},
-          { email:{$in:teamMembers}}
-        ]}
-    ).select("_id")
-
-    const userIds= usersToAdd.map(user=>user._id)
-    if (userIds.length !== teamMembers.length) {
-        return next(new AppError("Some users were not found", 400));
+    
+    if (!projectId) {
+        return next(new AppError("Project ID is required", 400));
     }
 
-      // Add unique team members to the project
-      project.teamMembers = [...new Set([...project.teamMembers, ...userIds])];
-      await project.save();
-  
-      res.status(200).json({
-          success: true,
-          message: "Team members added successfully",
-          project
-      });
+    // Find the project and verify the user is authorized to add members
+    const project = await Project.findById(projectId);
+    if (!project) {
+        return next(new AppError("Project not found", 404));
+    }
+    
+    // Verify the user is the project creator
+    if (!project.createdBy.equals(userId)) {
+        return next(new AppError("Only project creator can add team members", 403));
+    }
 
-})
+    // Find all users that match the provided roll numbers or emails
+    const usersToAdd = await User.find({
+        $or: [
+            { roll_no: { $in: teamMembers } },
+            { email: { $in: teamMembers } }
+        ]
+    }).select("_id email");
+
+    if (usersToAdd.length === 0) {
+        return next(new AppError("No valid users found", 404));
+    }
+    
+    // Get IDs of users to add
+    const userIds = usersToAdd.map(user => user._id);
+    
+    // Add unique team members to the project (avoid duplicates)
+    const existingMembers = project.teamMembers.map(id => id.toString());
+    const newMembers = userIds.filter(id => !existingMembers.includes(id.toString()));
+    
+    if (newMembers.length === 0) {
+        return next(new AppError("All provided users are already team members", 400));
+    }
+    
+    // Add the new members to the project
+    project.teamMembers = [...project.teamMembers, ...newMembers];
+    await project.save();
+    
+    // Update the chat group if it exists
+    try {
+        const chatGroup = await Chat.findOne({ project: project._id });
+        if (chatGroup) {
+            // Only add participants who aren't already in the chat
+            const existingParticipants = chatGroup.participants.map(id => id.toString());
+            const newParticipants = newMembers.filter(id => !existingParticipants.includes(id.toString()));
+            
+            if (newParticipants.length > 0) {
+                chatGroup.participants = [...chatGroup.participants, ...newParticipants];
+                await chatGroup.save();
+            }
+        }
+    } catch (error) {
+        console.error("Error updating chat group:", error);
+        // Don't fail the member addition if chat update fails
+    }
+
+    // Populate the project to return complete data
+    const updatedProject = await Project.findById(project._id)
+        .populate("createdBy teamMembers assignedMentor");
+        
+    // Notify the added members via email if needed
+    try {
+        const addedUsers = usersToAdd.filter(user => 
+            newMembers.some(id => id.equals(user._id)));
+            
+        const emails = addedUsers.map(user => user.email).filter(Boolean);
+        
+        if (emails.length > 0) {
+            // Send email notification (assuming sendEmail utility exists)
+            await sendEmail({
+                email: emails,
+                subject: `You've been added to project: ${project.title}`,
+                message: `You have been added as a team member to the project "${project.title}".`
+            });
+        }
+    } catch (emailError) {
+        console.error("Error sending notification emails:", emailError);
+        // Continue even if email notifications fail
+    }
+    
+    res.status(200).json({
+        success: true,
+        message: `${newMembers.length} team members added successfully`,
+        project: updatedProject
+    });
+});
 
 export const requestMentor = catchAsync(async (req, res, next) => {
     // Only team leader can request mentor
@@ -399,6 +521,17 @@ export const getProjectById=catchAsync(async(req,res,next)=>{
     })
 })
 
+export const getProjectSummary=catchAsync(async(req,res,next)=>{
+    const {projectId}=req.params
+    const summary=await Project.findById(projectId).select("summary")
+    if(!summary) return next(new AppError("Project not found",404))
+    return res.status(200)
+    .json({
+        success:true,
+        message:"Project summary fetched successfully",
+        summary
+    })
+})
 //-------------------todo-------------------
 //Improve File Management
 //Allow users to remove specific files from a project

@@ -1,8 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { lazy, Suspense } from "react"
 import AppRouter from "./router"
 import { QueryClientProvider,QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { BrowserRouter } from "react-router-dom"
 
 // Move this to AuthContext
 const user = true
@@ -19,10 +19,10 @@ const App = () => {
   return (
     <>
     <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} />
-    <BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <BrowserRouter>
       <AppRouter />
-    </BrowserRouter>
+      </BrowserRouter>
     </QueryClientProvider>
     </>
   )

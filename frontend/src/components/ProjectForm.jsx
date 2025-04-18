@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,6 +6,7 @@ import * as z from "zod";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ProjectService from "../service/ProjectService";
+import MentorService from "../service/MentorService";
 
 // Zod schema aligned with backend requirements
 const formSchema = z.object({
@@ -14,17 +15,31 @@ const formSchema = z.object({
     abstract: z.string().min(20, { message: "Abstract is required (min 20 characters)" }),
     problemStatement: z.string().min(20, { message: "Problem statement is required (min 20 characters)" }),
     proposedMethodology: z.string().min(20, { message: "Proposed methodology is required (min 20 characters)" }),
-    techStack: z.string().min(2, { message: "At least one technology is required" })
+    techStack: z.string()
+      .min(2, { message: "At least one technology is required" })
+      .refine(
+        (value) => {
+          const techs = value.split(',').map(tech => tech.trim()).filter(Boolean);
+          return techs.length > 0;
+        },
+        { message: "Please enter at least one valid technology" }
+      )
   }),
   teamMembers: z.string().optional(),
   targetFaculty: z.string().optional(),
-  course: z.string().optional(),
 });
 
 const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const [mentorSuggestions, setMentorSuggestions] = useState([]);
+  const [showMentorDropdown, setShowMentorDropdown] = useState(false);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [activeMentorIndex, setActiveMentorIndex] = useState(-1);
+  const debounceTimeout = useRef(null);
+  const mentorInputRef = useRef(null);
+  const mentorDropdownRef = useRef(null);
+
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -36,16 +51,8 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
       },
       teamMembers: "",
       targetFaculty: "",
-      course: ""
     }
   });
-
-  // Handle backdrop click to close modal
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onOpenChange(false);
-    }
-  };
 
   const queryClient = useQueryClient();
 
@@ -67,12 +74,90 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
     }
   });
 
-  // Form submission handler
+  const fetchMentorSuggestions = async (query) => {
+    if (!query.trim()) {
+      setMentorSuggestions([]);
+      return;
+    }
+
+    try {
+      const data = await MentorService.searchMentors(query);
+      setMentorSuggestions(data);
+      setShowMentorDropdown(data.length > 0);
+    } catch (error) {
+      console.error("Error fetching mentor suggestions:", error);
+      setMentorSuggestions([]);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        mentorDropdownRef.current &&
+        !mentorDropdownRef.current.contains(event.target) &&
+        mentorInputRef.current &&
+        !mentorInputRef.current.contains(event.target)
+      ) {
+        setShowMentorDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const targetFaculty = watch("targetFaculty");
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      fetchMentorSuggestions(targetFaculty);
+    }, 300);
+
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+  }, [watch("targetFaculty")]);
+
+  const handleSelectMentor = (mentor) => {
+    setSelectedMentor(mentor);
+    setValue("targetFaculty", mentor.name);
+    setShowMentorDropdown(false);
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      reset();
+      setSelectedMentor(null);
+      setMentorSuggestions([]);
+      setShowMentorDropdown(false);
+      onOpenChange(false);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (showMentorDropdown) {
+      if (event.key === "ArrowDown") {
+        setActiveMentorIndex((prevIndex) => Math.min(prevIndex + 1, mentorSuggestions.length - 1));
+      } else if (event.key === "ArrowUp") {
+        setActiveMentorIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+      } else if (event.key === "Enter" && activeMentorIndex >= 0) {
+        handleSelectMentor(mentorSuggestions[activeMentorIndex]);
+      }
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       setIsSubmitting(true);
-      
-      // Format data for API
+
       const formattedData = {
         title: data.title,
         description: {
@@ -83,19 +168,18 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
         }
       };
 
-      // If team members provided, log for now (will be handled separately)
       if (data.teamMembers) {
-        console.log("Team members to add:", data.teamMembers.split(',').map(member => member.trim()));
-      }
-      
-      // If preferred faculty provided, log for now (will be handled separately)
-      if (data.targetFaculty) {
-        console.log("Will request mentor:", data.targetFaculty);
+        formattedData.teamMembers = data.teamMembers.split(',').map(member => member.trim());
+        console.log("Team members to add:", formattedData.teamMembers);
       }
 
-      // Call the mutation to create the project
+      if (selectedMentor) {
+        formattedData.targetFaculty = selectedMentor._id;
+        console.log("Will request mentor:", selectedMentor.name, selectedMentor._id);
+      }
+
       createProjectMutation.mutate(formattedData);
-      
+
     } catch (error) {
       console.error("Error preparing project data:", error);
       toast.error("Failed to prepare project data");
@@ -105,19 +189,18 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
 
   if (!open) return null;
 
-  // Render the form using createPortal to append it to the portal-root element
   return createPortal(
-    <div 
+    <div
       className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/60 z-[9999] transition-opacity duration-300"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-card p-8 rounded-2xl shadow-2xl w-full max-w-2xl overflow-y-auto max-h-[90vh] m-4 border border-primary/10 transition-all duration-300 transform animate-fadeIn"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Create New Project</h2>
-          <button 
+          <button
             onClick={() => onOpenChange(false)}
             className="rounded-full h-8 w-8 flex items-center justify-center bg-accent/30 hover:bg-accent/50 text-foreground transition-colors"
             aria-label="Close"
@@ -127,56 +210,113 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
             </svg>
           </button>
         </div>
-        
+
         <p className="text-muted-foreground text-sm mb-8">Complete the form below to create a new project proposal.</p>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div className="bg-primary/5 p-5 rounded-xl space-y-6">
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Project Title</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 placeholder="Enter a descriptive title for your project"
-                {...register("title")} 
+                {...register("title")}
               />
               {errors.title && <p className="mt-2 text-sm text-destructive font-medium">{errors.title.message}</p>}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Course (Optional)</label>
-                <input 
-                  type="text" 
-                  className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
-                  placeholder="Related course name"
-                  {...register("course")} 
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Preferred Faculty (Optional)</label>
-                <input 
-                  type="text" 
-                  className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
-                  placeholder="Name of preferred mentor"
-                  {...register("targetFaculty")} 
-                />
-              </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-foreground mb-2">Preferred Faculty (Optional)</label>
+              <input
+                type="text"
+                ref={mentorInputRef}
+                className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                placeholder="Start typing mentor name..."
+                {...register("targetFaculty")}
+                onClick={() => {
+                  if (mentorSuggestions.length > 0) {
+                    setShowMentorDropdown(true);
+                  }
+                }}
+                onKeyDown={handleKeyDown}
+                autoComplete="off"
+              />
+              {showMentorDropdown && mentorSuggestions.length > 0 && 
+               (
+                <div 
+                  ref={mentorDropdownRef}
+                  className="absolute z-120 w-full mt-1 bg-zinc-900 border border-border rounded-lg max-h-60 overflow-y-auto"
+                  role="listbox"
+                  aria-labelledby="mentor-dropdown"
+                >
+                  <ul>
+                    {mentorSuggestions.map((mentor, index) => (
+                      <li 
+                        key={mentor._id} 
+                        className={`px-4 py-3 hover:bg-primary/10 cursor-pointer flex items-center gap-3 border-b border-border/40 last:border-b-0 ${
+                          activeMentorIndex === index ? "bg-primary/10" : ""
+                        }`}
+                        onClick={() => handleSelectMentor(mentor)}
+                        role="option"
+                        aria-selected={selectedMentor?._id === mentor._id}
+                      >
+                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                          {mentor.profilePic ? (
+                            <img 
+                              src={mentor.profilePic} 
+                              alt={mentor.name} 
+                              className="h-8 w-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{mentor.name}</p>
+                          <p className="text-xs text-muted-foreground">{mentor.department || "Faculty"}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {mentorSuggestions.length === 0 && watch("targetFaculty")?.trim().length > 2 && (
+                <p className="mt-2 text-xs text-muted-foreground">No mentors found with that name. Try a different search.</p>
+              )}
+              {selectedMentor && (
+                <div className="mt-2 flex items-center gap-2 bg-primary/10 p-2 rounded-md">
+                  <span className="text-sm text-primary font-medium">Selected: {selectedMentor.name}</span>
+                  <button 
+                    type="button"
+                    className="ml-auto text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      setSelectedMentor(null);
+                      setValue("targetFaculty", "");
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Team Members (Optional)</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 placeholder="Comma-separated list of email addresses or roll numbers"
-                {...register("teamMembers")} 
+                {...register("teamMembers")}
               />
               <p className="mt-2 text-xs text-muted-foreground">Enter email addresses or roll numbers separated by commas</p>
             </div>
           </div>
-          
+
           <div className="bg-primary/5 p-5 rounded-xl space-y-6">
             <h3 className="text-lg font-semibold text-foreground flex items-center">
               <span className="bg-primary/20 rounded-full w-7 h-7 flex items-center justify-center mr-2 text-primary">
@@ -186,53 +326,53 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
               </span>
               Project Description
             </h3>
-            
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Project Abstract</label>
-              <textarea 
+              <textarea
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 rows="3"
                 placeholder="A brief overview of your project"
-                {...register("description.abstract")} 
+                {...register("description.abstract")}
               />
               {errors.description?.abstract && (
                 <p className="mt-2 text-sm text-destructive font-medium">{errors.description.abstract.message}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Problem Statement</label>
-              <textarea 
+              <textarea
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 rows="3"
                 placeholder="What problem does your project solve?"
-                {...register("description.problemStatement")} 
+                {...register("description.problemStatement")}
               />
               {errors.description?.problemStatement && (
                 <p className="mt-2 text-sm text-destructive font-medium">{errors.description.problemStatement.message}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Proposed Methodology</label>
-              <textarea 
+              <textarea
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 rows="3"
                 placeholder="How do you plan to implement your solution?"
-                {...register("description.proposedMethodology")} 
+                {...register("description.proposedMethodology")}
               />
               {errors.description?.proposedMethodology && (
                 <p className="mt-2 text-sm text-destructive font-medium">{errors.description.proposedMethodology.message}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Tech Stack</label>
-              <input 
+              <input
                 type="text"
                 className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                 placeholder="e.g., React, Node.js, MongoDB"
-                {...register("description.techStack")} 
+                {...register("description.techStack")}
               />
               <p className="mt-2 text-xs text-muted-foreground">Enter technologies separated by commas</p>
               {errors.description?.techStack && (
@@ -240,18 +380,18 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
               )}
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-4 pt-4">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="px-6 py-2.5 rounded-lg text-foreground bg-accent/50 hover:bg-accent/70 font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="px-6 py-2.5 rounded-lg text-primary-foreground bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70"
               disabled={isSubmitting}
             >
@@ -276,7 +416,7 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
         </form>
       </div>
     </div>,
-    document.getElementById('portal-root') // Render to the portal-root element
+    document.getElementById('portal-root')
   );
 };
 

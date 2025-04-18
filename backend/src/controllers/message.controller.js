@@ -6,7 +6,7 @@ import { AppError } from "../middleware/error.middleware.js";
 
 export const sendMessage = catchAsync(async (req, res, next) => {
     const { chatId, content } = req.body; 
-    const { id: senderId } = req.user;
+    const senderId  = req.id;
     const sender = await User.findById(senderId);
     const chat = await Project.findById(chatId);
 

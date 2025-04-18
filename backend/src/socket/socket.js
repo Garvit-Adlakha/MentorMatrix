@@ -83,8 +83,8 @@ export const initializeSocket = (server) => {
     socket.on("typing", ({ chatId, userName }) => {
       socket.to(chatId).emit("typing", { userName });
     });
-    socket.on("stopTyping", (chatId) => {
-      socket.to(chatId).emit("stopTyping");
+    socket.on("stopTyping", ({ chatId, userName }) => {
+      socket.to(chatId).emit("stopTyping", { userName });
     });
 
     // 4. Emit Events Selectively

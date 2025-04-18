@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
-import { IconSearch, IconAdjustmentsHorizontal, IconAlertCircle } from '../components/ui/Icons';
+import { motion } from 'framer-motion';
+import { IconSearch, IconAdjustmentsHorizontal } from '../components/ui/Icons';
 import FacultyCards from './FacultyCards';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,37 +19,20 @@ const Mentor = () => {
     }
   },[searchTerm])
 
-  const {data:mentorsData, isLoading, error, isError} = useQuery({
+  const {data:mentorsData,isLoading} = useQuery({
     queryKey:['mentors', debouncedSearchTerm],
     queryFn:() => mentorService.getAllMentors(debouncedSearchTerm),
     staleTime: 5*60*1000,
     refetchOnWindowFocus: false,
     retry: 1
   });
-  
-  if(isError){
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <IconAlertCircle size={48} className="text-destructive" />
-        <p className="text-xl text-destructive">Error loading mentors</p>
-        <p className="text-muted-foreground">{error.message}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-return (
-    <div className="min-h-screen bg-background/80 ">
+  return (
+    <div className="min-h-screen mt-4">
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative pb-16"
+        className="relative pb-16 "
       >
         <div className="container mx-auto px-4">
           <motion.div 

@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import authService from "../../service/authService";
 
 export const Navbar = ({ navOpen }) => {
@@ -11,7 +11,7 @@ export const Navbar = ({ navOpen }) => {
   const [activeSection, setActiveSection] = useState("home");
   const location = useLocation();
   
-  const { data: user } = useQuery({
+  const { data: user } = useSuspenseQuery({
     queryKey: ["user"],
     queryFn: () => authService.currentUser(),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -30,6 +30,7 @@ export const Navbar = ({ navOpen }) => {
     if (user) {
       items.push(
         { label: "Dashboard", link: "/dashboard", className: "nav-link", id: "dashboard" },
+        { label: "Collaborate", link: "/collaborate", className: "nav-link", id: "collaborate" },
         { label: "Profile", link: "/profile", className: "nav-link", id: "profile" }
       );
     }
@@ -87,6 +88,8 @@ export const Navbar = ({ navOpen }) => {
       setActiveSection("mentor");
     } else if (currentPath === "/dashboard") {
       setActiveSection("dashboard");
+    } else if (currentPath.startsWith("/chat")) {
+      setActiveSection("chat");
     } else if (currentPath === "/profile") {
       setActiveSection("profile");
     }

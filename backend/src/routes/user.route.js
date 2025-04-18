@@ -9,7 +9,9 @@ import {
     updateUserProfile,
     forgotPassword,
     resetPassword,
-    getAllMentors, 
+    getAllMentors,
+    SearchMentor,
+
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import upload from "../utils/multer.js";
@@ -20,12 +22,13 @@ const router = express.Router();
 // Auth routes
 router.post("/signup", validateSignup, createUserAccount);
 router.post("/signin", validateSignin, authenticateUser);
-router.post("/signout", signOutUser);
+router.post("/signout", signOutUser); // No authentication middleware for signout
 
 // Profile routes
 router.get("/profile", isAuthenticated, getCurrentUserProfile);
 router.patch("/profile", isAuthenticated, upload.single("avatar"), updateUserProfile);
 
+router.get('/mentor/search',isAuthenticated,SearchMentor)
 // Password routes
 router.patch("/change-password", isAuthenticated, validatePasswordChange, changeUserPassword);
 router.delete("/account", isAuthenticated, deleteUserAccount);

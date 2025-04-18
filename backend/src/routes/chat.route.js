@@ -4,5 +4,6 @@ import { isAuthenticated } from "../middleware/auth.middleware.js";
 
 const router=Router()
 
-router.get('/chats', isAuthenticated, getUserChats);
+router.get('/', isAuthenticated, getUserChats);
+// router.get('/',isAuthenticated,getALlGroups)
 export default router

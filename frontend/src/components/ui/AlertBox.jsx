@@ -88,7 +88,7 @@ const AlertBox = ({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-70 overflow-y-auto">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 backdrop-blur-lg shadow-3xl bg-opacity-50 transition-opacity" 

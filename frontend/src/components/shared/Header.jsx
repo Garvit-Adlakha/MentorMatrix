@@ -27,28 +27,34 @@ const Header = () => {
     retry: false,
   })
 
-  const logoutMutation=useMutation({
+  const logoutMutation = useMutation({
     mutationFn: () => authService.logout(),
-    onSuccess: (data) => {
-      console.log("Logout successful:", data);
-
+    onSuccess: () => {
+      // Invalidate and remove queries
       queryClient.invalidateQueries(['user'])
       queryClient.removeQueries(['user'])
       queryClient.invalidateQueries(['projects'])
-      // Redirect to home page or show a success message
-      navigate("/");
+      
+      // Clear any other app-specific data from query cache
+      queryClient.clear();
+      
+      // Navigation is handled in the authService.logout function
+      // so we don't need to navigate here
     },
     onError: (error) => {
       console.error("Logout failed:", error);
-      // Handle error (e.g., show a notification)
+      // The error is handled in authService.logout, which will still
+      // clear tokens and redirect even if the API call fails
     },
   })
 
   const logoutHandler = (e) => {
     e.preventDefault();
-    logoutMutation.mutate();
+    // Prevent multiple clicks
+    if (!logoutMutation.isPending) {
+      logoutMutation.mutate();
+    }
   }
-
 
   return (
     <motion.header

@@ -124,7 +124,70 @@ const ProjectService = {
                 originalError: error
             };
         }
+    },
+    // Get a summary of the project description
+    getSummary: async (projectId) => {
+        try {
+            const response = await axiosInstance.get(`/project/${projectId}/summary`)
+            console.log("Project summary fetched successfully:", response.data);
+            return response.data.summary.summary;
+        } catch (error) {
+            console.error("Error getting project summary:", error);
+            throw error;
+        }
+    },
+
+    // Upload a document to a project
+    uploadProjectDocument: async (projectId, formData) => {
+        try {
+            const response = await axiosInstance.post(`/project/${projectId}/document`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log("Document uploaded successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error uploading document:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to upload document. Please try again.",
+                originalError: error
+            };
+        }
+    },
+
+    // Delete a document from a project
+    deleteProjectDocument: async (projectId, documentId) => {
+        try {
+            const response = await axiosInstance.delete(`/project/${projectId}/document/${documentId}`);
+            console.log("Document deleted successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to delete document. Please try again.",
+                originalError: error
+            };
+        }
+    },
+
+    // Add team members to a project
+    addTeamMembers: async (projectId, memberEmails) => {
+        try {
+            const response = await axiosInstance.post('/project/add-members', {
+                projectId,
+                teamMembers: memberEmails
+            });
+            console.log("Team members added successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error adding team members:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to add team members. Please try again.",
+                originalError: error
+            };
+        }
     }
-}
+};
 
 export default ProjectService;

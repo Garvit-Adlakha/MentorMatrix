@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import FacultyCard from './FacultyCard';
 
 const FacultyCards = ({ mentors, searchTerm, isLoading }) => {
@@ -58,13 +58,15 @@ const FacultyCards = ({ mentors, searchTerm, isLoading }) => {
               key={faculty._id || faculty.id}
               variants={cardVariants}
               layout
-              className="h-full"
+              className="h-full "
               whileHover={{ 
                 y: -5,
                 transition: { duration: 0.2 }
               }}
             >
-              <FacultyCard faculty={faculty} />
+              <div className="w-full flex">
+                <FacultyCard faculty={faculty} />
+              </div>
             </motion.div>
           ))
         ) : (

@@ -97,7 +97,7 @@ const projectSchema = new mongoose.Schema(
 );
 
 projectSchema.virtual("totalMembers").get(function () {
-    return this.teamMembers.length ; 
+    return this?.teamMembers?.length ; 
 });
 
 projectSchema.pre("save", function (next) {

@@ -1,4 +1,4 @@
-import { addMemberToProject, createProject, getProject, getProjectById, listProjects, mentorDecision, requestMentor } from "../controllers/project.controller.js";
+import { addMemberToProject, createProject, getProject, getProjectById, getProjectSummary, listProjects, mentorDecision, requestMentor } from "../controllers/project.controller.js";
 import { Router } from "express";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { validateDescription } from "../middleware/validation.middleware.js";
@@ -16,4 +16,5 @@ router.post('/assign-mentor/:projectId',isAuthenticated,mentorDecision)
 router.get('/get-project',isAuthenticated,getProject)
 router.get('/get-project/:projectId',isAuthenticated,getProjectById)
 router.get('/list-projects',isAuthenticated,listProjects)
+router.get('/:projectId/summary',isAuthenticated,getProjectSummary)
 export default router

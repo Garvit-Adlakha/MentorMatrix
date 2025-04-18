@@ -132,13 +132,14 @@ export const authenticateUser = catchAsync(async (req, res, next) => {
  * @route POST /api/v1/user/signout
  */
 export const signOutUser = catchAsync(async(req, res) => {
-    // Clear token cookie
+    // Clear token cookie (legacy)
     res.cookie('token', "", {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 0,
         sameSite: 'strict'
     });
+    
     
     res.status(200).json({
         success: true,
@@ -541,3 +542,29 @@ export const getMentorById = catchAsync(async (req, res) => {
         mentor
     });
 });
+
+export const SearchMentor=catchAsync(async(req,res)=>{
+    const { search } = req.query;
+    const filter = {
+        role: "mentor",
+    };
+
+    if (search) {
+        filter.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { department: { $regex: search, $options: 'i' } },
+            { expertise: { $elemMatch: { $regex: search, $options: 'i' } } },
+        ];
+    }
+
+    const mentors = await User.find(filter)
+        .select('name email bio department expertise avatar university lastActiveAt')
+        .sort({ lastActiveAt: -1 });
+
+    res.status(200).json({
+        success: true,
+        count: mentors.length,
+        mentors,
+    });
+});
+

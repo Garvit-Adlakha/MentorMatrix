@@ -71,11 +71,11 @@ export const createGroup = async (projectId) => {
 };
 
 export const getUserChats = catchAsync(async (req, res, next) => {
-  const { userId } = req.user; // Assuming user ID from auth middleware
+  const userId  = req.id; 
 
   const chats = await Chat.aggregate([
     // 1️⃣ Match chats where the user is a participant
-    { $match: { participants: new mongoose.Types.ObjectId(userId) } },
+    { $match: { participants:userId } },
 
     // 2️⃣ Lookup latest message for each chat
     {
@@ -133,4 +133,21 @@ export const getUserChats = catchAsync(async (req, res, next) => {
     chats
   });
 });
+
+
+// export const getALlGroups=catchAsync(async(req,res,next)=>{
+//     const userId=req.id
+
+//   const groups=await Chat.find({participants:userId,isGroupChat:true})
+//   .populate("participants","name email")
+
+//   if(!groups){
+//     return next(new AppError("No groups found",404))
+//   }
+//   return res.status(200).json({
+//     success:true,
+//     results:groups.length,
+//     groups
+//   })
+// })
 
