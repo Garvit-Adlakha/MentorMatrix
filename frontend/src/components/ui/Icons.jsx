@@ -65,15 +65,24 @@ import {
   IconCamera,
   IconVideo,
   IconDownload,
-  IconUpload
+  IconUpload,
+  IconList,
+  IconLayoutGrid,
+  IconFilter,
+  
 } from '@tabler/icons-react';
 
 export {
   IconChevronDown,
+  IconId,
+  IconFocus,
+  IconMapPin,
   IconMail,
   IconSearch,
   IconAdjustmentsHorizontal,
   IconAlertCircle,
+  IconAt,
+  IconDeviceLaptop,
   IconEye, 
   IconEyeOff,
   IconX,
@@ -98,6 +107,8 @@ export {
   IconProgressCheck,
   IconCircleDashedX,
   IconExclamationCircle,
+  IconCircleX,
+  IconAlertTriangle,
   // Additional icons for replacing inline SVGs
   IconArrowRight,
   IconChevronRight,
@@ -108,15 +119,7 @@ export {
   IconBuildingSkyscraper,
   IconSchool,
   IconBriefcase2,
-  IconMapPin,
-  IconAt,
-  IconDeviceLaptop,
-  IconCircleCheck,
-  IconCircleX,
-  IconAlertTriangle,
-  IconClock,
-  IconId,
-  IconFocus,
+  IconLayoutGrid,
   IconLayoutCollage,
   IconMessage,
   IconSend,
@@ -135,4 +138,8 @@ export {
   IconVideo,
   IconDownload,
   IconUpload,
+  IconList,
+  IconClock,
+  IconCircleCheck,
+  IconFilter
 };
