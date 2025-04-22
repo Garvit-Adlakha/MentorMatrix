@@ -12,18 +12,11 @@ export const getOptimizedImageUrl = (url, width = 400) => {
   if (!url) return null;
   
   // If it's already a data URL or optimized URL, return as is
-  if (url.startsWith('data:') || url.includes('imagedelivery')) {
+  if (url.startsWith('data:') || url.includes('imagedelivery.net')) {
     return url;
   }
   
-  // Example of simple optimization - add width parameter
-  // In a real app, you'd use an image CDN or service like Cloudinary/Imgix
-  try {
-    const parsedUrl = new URL(url);
-    parsedUrl.searchParams.append('w', width.toString());
-    return parsedUrl.toString();
-  } catch (e) {
-    // If URL parsing fails, return original
-    return url;
-  }
+  // Otherwise, return the original URL
+  // This is where you would implement your image optimization logic
+  return url;
 };

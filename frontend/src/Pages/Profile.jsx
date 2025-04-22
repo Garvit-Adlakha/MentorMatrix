@@ -43,9 +43,9 @@ const Profile = () => {
   const rejectedProposals = projects.projects.filter(p => p.status === 'rejected').length;
   const completedProjects = projects.projects.filter(p => p.status === 'completed').length;
 
-  const studentData=user?.user
 
-  console.log(studentData);
+
+  console.log(user);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -81,7 +81,7 @@ const Profile = () => {
         
         {isEditing ? (
           <ProjectForm
-            initialData={studentData}
+            initialData={user}
             onSave={handleSaveClick}
             onCancel={handleCancelClick}
           />
@@ -99,19 +99,19 @@ const Profile = () => {
                   <div className="relative">
                     <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/80 shadow-lg mb-4">
                       <img
-                        src={studentData?.avatar || "https://i.pravatar.cc/300"}
+                        src={user?.avatar || "https://i.pravatar.cc/300"}
                         alt="Avatar"
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="absolute bottom-4 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
                   </div>
-                  <h2 className="text-xl font-bold mb-1">{studentData?.name}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{studentData.role}</p>
+                  <h2 className="text-xl font-bold mb-1">{user?.name}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{user.role}</p>
                   
                   <div className="flex items-center justify-center space-x-2 text-sm mb-2">
                     <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs">
-                      {studentData?.availability ? 'Available for Projects' : 'Not Available'}
+                      {user?.availability ? 'Available for Projects' : 'Not Available'}
                     </span>
                   </div>
                 </div>
@@ -119,13 +119,13 @@ const Profile = () => {
                 <div className="p-6">
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3 ">Bio</h3>
-                    <p className="text-zinc-400">{studentData.bio}</p>
+                    <p className="text-zinc-400">{user.bio}</p>
                   </div>
                   
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                      {studentData.skills.map((skill, index) => (
+                      {user.skills.map((skill, index) => (
                         <span 
                           key={index} 
                           className="inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground"
@@ -168,7 +168,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">University</h3>
-                        <p className="text-foreground font-medium">{studentData.university}</p>
+                        <p className="text-foreground font-medium">{user.university}</p>
                       </div>
                     </div>
                     
@@ -178,7 +178,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Department</h3>
-                        <p className="text-foreground font-medium">{studentData.department}</p>
+                        <p className="text-foreground font-medium">{user.department}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -193,7 +193,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Roll Number</h3>
-                        <p className="text-foreground font-medium">{studentData.roll_no}</p>
+                        <p className="text-foreground font-medium">{user.roll_no}</p>
                       </div>
                     </div>
                     
@@ -203,7 +203,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">SAP ID</h3>
-                        <p className="text-foreground font-medium">{studentData.sap_id}</p>
+                        <p className="text-foreground font-medium">{user.sap_id}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -218,7 +218,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Year of Study</h3>
-                        <p className="text-foreground font-medium">{studentData.yearOfStudy}</p>
+                        <p className="text-foreground font-medium">{user.yearOfStudy}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -233,7 +233,7 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                        <p className="text-foreground font-medium">{studentData.email}</p>
+                        <p className="text-foreground font-medium">{user.email}</p>
                       </div>
                     </div>
                   </motion.div>

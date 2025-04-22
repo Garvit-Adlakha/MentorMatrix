@@ -147,7 +147,7 @@ export const Navbar = ({ navOpen }) => {
       ref={navRef} 
       className={`navbar relative ${
         navOpen 
-          ? "active flex flex-col items-center space-y-4 py-4" 
+          ? "active flex flex-col items-center space-y-4 py-4 " 
           : "flex items-center space-x-4"
       }`}
     >

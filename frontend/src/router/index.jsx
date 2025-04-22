@@ -12,6 +12,7 @@ const Dashboard = lazy(() => import("../Pages/Dashboard"))
 const Profile = lazy(() => import("../Pages/Profile"))
 const ChatPage = lazy(() => import("../Pages/ChatPage"))
 const CollaborationPage = lazy(() => import("../Pages/CollaborationPage"))
+const ProjectDetailPage = lazy(() => import("../Pages/ProjectDetailPage"))
 
 const AppRouter = () => { 
     return (
@@ -56,6 +57,13 @@ const AppRouter = () => {
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading profile..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <Profile />
+                    </Protected>
+                </Suspense>
+            } />
+            <Route path="/projects/:projectId" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading project details..." /></div>}>
+                    <Protected requiredAuth={true} redirect="/login">
+                        <ProjectDetailPage />
                     </Protected>
                 </Suspense>
             } />

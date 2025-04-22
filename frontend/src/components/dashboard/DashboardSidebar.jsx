@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   IconCalendar, 
@@ -6,7 +6,8 @@ import {
   IconCircleCheck,
   IconBell, 
   IconAlertTriangle,
-  IconArrowRight
+  IconArrowRight,
+  IconCheck
 } from '../../components/ui/Icons';
 
 const UpcomingEvent = ({ color, icon, date, title }) => {
@@ -21,15 +22,18 @@ const UpcomingEvent = ({ color, icon, date, title }) => {
   );
 };
 
-const NotificationItem = ({ icon, iconBg, title, message, time }) => {
+const NotificationItem = ({ icon, iconBg, title, message, time, isUnread = false }) => {
   return (
-    <div className="bg-accent/20 hover:bg-accent/30 p-3 rounded-lg transition-colors cursor-pointer shadow-sm">
+    <div className={`${isUnread ? 'bg-accent/30 hover:bg-accent/40 border-l-2 border-primary' : 'bg-accent/20 hover:bg-accent/30'} p-3 rounded-lg transition-colors cursor-pointer shadow-sm`}>
       <div className="flex items-start gap-3">
-        <div className={`p-2 ${iconBg} rounded-full`}>
+        <div className={`p-2 ${iconBg} rounded-full relative`}>
           {icon}
+          {isUnread && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium break-words">{title}</p>
+          <p className={`text-sm ${isUnread ? 'font-bold' : 'font-medium'} break-words`}>{title}</p>
           <p className="text-xs text-muted-foreground mt-1 break-words line-clamp-2">{message}</p>
           <p className="text-xs text-primary/80 mt-2">{time}</p>
         </div>
@@ -39,6 +43,45 @@ const NotificationItem = ({ icon, iconBg, title, message, time }) => {
 };
 
 const DashboardSidebar = () => {
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      icon: <IconCircleCheck size={16} className="text-teal-600" />,
+      iconBg: "bg-teal-50",
+      title: "Project Approved",
+      message: 'Your project proposal "AI Research" was approved by Prof. Johnson',
+      time: "2 hours ago",
+      isUnread: true
+    },
+    {
+      id: 2,
+      icon: <IconBell size={16} className="text-blue-600" />,
+      iconBg: "bg-blue-50",
+      title: "New Comment",
+      message: 'Prof. Johnson commented on your proposal: "Great progress so far! Let\'s discuss the methodology in our next meeting."',
+      time: "1 day ago",
+      isUnread: true
+    },
+    {
+      id: 3,
+      icon: <IconAlertTriangle size={16} className="text-amber-600" />,
+      iconBg: "bg-amber-50",
+      title: "Deadline Approaching",
+      message: 'Project milestone "Implementation Phase" is due in 3 days',
+      time: "2 days ago",
+      isUnread: false
+    }
+  ]);
+
+  const unreadCount = notifications.filter(n => n.isUnread).length;
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(notifications.map(notification => ({
+      ...notification,
+      isUnread: false
+    })));
+  };
+
   return (
     <div className="hidden lg:block">
       <motion.div 
@@ -83,42 +126,45 @@ const DashboardSidebar = () => {
         {/* Notifications Section */}
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Notifications</h3>
-            <span className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/90 text-white text-xs font-medium">
-              3
-            </span>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Notifications</h3>
+              {unreadCount > 0 && (
+                <span className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/90 text-white text-xs font-medium">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+            
+            {unreadCount > 0 && (
+              <button 
+                onClick={handleMarkAllAsRead}
+                className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+                aria-label="Mark all notifications as read"
+              >
+                <IconCheck size={12} />
+                Mark all read
+              </button>
+            )}
           </div>
           
-          <div className="space-y-3">
-            <NotificationItem 
-              icon={<IconCircleCheck size={16} className="text-teal-600" />}
-              iconBg="bg-teal-50"
-              title="Project Approved"
-              message='Your project proposal "AI Research" was approved by Prof. Johnson'
-              time="2 hours ago"
-            />
-            
-            <NotificationItem
-              icon={<IconBell size={16} className="text-blue-600" />}
-              iconBg="bg-blue-50" 
-              title="New Comment"
-              message={`Prof. Johnson commented on your proposal: "Great progress so far! Let's discuss the methodology in our next meeting."`}
-              time="1 day ago"
-            />
-            
-            <NotificationItem 
-              icon={<IconAlertTriangle size={16} className="text-amber-600" />}
-              iconBg="bg-amber-50"
-              title="Deadline Approaching"
-              message='Project milestone "Implementation Phase" is due in 3 days'
-              time="2 days ago"
-            />
+          <div className="space-y-3 overflow-y-auto max-h-96 thin-scrollbar">
+            {notifications.map(notification => (
+              <NotificationItem 
+                key={notification.id}
+                icon={notification.icon}
+                iconBg={notification.iconBg}
+                title={notification.title}
+                message={notification.message}
+                time={notification.time}
+                isUnread={notification.isUnread}
+              />
+            ))}
           </div>
           
           <motion.button 
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full mt-5 px-4 py-2.5 rounded-lg bg-card bg-gradient-to-r from-primary/10 to-transparent hover:from-primary/20 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+            className="w-full mt-5 px-4 py-2.5 rounded-lg bg-card bg-gradient-to-r from-primary/10 to-transparent hover:from-primary/20 transition-colors text-sm font-medium flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30 focus:outline-none"
           >
             View All Notifications
             <IconArrowRight size={14} />

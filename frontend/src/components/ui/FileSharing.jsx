@@ -14,6 +14,10 @@ import {
 const FileSharing = () => {
   const [selectedProject, setSelectedProject] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [deletingFileId, setDeletingFileId] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -31,6 +35,9 @@ const FileSharing = () => {
     enabled: !!selectedProject,
     refetchOnWindowFocus: false,
   });
+
+  console.log('Project data:', projectData);
+  console.log('Selected project:', selectedProject);
 
   // Upload file mutation
   const uploadFileMutation = useMutation({
@@ -82,11 +89,31 @@ const FileSharing = () => {
     uploadFileMutation.mutate({ projectId: selectedProject, file });
   };
 
-  // Handle delete file
+  // Handle delete file (open confirm dialog)
   const handleDeleteFile = (fileId) => {
-    if (confirm('Are you sure you want to delete this file?')) {
-      deleteFileMutation.mutate({ projectId: selectedProject, fileId });
-    }
+    setFileToDelete(fileId);
+    setShowConfirm(true);
+  };
+
+  // Confirm delete
+  const confirmDeleteFile = () => {
+    setDeletingFileId(fileToDelete);
+    deleteFileMutation.mutate(
+      { projectId: selectedProject, fileId: fileToDelete },
+      {
+        onSettled: () => {
+          setDeletingFileId(null);
+          setShowConfirm(false);
+          setFileToDelete(null);
+        },
+      }
+    );
+  };
+
+  // Cancel delete
+  const cancelDeleteFile = () => {
+    setShowConfirm(false);
+    setFileToDelete(null);
   };
 
   // Format date function
@@ -208,16 +235,23 @@ const FileSharing = () => {
               className="border border-border/50 rounded-lg p-4 hover:border-primary/30 transition-all bg-card flex justify-between items-center"
             >
               <div className="flex items-center gap-3">
-                {getFileIcon(document.format || 'application/octet-stream')}
+                <button
+                  aria-label={document.format?.includes('image') ? 'Preview image' : undefined}
+                  className={document.format?.includes('image') ? 'focus:outline-none' : 'hidden'}
+                  onClick={() => setPreviewImage(document.url)}
+                  tabIndex={document.format?.includes('image') ? 0 : -1}
+                  type="button"
+                >
+                  {getFileIcon(document.format || 'application/octet-stream')}
+                </button>
                 <div>
-                  <h3 className="font-medium truncate max-w-md">{document.name}</h3>
+                  <h3 className="font-medium truncate max-w-md" title={document.name}>{document.name}</h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                     <span>Uploaded on {formatDate(document.uploadedAt)}</span>
                     <span>{document.size ? formatFileSize(document.size) : 'Unknown size'}</span>
                   </div>
                 </div>
               </div>
-              
               <div className="flex items-center gap-2">
                 <a
                   href={document.url}
@@ -225,6 +259,7 @@ const FileSharing = () => {
                   rel="noopener noreferrer"
                   className="p-2 bg-accent/50 text-foreground rounded hover:bg-accent transition-colors"
                   title="Download"
+                  aria-label={`Download ${document.name}`}
                 >
                   <IconDownload size={18} />
                 </a>
@@ -232,9 +267,10 @@ const FileSharing = () => {
                   onClick={() => handleDeleteFile(document._id)}
                   className="p-2 bg-red-100 text-red-800 rounded hover:bg-red-200 transition-colors"
                   title="Delete"
-                  disabled={deleteFileMutation.isPending}
+                  aria-label={`Delete ${document.name}`}
+                  disabled={deletingFileId === document._id}
                 >
-                  {deleteFileMutation.isPending ? (
+                  {deletingFileId === document._id ? (
                     <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-red-800 rounded-full"></div>
                   ) : (
                     <IconTrash size={18} />
@@ -243,6 +279,36 @@ const FileSharing = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* Image preview modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setPreviewImage(null)}>
+          <img src={previewImage} alt="Preview" className="max-h-[80vh] max-w-[90vw] rounded shadow-lg" />
+        </div>
+      )}
+
+      {/* Delete confirmation dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-card rounded-lg p-6 shadow-xl w-full max-w-xs flex flex-col items-center">
+            <p className="mb-4 text-center">Are you sure you want to delete this file?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={confirmDeleteFile}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={cancelDeleteFile}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </motion.div>

@@ -1,18 +1,26 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { IconChevronDown, IconMail, IconX, IconLoader2 } from '../components/ui/Icons';
+import { useState, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  IconChevronDown, 
+  IconMail, 
+  IconX, 
+  IconLoader2,
+  IconUserCircle, 
+  IconBuildingSkyscraper,
+  IconSchool
+} from './ui/Icons';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ProjectService from '../service/ProjectService';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 
-// Avatar component for better reusability
+// Avatar component with improved error handling and loading state
 const Avatar = ({ src, alt, initials }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   
   return (
-    <div className="w-24 h-24 rounded-full ring-2 ring-primary ring-offset-2 overflow-hidden">
+    <div className="w-24 h-24 rounded-full ring-2 ring-primary/30 ring-offset-2 overflow-hidden shadow-md">
       {!imageError && src ? (
         <>
           {!imageLoaded && (
@@ -30,7 +38,7 @@ const Avatar = ({ src, alt, initials }) => {
           />
         </>
       ) : (
-        <div className="w-full h-full bg-primary/10 flex items-center justify-center text-xl font-semibold text-primary">
+        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-xl font-semibold text-primary">
           {initials}
         </div>
       )}
@@ -38,24 +46,27 @@ const Avatar = ({ src, alt, initials }) => {
   );
 };
 
-// ResearchInterests component for better separation of concerns
+// ResearchInterests component with enhanced visualization
 const ResearchInterests = ({ interests }) => {
   if (!interests || interests.length === 0) return null;
 
   return (
     <div>
-      <h4 className="font-medium mb-2 break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Research Interests</h4>
+      <h4 className="font-medium mb-2 text-sm text-foreground/90 flex items-center gap-1">
+        <span className="w-1 h-4 bg-secondary rounded-full inline-block mr-1"></span>
+        Research Interests
+      </h4>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {interests.map((interest, index) => (
           <motion.li
             key={index}
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -5 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
             className="flex items-center gap-2 text-sm text-muted-foreground break-words overflow-wrap-anywhere"
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary/70 flex-shrink-0" />
             {interest}
           </motion.li>
         ))}
@@ -67,9 +78,10 @@ const ResearchInterests = ({ interests }) => {
 export const FacultyCard = ({ faculty }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const cardRef = useRef(null);
 
   const getInitials = useCallback((name) => {
-    return name.split(' ').map(n => n[0]).join('');
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }, []);
 
   // Handle data structure differences - create fallbacks for missing fields
@@ -108,10 +120,11 @@ export const FacultyCard = ({ faculty }) => {
         layout
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card bg-gradient-to-br from-neutral-900/90 to-background/60 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden w-full h-full flex flex-col"
+        className="card bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden w-full h-full flex flex-col border border-primary/10"
+        ref={cardRef}
       >
         {/* Card with fixed heights in collapsed state */}
-        <div className={`p-4 sm:p-6 flex flex-col ${isExpanded ? 'flex-grow' : 'h-68'}`}>
+        <div className={`p-5 sm:p-6 flex flex-col ${isExpanded ? 'flex-grow' : 'h-68'}`}>
           {/* Top content - always visible */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
             <motion.div 
@@ -124,44 +137,77 @@ export const FacultyCard = ({ faculty }) => {
                 alt={faculty.name}
                 initials={getInitials(faculty.name)}
               />
+              
+              {faculty.lastActiveAt && (
+                <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+              )}
             </motion.div>
-
+            
             <div className="flex-1 text-center sm:text-left space-y-2">
               <motion.h3 
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-xl font-semibold break-words overflow-wrap-anywhere line-clamp-2" 
+                className="text-xl font-semibold break-words overflow-wrap-anywhere" 
                 style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
               >
                 {faculty.name}
               </motion.h3>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-sm text-muted-foreground break-words overflow-wrap-anywhere line-clamp-1" 
-                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-              >
-                {faculty.department || faculty.university || ''}
-              </motion.p>
-              {expertise.length > 0 && (
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-sm font-medium text-primary break-words overflow-wrap-anywhere line-clamp-2" 
-                  style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-                >
-                  {expertise.join(', ')}
-                </motion.p>
-              )}
+              
+              <div className="flex flex-col gap-1">
+                {(faculty.department || faculty.university) && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center gap-1 text-sm text-muted-foreground"
+                  >
+                    {faculty.department && (
+                      <div className="flex items-center gap-1">
+                        <IconBuildingSkyscraper size={14} className="text-primary/70" />
+                        <span className="break-words overflow-wrap-anywhere">{faculty.department}</span>
+                      </div>
+                    )}
+                    
+                    {faculty.department && faculty.university && (
+                      <span className="mx-1">•</span>
+                    )}
+                    
+                    {faculty.university && (
+                      <div className="flex items-center gap-1">
+                        <IconSchool size={14} className="text-primary/70" />
+                        <span className="break-words overflow-wrap-anywhere">{faculty.university}</span>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+                
+                {expertise.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-wrap gap-1 mt-1"
+                  >
+                    {expertise.slice(0, 3).map((exp, index) => (
+                      <span key={index} className="px-2 py-0.5 bg-primary/10 text-primary/80 text-xs rounded-full">
+                        {exp}
+                      </span>
+                    ))}
+                    {expertise.length > 3 && (
+                      <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full">
+                        +{expertise.length - 3} more
+                      </span>
+                    )}
+                  </motion.div>
+                )}
+              </div>
               
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/40 hover:bg-accent/80 text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/50 hover:bg-accent/80 text-sm font-medium mt-1"
                 onClick={() => setIsExpanded(!isExpanded)}
                 aria-expanded={isExpanded}
                 aria-controls={`faculty-details-${faculty._id}`}
@@ -191,8 +237,11 @@ export const FacultyCard = ({ faculty }) => {
               >
                 {faculty.bio && (
                   <div>
-                    <h4 className="font-medium mb-2 break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Bio</h4>
-                    <p className="text-sm text-muted-foreground break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{faculty.bio}</p>
+                    <h4 className="font-medium mb-2 text-sm text-foreground/90 flex items-center gap-1">
+                      <span className="w-1 h-4 bg-primary rounded-full inline-block mr-1"></span>
+                      Bio
+                    </h4>
+                    <p className="text-sm text-muted-foreground break-words overflow-wrap-anywhere bg-accent/30 p-3 rounded-lg" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{faculty.bio}</p>
                   </div>
                 )}
                 
@@ -201,7 +250,7 @@ export const FacultyCard = ({ faculty }) => {
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="block w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium text-center"
+                  className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/95 hover:to-primary/85 px-4 py-2.5 rounded-lg font-medium text-center shadow-sm hover:shadow-md transition-all duration-200 mt-4"
                   onClick={handleContactClick}
                   disabled={facultyRequestMutation.isPending}
                   aria-label={`Contact ${faculty.name}`}
@@ -210,12 +259,12 @@ export const FacultyCard = ({ faculty }) => {
                     {facultyRequestMutation.isPending ? (
                       <>
                         <IconLoader2 size={18} className="animate-spin" />
-                        Processing...
+                        <span>Processing...</span>
                       </>
                     ) : (
                       <>
                         <IconMail size={18} />
-                        Contact Mentor
+                        <span>Request Mentorship</span>
                       </>
                     )}
                   </span>
@@ -232,7 +281,7 @@ export const FacultyCard = ({ faculty }) => {
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="block w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium text-center mt-4"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/95 hover:to-primary/85 px-4 py-2.5 rounded-lg font-medium text-center shadow-sm hover:shadow-md transition-all duration-200 mt-4"
               onClick={handleContactClick}
               disabled={facultyRequestMutation.isPending}
               aria-label={`Contact ${faculty.name}`}
@@ -241,12 +290,12 @@ export const FacultyCard = ({ faculty }) => {
                 {facultyRequestMutation.isPending ? (
                   <>
                     <IconLoader2 size={18} className="animate-spin" />
-                    Processing...
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
                     <IconMail size={18} />
-                    Contact Mentor
+                    <span>Request Mentorship</span>
                   </>
                 )}
               </span>
@@ -290,7 +339,7 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-neutral-700/60 z-[9999]"
+      className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-neutral-900/70 z-[9999]"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -306,7 +355,7 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
           damping: 25,
           delay: 0.1,
         }}
-        className="bg-card/90 backdrop-blur-sm p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transition-all relative overflow-hidden"
+        className="bg-card/95 backdrop-blur-sm p-6 rounded-xl shadow-xl w-full max-w-lg mx-4 transition-all relative overflow-hidden border border-primary/20"
         onClick={(e) => e.stopPropagation()}
       >
         <motion.div 
@@ -344,7 +393,7 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
           className="text-muted-foreground mb-6 break-words overflow-wrap-anywhere" 
           style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Choose which project you want to request mentorship from {facultyName} for:
+          Choose which project you want to request mentorship from <span className="font-medium text-primary">{facultyName}</span> for:
         </motion.p>
         
         {error ? (
@@ -357,12 +406,23 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
               Failed to load projects: {error.message || 'Unknown error'}
             </p>
           </motion.div>
+        ) : isLoading ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center py-8"
+          >
+            <div className="flex flex-col items-center">
+              <IconLoader2 size={32} className="animate-spin text-primary mb-3" />
+              <p className="text-muted-foreground">Loading your projects...</p>
+            </div>
+          </motion.div>
         ) : isSuccess && data?.projects && data.projects.length > 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="max-h-[60vh] overflow-y-auto divide-y divide-border/20 bg-background/30 backdrop-blur-sm rounded-xl overflow-hidden"
+            className="max-h-[60vh] overflow-y-auto divide-y divide-border/20 bg-background/30 backdrop-blur-sm rounded-xl overflow-hidden border border-border/20"
           >
             {data.projects.map((project, index) => (
               <motion.div
@@ -384,7 +444,7 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="p-8 text-center bg-background/30 backdrop-blur-sm rounded-xl"
+            className="p-8 text-center bg-background/30 backdrop-blur-sm rounded-xl border border-border/20"
           >
             <p className="mb-4 break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>You don't have any projects yet.</p>
             <p className="text-sm text-muted-foreground break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Create a project first to request mentorship.</p>
@@ -404,7 +464,7 @@ export const ProjectListItem = ({ project, onSelect, disabled = false }) => {
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0 pr-2">
-          <h4 className="font-medium text-base text-primary/90 truncate break-words overflow-wrap-anywhere" 
+          <h4 className="font-medium text-base text-foreground truncate break-words overflow-wrap-anywhere" 
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }} 
             title={project.title}
           >
@@ -412,7 +472,7 @@ export const ProjectListItem = ({ project, onSelect, disabled = false }) => {
           </h4>
           {project.description && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-              {project.description}
+              {project.description.abstract || project.description}
             </p>
           )}
         </div>
@@ -439,55 +499,6 @@ export const ProjectListItem = ({ project, onSelect, disabled = false }) => {
         </motion.button>
       </div>
     </motion.div>
-  );
-};
-
-export const ProjectList = () => {
-  const { data, error, isLoading } = useSuspenseQuery({
-    queryKey: ['projects'],
-    queryFn: ProjectService.getAllProjects,
-    staleTime: 5 * 60 * 1000
-  });
-
-  const handleSelect = (project) => {
-    // Handle project selection logic here
-    console.log('Selected project:', project);
-    // You can add further logic like navigation or state updates
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8 border border-border/50 rounded-lg">
-        <IconLoader2 size={24} className="animate-spin text-primary mr-2" />
-        <span>Loading projects...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center bg-destructive/10 border border-destructive/20 rounded-lg">
-        <p className="text-destructive">Failed to load projects: {error.message || 'Unknown error'}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="divide-y divide-border/50 border border-border/50 rounded-lg overflow-hidden">
-      {data?.projects?.length > 0 ? (
-        data.projects.map((project) => (
-          <ProjectListItem 
-            key={project._id} 
-            project={project} 
-            onSelect={handleSelect}
-          />
-        ))
-      ) : (
-        <div className="p-6 text-center">
-          <p className="text-muted-foreground">No projects found</p>
-        </div>
-      )}
-    </div>
   );
 };
 

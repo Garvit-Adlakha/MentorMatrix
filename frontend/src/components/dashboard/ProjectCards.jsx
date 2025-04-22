@@ -1,138 +1,83 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { 
-  IconCircleCheck, 
-  IconCircleX, 
-  IconCheck, 
-  IconAlertTriangle,
-  IconArrowRight 
-} from '../../components/ui/Icons';
+import { HoverEffect } from '../../components/ui/card-hover-effect';
 
 const ProjectCards = ({ proposals, userRole, handleViewDetails }) => {
-  return (
-    <motion.div 
-      key="card-view"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-    >
-      {proposals.map((proposal, index) => (
-        <ProjectCard 
-          key={proposal.id}
-          proposal={proposal}
-          userRole={userRole}
-          index={index}
-          handleViewDetails={handleViewDetails}
+  // Format proposals as items for HoverEffect component
+  const getHoverEffectItems = () => {
+    return proposals.map(proposal => ({
+      title: proposal.title,
+      description: typeof proposal.description === 'object'
+        ? proposal.description?.abstract || 'No description available'
+        : proposal.description || 'No description available',
+      link: "#", // We'll handle click events manually
+      id: proposal.id,
+      status: proposal.status,
+      studentName: proposal.studentName,
+      facultyName: proposal.facultyName,
+      createdAt: proposal.createdAt,
+      // Add any other fields you want to display in the card
+    }));
+  };
+  // Wrap HoverEffect to handle click events
+  const HoverEffectWithClicks = () => {
+    return (
+      <div className="w-full" onClick={(e) => {
+        // Find the nearest anchor tag and get its index from data attribute
+        const anchor = e.target.closest('a');
+        if (anchor) {
+          e.preventDefault();
+          const idx = parseInt(anchor.dataset.idx);
+          if (!isNaN(idx) && proposals[idx]) {
+            handleViewDetails(proposals[idx].id);
+          }
+        }
+      }}>
+        <HoverEffect 
+          items={getHoverEffectItems()}
+          className="gap-4"
         />
-      ))}
-    </motion.div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {proposals.length > 0 ? (
+        <HoverEffectWithClicks />
+      ) : (
+        <EmptyState />
+      )}
+    </>
   );
 };
 
-const ProjectCard = ({ proposal, userRole, index, handleViewDetails }) => {
-  const getStatusColor = () => {
-    switch (proposal.status) {
-      case 'approved':
-        return 'bg-teal-500';
-      case 'rejected':
-        return 'bg-rose-500';
-      case 'completed':
-        return 'bg-blue-500';
-      default:
-        return 'bg-amber-500';
-    }
-  };
-
-  const getStatusBadgeClasses = () => {
-    switch (proposal.status) {
-      case 'approved':
-        return 'bg-teal-50 text-teal-700';
-      case 'rejected':
-        return 'bg-rose-50 text-rose-700';
-      case 'completed':
-        return 'bg-blue-50 text-blue-700';
-      default:
-        return 'bg-amber-50 text-amber-700';
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (proposal.status) {
-      case 'approved':
-        return <IconCircleCheck className="w-3.5 h-3.5 flex-shrink-0" />;
-      case 'rejected':
-        return <IconCircleX className="w-3.5 h-3.5 flex-shrink-0" />;
-      case 'completed':
-        return <IconCheck className="w-3.5 h-3.5 flex-shrink-0" />;
-      default:
-        return <IconAlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />;
-    }
-  };
-
+const EmptyState = () => {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)" }}
-      className="bg-gradient-to-br from-card to-background/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 relative overflow-hidden border border-primary/10"
-      onClick={() => handleViewDetails(proposal.id)}
-    >
-      {/* Colored top bar based on status */}
-      <div className={`h-1.5 w-full absolute top-0 left-0 ${getStatusColor()}`}></div>
-      
-      {/* Status badge positioned at top right */}
-      <div className="absolute top-3 right-3 z-10">
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1.5
-          ${getStatusBadgeClasses()}`}
-        >
-          {getStatusIcon()}
-          {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
-        </span>
+    <div className="col-span-full bg-card p-10 rounded-xl border border-border/40 text-center">
+      <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-alert-triangle text-primary" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M12 9v4"></path>
+          <path d="M12 16v.01"></path>
+          <path d="M3.201 12.872l8.4 -10.2c.263 -.319 .754 -.319 1.017 0l8.4 10.2c.199 .241 .181 .6 -.045 .82l-.319 .309c-.097 .094 -.217 .156 -.348 .179l-.199 .021h-16.8c-.414 0 -.75 -.336 -.75 -.75c0 -.162 .046 -.314 .125 -.442l.08 -.088l.319 -.309z"></path>
+        </svg>
       </div>
-      
-      <div className="p-6 pt-8">
-        <h2 className="text-xl font-medium mb-4 break-words line-clamp-2">
-          {proposal.title}
-        </h2>
-        
-        <div className="flex items-center mb-4">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-            <span className="font-medium">
-              {userRole === 'student' ? proposal.facultyName.charAt(0) : proposal.studentName.charAt(0)}
-            </span>
-          </div>
-          <div>
-            <p className="text-sm font-medium break-words line-clamp-1">
-              {userRole === 'student' ? 'Faculty: ' : 'Student: '}
-              {userRole === 'student' ? proposal.facultyName : proposal.studentName}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Submitted: {new Date(proposal.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        </div>
-        
-        <p className="text-sm text-muted-foreground mb-6 break-words line-clamp-3">{proposal.description}</p>
-        
-        <div className="mt-auto pt-4">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-primary/90 to-primary/70 text-white shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewDetails(proposal.id);
-            }}
-          >
-            View Details
-            <IconArrowRight size={16} />
-          </motion.button>
-        </div>
-      </div>
-    </motion.div>
+      <h3 className="text-xl font-medium mb-2">No Projects Found</h3>
+      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+        There are no projects matching your current filters. Try adjusting your search or add a new project.
+      </p>
+      <button 
+        className="px-6 py-3 bg-primary text-white rounded-lg font-medium inline-flex items-center gap-2"
+      >
+        Create New Project
+        <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-arrow-right" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M5 12l14 0"></path>
+          <path d="M13 18l6 -6"></path>
+          <path d="M13 6l6 6"></path>
+        </svg>
+      </button>
+    </div>
   );
 };
 

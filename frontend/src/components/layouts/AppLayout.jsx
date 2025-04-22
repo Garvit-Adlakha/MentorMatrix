@@ -14,7 +14,7 @@ const AppLayout = () => (WrappedComponent) => {
                     transition={{ duration: 0.4 }}
                     className="flex-grow w-full mx-auto transition-all duration-300 md:container overflow-x-hidden pt-20 pb-10"
                 >
-                    <div className="w-full animate-fadeIn relative z-10 rounded-xl px-3 sm:px-0">
+                    <div className="w-full animate-fadeIn relative z-10 mt-16  rounded-xl px-3 sm:px-0">
                         <WrappedComponent {...props} />
                     </div>
                 </motion.main>

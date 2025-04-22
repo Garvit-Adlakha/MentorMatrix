@@ -1,196 +1,228 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import authService from '../../service/authService';
-import { IconAlertCircle, IconEye, IconEyeOff } from '../ui/Icons';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff } from '../ui/Icons';
+import { useAuth } from "../../store/authStore";
+import toast from "react-hot-toast";
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  
   const navigate = useNavigate();
   const location = useLocation();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [errorMessage, setErrorMessage] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const { login } = useAuth();
 
-
-  // Check for redirect message from other pages (like signup)
-  useEffect(() => {
-    const message = location.state?.message;
-    if (message) {
-      // Show success message from redirect
-      setSuccessMessage(message);
-      // Clear the location state
-      window.history.replaceState({}, document.title);
+  // Check if user was redirected from signup with success message
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const success = params.get("success");
+    if (success) {
+      setSuccessMessage("Account created successfully. Please login.");
     }
   }, [location]);
 
-  const [successMessage, setSuccessMessage] = useState('');
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
-    // Clear error when user types
-    if (errorMessage) setErrorMessage('');
+    }));
+    
+    // Clear error when user starts typing
+    if (errorMessage) {
+      setErrorMessage("");
+    }
   };
 
-  const queryClient = useQueryClient();
-  const loginMutation = useMutation({
-    mutationFn: () => authService.login(formData.email, formData.password, rememberMe),
-    onSuccess: (data) => {
-      // Set redirect based on user role or intended destination
-      queryClient.invalidateQueries();
-      navigate('/dashboard');
-    },
-    onError: (error) => {
-      console.error('Login failed:', error);
-      setErrorMessage(
-        error.response?.data?.message || 
-        'Login failed. Please check your credentials and try again.'
-      );
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setErrorMessage("All fields are required");
+      return false;
     }
-  });
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrorMessage("Please enter a valid email address");
+      return false;
+    }
+    
+    return true;
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-    loginMutation.mutate();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const response = await login(formData);
+      if (response.success) {
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      } else {
+        setErrorMessage(response.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage(
+        error.message || "An error occurred. Please try again later."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword(prev => !prev);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-background/60 px-4 py-12">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-6 p-8 bg-card rounded-xl shadow-lg border border-border"
+        className="max-w-md w-full space-y-6"
       >
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">Welcome Back</h2>
-          <p className="mt-2 text-muted-foreground">Sign in to continue to Mentor Matrix</p>
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-block mb-6">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              MentorMatrix
+            </h1>
+          </Link>
+          <h2 className="text-2xl font-bold text-foreground">Welcome Back</h2>
+          <p className="mt-2 text-muted-foreground">Sign in to continue to your account</p>
         </div>
         
-        {successMessage && (
-          <div className="bg-green-100 text-green-800 p-3 rounded-lg flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>{successMessage}</span>
-          </div>
-        )}
-        
-        {errorMessage && (
-          <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2" role="alert">
-            <IconAlertCircle size={18} />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-        
-        <form className="mt-6 space-y-6" onSubmit={handleSubmit} aria-label="Login form">
-          <div className="space-y-5">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
-                value={formData.email}
-                onChange={handleChange}
-                aria-describedby="email-error"
-                placeholder="you@example.com"
-              />
+        <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border/50 p-8">
+          {successMessage && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-500/30 text-green-700 dark:text-green-300 p-4 rounded-lg flex items-center gap-3 mb-6" role="alert">
+              <div className="p-1 bg-green-100 dark:bg-green-800/30 rounded-full">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <span>{successMessage}</span>
             </div>
+          )}
+          
+          {errorMessage && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-500/30 text-red-700 dark:text-red-300 p-4 rounded-lg flex items-center gap-3 mb-6" role="alert">
+              <div className="p-1 bg-red-100 dark:bg-red-800/30 rounded-full">
+                <IconAlertCircle size={18} className="text-red-500" />
+              </div>
+              <span>{errorMessage}</span>
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="password" className="block text-sm font-medium">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <IconMail size={18} className="text-muted-foreground" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="block w-full pl-10 pr-3 py-3 border border-border bg-card/50 focus:ring-2 focus:ring-primary/30 focus:border-primary/30 rounded-lg transition-all placeholder:text-muted-foreground"
+                  placeholder="your.email@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:text-primary/80">
+                <Link to="/forgot-password" className="text-xs text-primary hover:text-primary/90 transition-colors">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <IconLock size={18} className="text-muted-foreground" />
+                </div>
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  required
                   autoComplete="current-password"
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background pr-10"
+                  required
+                  className="block w-full pl-10 pr-10 py-3 border border-border bg-card/50 focus:ring-2 focus:ring-primary/30 focus:border-primary/30 rounded-lg transition-all"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  aria-describedby="password-error"
-                  placeholder="••••••••"
                 />
-                <button 
+                <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={togglePasswordVisibility}
+                  tabIndex="-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
+                  {showPassword ? (
+                    <IconEyeOff size={18} className="text-muted-foreground hover:text-foreground" />
+                  ) : (
+                    <IconEye size={18} className="text-muted-foreground hover:text-foreground" />
+                  )}
                 </button>
               </div>
             </div>
             
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-foreground">
-                Remember me
-              </label>
+            <div>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={isSubmitting}
+                className={`relative w-full py-3 px-4 flex justify-center items-center rounded-lg text-white font-medium transition-all ${
+                  isSubmitting ? "bg-primary/70 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </motion.button>
             </div>
-          </div>
+          </form>
+        </div>
 
-          <div>
-            <button
-              disabled={loginMutation.isPending}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 font-medium rounded-lg px-5 py-2.5 text-center transition-colors disabled:opacity-70"
-              aria-busy={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </span>
-              ) : 'Sign in'}
-            </button>
-          </div>
-          
-          <div className="text-sm text-center">
-            <p className="text-muted-foreground">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary hover:text-primary/80 font-medium">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </form>
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary hover:text-primary/90 font-medium transition-colors">
+              Sign up now
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

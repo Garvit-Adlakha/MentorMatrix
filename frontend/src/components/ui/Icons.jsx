@@ -20,6 +20,7 @@ import {
   IconUserExclamation,
   IconLoader2,
   IconFiles,
+  IconMenu2,
   // New icons added for ProjectCardModel
   IconCalendar,
   IconUserCircle,
@@ -68,13 +69,26 @@ import {
   IconUpload,
   IconList,
   IconLayoutGrid,
+  IconLogout,
+  IconMessageCircle,
+  IconDashboard,
+  IconUser,
   IconFilter,
+  IconCalendarEvent,
+  IconClipboard
   
 } from '@tabler/icons-react';
 
 export {
   IconChevronDown,
+  IconDashboard,
   IconId,
+  IconClipboard,
+  IconUser,
+  IconCalendarEvent,
+  IconMenu2,
+  IconMessageCircle,
+  IconLogout,
   IconFocus,
   IconMapPin,
   IconMail,

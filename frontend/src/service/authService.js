@@ -30,7 +30,7 @@ const authService = {
   currentUser: async () => {
     try {
       const response = await axiosInstance.get('/user/profile');
-      return response.data;
+      return response.data.user;
     } catch (error) {
       // Don't throw errors on auth failures when checking current user
       // This helps prevent refresh loops

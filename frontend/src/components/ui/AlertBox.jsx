@@ -1,144 +1,166 @@
-import React, { useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
+/**
+ * Enhanced AlertBox component for displaying various types of alerts
+ * @param {boolean} isOpen - Controls visibility of the alert
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {function} onClose - Close handler
+ * @param {function} onConfirm - Confirm action handler
+ * @param {string} type - Alert type: 'info', 'success', 'warning', 'error'
+ */
 const AlertBox = ({ 
-  isOpen = false, 
+  isOpen, 
+  title = 'Alert', 
+  message = 'This is an alert message', 
   onClose, 
   onConfirm, 
-  title = "Confirmation", 
-  message = "Are you sure you want to proceed?", 
-  confirmText = "Confirm", 
-  cancelText = "Cancel",
-  type = "info" // Can be info, success, warning, error
+  type = 'info' 
 }) => {
+  if (!isOpen) return null;
   
-  // Close on Escape key press
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    
-    window.addEventListener('keydown', handleEsc);
-    
-    // Prevent scrolling when alert is open
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
     }
-    
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen, onClose]);
+  };
 
-  // Get alert type colors
-  const getTypeStyles = () => {
-    switch(type) {
+  const getAlertStyles = () => {
+    switch (type) {
       case 'success':
         return {
-          bg: 'bg-green-50',
-          border: 'border-green-500',
           icon: (
-            <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 11.0857V12.0057C21.9988 14.1621 21.3005 16.2604 20.0093 17.9875C18.7182 19.7147 16.9033 20.9782 14.8354 21.5896C12.7674 22.201 10.5573 22.1276 8.53447 21.3803C6.51168 20.633 4.78465 19.2518 3.61096 17.4428C2.43727 15.6338 1.87979 13.4938 2.02168 11.342C2.16356 9.19029 2.99721 7.14205 4.39828 5.5028C5.79935 3.86354 7.69279 2.72111 9.79619 2.24587C11.8996 1.77063 14.1003 1.98806 16.07 2.86572" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
-          confirmBtn: 'bg-green-600 hover:bg-green-700'
+          bgColor: 'bg-green-50 dark:bg-green-900/20',
+          borderColor: 'border-green-500/30 dark:border-green-500/40',
+          iconColor: 'text-green-500',
+          buttonColor: 'bg-green-500 hover:bg-green-600',
+          titleColor: 'text-green-700 dark:text-green-300',
+          messageColor: 'text-green-600/80 dark:text-green-400/80'
         };
       case 'warning':
         return {
-          bg: 'bg-yellow-50',
-          border: 'border-yellow-500',
           icon: (
-            <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10.93 2.93L2.93 10.93C1.68 12.18 1.68 14.18 2.93 15.43L10.93 23.43C12.18 24.68 14.18 24.68 15.43 23.43L23.43 15.43C24.68 14.18 24.68 12.18 23.43 10.93L15.43 2.93C14.18 1.68 12.18 1.68 10.93 2.93Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
-          confirmBtn: 'bg-yellow-600 hover:bg-yellow-700'
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+          borderColor: 'border-amber-500/30 dark:border-amber-500/40',
+          iconColor: 'text-amber-500',
+          buttonColor: 'bg-amber-500 hover:bg-amber-600',
+          titleColor: 'text-amber-700 dark:text-amber-300',
+          messageColor: 'text-amber-600/80 dark:text-amber-400/80'
         };
       case 'error':
         return {
-          bg: 'bg-red-50',
-          border: 'border-red-500',
           icon: (
-            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10.29 3.85999L1.82 18C1.64537 18.3024 1.55296 18.6453 1.55199 18.9945C1.55101 19.3437 1.64149 19.6871 1.81442 19.9905C1.98735 20.2939 2.23672 20.5467 2.53773 20.7239C2.83875 20.9012 3.18058 20.9962 3.53 21H20.47C20.8194 20.9962 21.1613 20.9012 21.4623 20.7239C21.7633 20.5467 22.0127 20.2939 22.1856 19.9905C22.3585 19.6871 22.449 19.3437 22.448 18.9945C22.4471 18.6453 22.3546 18.3024 22.18 18L13.71 3.85999C13.5317 3.5661 13.2807 3.32311 12.9812 3.15447C12.6817 2.98584 12.3435 2.89725 12 2.89725C11.6565 2.89725 11.3183 2.98584 11.0188 3.15447C10.7193 3.32311 10.4683 3.5661 10.29 3.85999V3.85999Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
-          confirmBtn: 'bg-red-600 hover:bg-red-700'
+          bgColor: 'bg-red-50 dark:bg-red-900/20',
+          borderColor: 'border-red-500/30 dark:border-red-500/40',
+          iconColor: 'text-red-500',
+          buttonColor: 'bg-red-500 hover:bg-red-600',
+          titleColor: 'text-red-700 dark:text-red-300',
+          messageColor: 'text-red-600/80 dark:text-red-400/80'
         };
       default: // info
         return {
-          bg: 'bg-blue-50',
-          border: 'border-blue-500',
           icon: (
-            <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
-          confirmBtn: 'bg-blue-600 hover:bg-blue-700'
+          bgColor: 'bg-primary-50 dark:bg-primary-900/20',
+          borderColor: 'border-primary/30 dark:border-primary/40',
+          iconColor: 'text-primary',
+          buttonColor: 'bg-primary hover:bg-primary/90',
+          titleColor: 'text-primary-700 dark:text-primary-300',
+          messageColor: 'text-primary-600/80 dark:text-primary-400/80'
         };
     }
   };
 
-  const typeStyles = getTypeStyles();
-
-  if (!isOpen) return null;
-
+  const styles = getAlertStyles();
+  
   return createPortal(
-    <div className="fixed inset-0 z-70 overflow-y-auto">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 backdrop-blur-lg shadow-3xl bg-opacity-50 transition-opacity" 
-        onClick={onClose}
-      ></div>
-      
-      {/* Alert Dialog */}
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div 
-          className={`relative transform overflow-hidden rounded-lg ${typeStyles.bg} border ${typeStyles.border} shadow-xl transition-all sm:w-full sm:max-w-lg`}
-          onClick={e => e.stopPropagation()}
-        >
-          <div className="p-6">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              {typeStyles.icon}
-              <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-neutral-900/50"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="alert-title"
+      aria-describedby="alert-message"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={`w-full max-w-md mx-4 rounded-xl overflow-hidden shadow-lg border ${styles.borderColor} ${styles.bgColor} backdrop-blur-sm`}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="p-6">
+          {/* Alert Header */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`p-2 rounded-full ${styles.iconColor} ${styles.bgColor} bg-opacity-70`}>
+              {styles.icon}
             </div>
-            
-            {/* Message */}
-            <div className="mt-2">
-              <p className="text-sm text-gray-700">{message}</p>
-            </div>
-            
-            {/* Buttons */}
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                onClick={onClose}
-              >
-                {cancelText}
-              </button>
-              <button
-                type="button"
-                className={`inline-flex justify-center rounded-md border border-transparent ${typeStyles.confirmBtn} px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2`}
-                onClick={() => {
-                  onConfirm();
-                  onClose();
-                }}
-              >
-                {confirmText}
-              </button>
-            </div>
+            <h3 
+              id="alert-title"
+              className={`text-xl font-semibold ${styles.titleColor}`}
+            >
+              {title}
+            </h3>
+          </div>
+
+          {/* Alert Message */}
+          <div 
+            id="alert-message"
+            className={`mb-6 text-sm ${styles.messageColor} leading-relaxed`}
+          >
+            {message}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium rounded-lg border border-border/50 bg-background hover:bg-accent/50 transition-colors"
+            >
+              Cancel
+            </button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                onConfirm?.();
+                onClose();
+              }}
+              className={`px-4 py-2 text-sm font-medium rounded-lg text-white shadow-sm transition-colors ${styles.buttonColor}`}
+            >
+              Confirm
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>,
-    document.getElementById('portal-root') 
-  )
-}
+    document.body
+  );
+};
 
-export default AlertBox
+export default AlertBox;
