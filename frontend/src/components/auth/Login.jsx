@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff } from '../ui/Icons';
-import { useAuth } from "../../store/authStore";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import authService from "../../service/authService";
+import Loader from "../ui/Loader";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +19,8 @@ const Login = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+
+
 
   // Check if user was redirected from signup with success message
   React.useEffect(() => {
@@ -56,32 +59,44 @@ const Login = () => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      const response = await login(formData);
-      if (response.success) {
+  const queryClient=useQueryClient()
+
+ const handleLoginMutation = useMutation({
+      mutationFn: ()=> authService.login(formData),
+      onSuccess: () => {
+        setIsSubmitting(false);
+        setSuccessMessage("Login successful!");
+        queryClient.invalidateQueries(["user"]);
         toast.success("Login successful!");
         navigate("/dashboard");
-      } else {
-        setErrorMessage(response.message || "Login failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage(
-        error.message || "An error occurred. Please try again later."
-      );
+      },
+      onError: (error) => {
+        setIsSubmitting(false);
+        setErrorMessage(error.response.data.message || "Login failed. Please try again.");
+        toast.error(error.response.data.message || "Login failed. Please try again.");
+      },
+ })
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsSubmitting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      await handleLoginMutation.mutateAsync();
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if(handleLoginMutation.isLoading) {
+    return (
+      <div>
+        <Loader />
+      </div>
+    )
+  }
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);

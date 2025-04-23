@@ -68,6 +68,17 @@ const Dashboard = () => {
     }));
   }, [projectsData]);
 
+
+  const totalProposals= projects.length;
+  const acceptedProposals = projects.filter(p => p.status === 'approved').length;
+  const pendingProposals = projects.filter(p => p.status === 'pending').length;
+  const rejectedProposals = projects.filter(p => p.status === 'rejected').length;
+  const completedProjects = projects.filter(p => p.status === 'completed').length;
+
+
+
+
+
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'card' ? 'table' : 'card');
   };
@@ -131,7 +142,12 @@ const Dashboard = () => {
           />
           
           {/* Stats Cards */}
-          <StatsCards projects={projects} />
+          <StatsCards
+              totalProposals={totalProposals}
+              acceptedProposals={acceptedProposals}
+              pendingProposals={pendingProposals}
+              rejectedProposals={rejectedProposals}
+          />
           
           {/* Projects Section */}
           <div className=" backdrop-blur-xl  rounded-xl p-6 shadow-xl inset-0 ">

@@ -8,6 +8,7 @@ import { createGroup } from "./chat.controller.js";
 import mongoose from "mongoose";
 import { getSummary } from "../utils/summarizer.js";
 import { Chat } from "../models/chat.model.js";
+import Gemini from "../utils/Gemini.js";
 
 export const createProject = catchAsync(async (req, res, next) => {
     const { title, description, teamMembers, targetFaculty } = req.body;
@@ -532,6 +533,148 @@ export const getProjectSummary=catchAsync(async(req,res,next)=>{
         summary
     })
 })
+
+export const addDocument = catchAsync(async (req, res, next) => {
+    const { projectId } = req.params;
+    const userId = req.id;
+    const document = req.file;
+
+    if (!document) return next(new AppError("Please provide a file", 400));
+
+    const project = await Project.findById(projectId);
+    if (!project) return next(new AppError("Project not found", 404));
+
+    const user = await User.findById(userId).select("role");
+
+    // Use ObjectId comparison for teamMembers
+    const isTeamMember = project.teamMembers.some(id => id.equals(userId));
+    if (!isTeamMember && user.role !== "mentor") {
+        return next(new AppError("You are not authorized to add documents to this project", 403));
+    }
+
+    // Prevent duplicate file uploads by name
+    if (project.documents && project.documents.some(doc => doc.name === document.originalname)) {
+        return next(new AppError("A document with the same name already exists in this project", 400));
+    }
+
+    let documentToUpload = null;
+    try {
+        const result = await uploadMedia(document.path);
+        documentToUpload = {
+            name: document.originalname,
+            url: result?.secure_url || document.path,
+            format: document.mimetype,
+            uploadedAt: new Date(),
+        };
+    } catch (error) {
+        // TODO: Optionally delete local file if upload fails to avoid orphaned files
+        return next(new AppError("File upload failed", 500));
+    }
+    project.documents = [...(project.documents || []), documentToUpload];
+    await project.save();
+
+    // Populate project fields for response
+    const populatedProject = await Project.findById(project._id)
+        .populate("createdBy assignedMentor teamMembers");
+
+    res.status(200).json({
+        success: true,
+        message: "Document added successfully",
+        project: populatedProject,
+    });
+});
+
+export const GenerateprojectReview = catchAsync(async (req, res, next) => {
+    const { projectId } = req.params;
+    const userId = req.id;
+
+    const project = await Project.findById(projectId).select("title description teamMembers");
+    if (!project) return next(new AppError("Project not found", 404));
+
+    // Only allow team members
+    const isTeamMember = project.teamMembers.some(id => id.equals(userId));
+    if (!isTeamMember) {
+        return next(new AppError("Only team members can request a project review", 403));
+    }
+
+    // Build prompt for Gemini with enhanced structure for better UI parsing
+    const prompt = `
+As an expert project reviewer, provide a structured review of this project in the following format:
+
+1. Overall Score: [Score]/10
+[1-2 sentence justification]
+
+2. Project Strengths:
+- [Key strength 1]
+- [Key strength 2]
+- [Key strength 3]
+
+3. Areas for Improvement:
+Technical:
+- [Technical suggestion]: [Best practice recommendation]
+- [Technical suggestion]: [Best practice recommendation]
+
+Implementation:
+- [Implementation suggestion]: [Best practice recommendation]
+- [Implementation suggestion]: [Best practice recommendation]
+
+4. Risks & Considerations:
+- [Key risk or consideration]
+- [Key risk or consideration]
+
+Project Details:
+- Title: ${project.title}
+- Abstract: ${project.description.abstract}
+- Problem Statement: ${project.description.problemStatement}
+- Proposed Methodology: ${project.description.proposedMethodology}
+- Tech Stack: ${(project.description.techStack || []).join(", ")}
+
+Follow this exact format with these section headers for proper UI parsing. Keep each point concise and actionable.
+`;
+
+    let review;
+    try {
+        review = await Gemini({ content: prompt });
+        project.review = review;
+        await project.save();
+    } catch (err) {
+        return next(new AppError("Failed to generate project review", 500));
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Project review generated successfully",
+        review
+    });
+});
+
+export const getProjectReview = catchAsync(async (req, res, next) => {
+    const { projectId } = req.params;
+    const userId = req.id;
+
+    // Fetch review and teamMembers for permission and review existence check
+    const project = await Project.findById(projectId).select("review teamMembers");
+    if (!project) return next(new AppError("Project not found", 404));
+
+    // Only allow team members
+    const isTeamMember = project.teamMembers.some(id => id.equals(userId));
+    if (!isTeamMember) {
+        return next(new AppError("Only team members can view the project review", 403));
+    }
+
+    // If review is missing or empty, generate it and return
+    if (!project.review || project.review.length === 0) {
+        // Call GenerateprojectReview and return its result
+        return await GenerateprojectReview(req, res, next);
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Project review fetched successfully",
+        review: project.review
+    });
+});
+
 //-------------------todo-------------------
 //Improve File Management
 //Allow users to remove specific files from a project

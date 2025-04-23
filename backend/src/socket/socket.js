@@ -6,6 +6,9 @@ const onlineUsers = new Map();
 const userRooms = new Map(); // Store user-to-room mapping
 const messageRateLimits = new Map(); // Store rate limits per user
 
+// Helper to map socket.id to userId after authentication (for better security)
+const socketIdToUserId = new Map();
+
 // Create a global io variable to be exported and used in other modules
 let io;
 
@@ -55,8 +58,8 @@ export const initializeSocket = (server) => {
   };
 
   // 3. Error Handling and Acknowledgements
-  const sendError = (socket, message) => {
-    socket.emit("error", { message });
+  const sendError = (socket, message, code = 'GENERIC_ERROR') => {
+    socket.emit("error", { message, code });
   };
 
   // WebSocket Connection
@@ -64,6 +67,14 @@ export const initializeSocket = (server) => {
     console.log("User connected:", socket.id);
     onlineUsers.set(socket.id, socket.id);
     socket.broadcast.emit("userOnline", socket.id);
+
+    // Authenticate user and map socket.id to userId (JWT or session token)
+    socket.on("authenticate", ({ userId }) => {
+      if (userId) {
+        socketIdToUserId.set(socket.id, userId);
+        onlineUsers.set(userId, socket.id);
+      }
+    });
 
     // Join Chat Room
     socket.on("joinChat", (chatId) => {
@@ -90,16 +101,18 @@ export const initializeSocket = (server) => {
     // 4. Emit Events Selectively
     socket.on("sendMessage", ({ chatId, content }, callback) => {
       if (!chatId || !content) {
-        return sendError(socket, "Chat ID and content are required.");
+        return sendError(socket, "Chat ID and content are required.", 'MISSING_FIELDS');
       }
 
-      if (isRateLimited(socket.id)) {
-        return sendError(socket, "Rate limit exceeded. Please slow down.");
+      // Use userId for rate limiting if authenticated, else fallback to socket.id
+      const userId = socketIdToUserId.get(socket.id) || socket.id;
+      if (isRateLimited(userId)) {
+        return sendError(socket, "Rate limit exceeded. Please slow down.", 'RATE_LIMIT');
       }
 
       io.to(chatId).emit("receiveMessage", {
         chatId,
-        senderId: socket.id,
+        senderId: userId,
         content,
         createdAt: new Date(),
       });
@@ -131,6 +144,12 @@ export const initializeSocket = (server) => {
 
     // On Disconnect - leave all rooms
     socket.on("disconnect", () => {
+      // Clean up userId mapping
+      const userId = socketIdToUserId.get(socket.id);
+      if (userId) {
+        onlineUsers.delete(userId);
+        socketIdToUserId.delete(socket.id);
+      }
       onlineUsers.delete(socket.id);
       userRooms.get(socket.id)?.forEach((room) => socket.leave(room));
       userRooms.delete(socket.id);

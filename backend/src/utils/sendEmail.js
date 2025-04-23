@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const sendEmail = async ({ email, subject, message }) => {
+export const sendEmail = async ({ email, subject, message, textMessage }) => {
     try {
         // Configure SMTP Transporter
         const transporter = nodemailer.createTransport({
@@ -15,11 +15,11 @@ export const sendEmail = async ({ email, subject, message }) => {
 
         // Email options
         const mailOptions = {
-            from: `"MentorMatrix" <${process.env.SMTP_USER}>`,
+            from: `MentorMatrix<${process.env.SMTP_USER}>`,
             to: email,
             subject,
-            html: `<p>${message}</p>`, // HTML version
-            text: message.replace(/<[^>]*>/g, ""), // Plain text fallback
+            html: message, // assume message is already HTML
+            text: textMessage || message.replace(/<[^>]*>/g, ""), // allow explicit text fallback
         };
 
         // Send Email

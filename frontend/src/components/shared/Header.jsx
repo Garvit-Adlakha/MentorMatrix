@@ -12,8 +12,9 @@ import {
   IconDashboard,
   IconMessageCircle 
 } from "../ui/Icons";
-import {  useQuery } from "@tanstack/react-query";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import authService from "../../service/authService";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -22,13 +23,28 @@ const Header = () => {
 
   const navigate = useNavigate();
 
-    const {data:user,isLoading:userLoading}=useQuery({
+  const {data:user,isLoading:userLoading}=useQuery({
     queryKey: ['user'],
     queryFn: () => authService.currentUser(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     cacheTime: 1000 * 60 * 5, // 5 minutes
-    })
+  })
 
+  const QueryClient=useQueryClient()
+
+  const logoutMutation=useMutation({
+    mutationFn:()=>authService.logout(),
+    onSuccess:()=>{
+      setProfileOpen(false);
+      setNavOpen(false);
+      toast.success("Logged out successfully");
+      QueryClient.removeQueries(['user']);
+      navigate("/login");
+    },
+    onError:(error)=>{
+      toast.error(error.response.data.message || "Logout failed. Please try again.");
+    }
+  })
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,7 +59,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   if(userLoading){
     return (
       <div className="flex items-center justify-center h-screen">
@@ -52,12 +67,8 @@ const Header = () => {
     );
   }
 
-  
-
-
   const logoutHandler = async () => {
-    await logout();
-    navigate("/login");
+      logoutMutation.mutateAsync()
   };
 
   const getInitials = (name) => {
@@ -168,14 +179,15 @@ const Header = () => {
           ) : (
             <div className="relative">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all duration-300"
+                whileHover={{ scale: 1.07, boxShadow: '0 4px 24px 0 rgba(80,80,180,0.10)' }}
+                whileTap={{ scale: 0.97 }}
+                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 border border-primary/20 shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 onClick={() => setProfileOpen(!profileOpen)}
                 aria-expanded={profileOpen}
                 aria-haspopup="true"
+                tabIndex={0}
               >
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                <div className="h-9 w-9 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -183,7 +195,7 @@ const Header = () => {
                       className="h-full w-full object-cover"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name);
+                        e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name);
                       }}
                     />
                   ) : (
@@ -192,7 +204,7 @@ const Header = () => {
                     </span>
                   )}
                 </div>
-                <span className="font-medium">{user.name}</span>
+                <span className="font-medium text-foreground/90 max-w-[100px] truncate">{user.name}</span>
                 <motion.div
                   animate={{ rotate: profileOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
@@ -204,89 +216,49 @@ const Header = () => {
               <AnimatePresence>
                 {profileOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 origin-top-right bg-card shadow-lg rounded-xl overflow-hidden border border-border/50 z-50"
+                    exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute right-0 mt-3 w-64 origin-top-right bg-gradient-to-br from-background/95 to-card/90 shadow-2xl rounded-2xl overflow-hidden border border-primary/20 z-50 backdrop-blur-xl"
                     onMouseLeave={() => setProfileOpen(false)}
+                    tabIndex={-1}
                   >
-                    <div className="p-4 border-b border-border/20">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-                          {user.avatar ? (
-                            <img
-                              src={user.avatar}
-                              alt={user.name}
-                              className="h-full w-full object-cover"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name);
-                              }}
-                            />
-                          ) : (
-                            <span className="font-medium text-primary text-lg">
-                              {getInitials(user.name)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 overflow-hidden">
-                          <h4 className="font-medium text-foreground truncate">
-                            {user.name}
-                          </h4>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {user.email}
-                          </p>
-                        </div>
+                    <div className="relative">
+                      <div className="absolute -top-2 right-8 w-4 h-4 bg-background rotate-45 border-t border-l border-primary/20 z-10"></div>
+                    </div>
+                    <div className="p-5 border-b border-border/20 bg-primary/5 flex flex-col items-center gap-2">
+                      <div className="h-14 w-14 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md mb-1">
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name);
+                            }}
+                          />
+                        ) : (
+                          <span className="font-medium text-primary text-lg">
+                            {getInitials(user.name)}
+                          </span>
+                        )}
                       </div>
+                      <h4 className="font-semibold text-foreground truncate w-full text-center">{user.name}</h4>
+                      <p className="text-xs text-muted-foreground truncate w-full text-center">{user.email}</p>
                     </div>
-
-                    <div className="p-2">
-                      <Link
-                        to="/dashboard"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <IconDashboard size={18} className="text-primary" />
-                        <span className="font-medium">Dashboard</span>
-                      </Link>
-                      
-                      <Link
-                        to="/collaborate"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <IconMessageCircle size={18} className="text-primary" />
-                        <span className="font-medium">Collaboration Hub</span>
-                      </Link>
-
-                      <Link
-                        to="/profile"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <IconUser size={18} className="text-primary" />
-                        <span className="font-medium">My Profile</span>
-                      </Link>
-                      
-                      <Link
-                        to="/settings"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <IconSettings size={18} className="text-primary" />
-                        <span className="font-medium">Settings</span>
-                      </Link>
-                    </div>
-
-                    <div className="p-2 border-t border-border/20">
-                      <button
-                        className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-destructive/10 transition-colors text-destructive"
+                    <div className="p-3">
+                      <motion.button
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex w-full items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-destructive/10 to-destructive/20 hover:from-destructive/20 hover:to-destructive/30 text-destructive font-semibold transition-colors justify-center shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/30"
                         onClick={logoutHandler}
+                        tabIndex={0}
                       >
                         <IconLogout size={18} />
-                        <span className="font-medium">Logout</span>
-                      </button>
+                        Logout
+                      </motion.button>
                     </div>
                   </motion.div>
                 )}
@@ -312,8 +284,7 @@ const Header = () => {
                 {!user ? (
                   <Link
                     to="/login"
-                    className="btn bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg 
-                    flex items-center justify-center gap-2 w-full transition-all duration-300"
+                    className="btn bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 w-full transition-all duration-300"
                     onClick={() => setNavOpen(false)}
                   >
                     <IconUser size={18} />
@@ -321,58 +292,38 @@ const Header = () => {
                   </Link>
                 ) : (
                   <div className="space-y-2">
-                    <div className="p-4 bg-primary/10 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-                          {user.avatar ? (
-                            <img
-                              src={user.avatar}
-                              alt={user.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <span className="font-medium text-primary text-lg">
-                              {getInitials(user.name)}
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-medium">{user.name}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            {user.email}
-                          </p>
-                        </div>
+                    <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl flex items-center gap-3 shadow-sm">
+                      <div className="h-12 w-12 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md">
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="font-medium text-primary text-lg">
+                            {getInitials(user.name)}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-foreground/90">{user.name}</h4>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
-                    
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors w-full"
-                      onClick={() => setNavOpen(false)}
-                    >
-                      <IconDashboard size={18} className="text-primary" />
-                      <span className="font-medium">Dashboard</span>
-                    </Link>
-                    
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors w-full"
-                      onClick={() => setNavOpen(false)}
-                    >
-                      <IconUser size={18} className="text-primary" />
-                      <span className="font-medium">Profile</span>
-                    </Link>
-                    
-                    <button
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors w-full"
+                    <motion.button
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-destructive/10 to-destructive/20 hover:from-destructive/20 hover:to-destructive/30 text-destructive font-semibold transition-colors w-full justify-center shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/30"
                       onClick={() => {
                         logoutHandler();
                         setNavOpen(false);
                       }}
+                      tabIndex={0}
                     >
                       <IconLogout size={18} />
-                      <span className="font-medium">Logout</span>
-                    </button>
+                      Logout
+                    </motion.button>
                   </div>
                 )}
               </div>

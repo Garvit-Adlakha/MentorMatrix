@@ -88,6 +88,10 @@ const projectSchema = new mongoose.Schema(
             default: "pending", 
             index: true,
         },
+        review: {
+            type: String,
+            default: "",
+        },
     },
     {
         timestamps: true,

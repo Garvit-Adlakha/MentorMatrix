@@ -2,12 +2,11 @@ import axiosInstance from "../axios/axiosInstance";
 
 const authService = {
   // Login user
-  login: async (email, password, rememberMe = false) => {
+  login: async (formdata) => {
     try {
       const response = await axiosInstance.post('/user/signin', {
-        email,
-        password,
-        rememberMe
+        email: formdata.email,
+        password: formdata.password
       });
       // No need to store token in localStorage as it's in an HTTP-only cookie
       return response.data;

@@ -71,7 +71,7 @@ const userSchema = new mongoose.Schema(
         bio: {
             type: String,
             maxlength: [300, "Bio cannot exceed 300 characters"],
-            defaul: function(){
+            default: function(){
                 if(this.role === "mentor"){
                     return "Mentor";
                 }

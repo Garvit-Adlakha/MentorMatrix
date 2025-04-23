@@ -9,7 +9,6 @@ const ProjectCards = ({ proposals, userRole, handleViewDetails }) => {
       description: typeof proposal.description === 'object'
         ? proposal.description?.abstract || 'No description available'
         : proposal.description || 'No description available',
-      link: "#", // We'll handle click events manually
       id: proposal.id,
       status: proposal.status,
       studentName: proposal.studentName,

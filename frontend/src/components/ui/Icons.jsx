@@ -75,15 +75,30 @@ import {
   IconUser,
   IconFilter,
   IconCalendarEvent,
-  IconClipboard
+  IconLock,
+  IconSparkles,
+  IconClipboard,
+  IconListCheck,
+  IconCoins,
+  IconCloudUpload,
+  IconShieldCheck,
+  IconStar,
+  IconScale
   
 } from '@tabler/icons-react';
 
 export {
   IconChevronDown,
+  IconShieldCheck,
+  IconListCheck,
+  IconLock,
+  IconScale,
+  IconStar,
   IconDashboard,
+  IconCloudUpload,
   IconId,
   IconClipboard,
+  IconCoins,
   IconUser,
   IconCalendarEvent,
   IconMenu2,
@@ -155,5 +170,6 @@ export {
   IconList,
   IconClock,
   IconCircleCheck,
+  IconSparkles,
   IconFilter
 };

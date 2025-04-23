@@ -5,7 +5,7 @@ const ProjectService = {
     getAllProjects: async () => {
         try {
             // Use the appropriate endpoint based on user role
-            const endpoint ="/project/get-project";
+            const endpoint = "/project/get-project";
             const response = await axiosInstance.get(`${endpoint}`);
             console.log("Projects fetched successfully:", response.data);
             return response.data;
@@ -17,7 +17,7 @@ const ProjectService = {
             };
         }
     },
-    
+
     // Create a new project
     createProject: async (data) => {
         try {
@@ -32,14 +32,14 @@ const ProjectService = {
             };
         }
     },
-    
+
     // Get a single project by ID
     getProjectById: async (projectId) => {
         try {
             if (!projectId) {
                 throw new Error("Project ID is required");
             }
-            
+
             const response = await axiosInstance.get(`/project/get-project/${projectId}`);
             console.log("Project fetched successfully:", response.data);
             return response.data;
@@ -51,7 +51,7 @@ const ProjectService = {
             };
         }
     },
-    
+
     // Legacy method - keeping for backward compatibility
     getSelfProject: async () => {
         try {
@@ -66,19 +66,19 @@ const ProjectService = {
             };
         }
     },
-    
+
     // Request a mentor for a project
     requestMentor: async ({ mentorId, projectId }) => {
         try {
             if (!mentorId || !projectId) {
                 throw new Error("Both mentor ID and project ID are required");
             }
-            
+
             const response = await axiosInstance.post("/project/request-mentor", {
                 mentorId,
                 projectId
             });
-            
+
             console.log("Mentor request sent successfully:", response.data);
             return response.data;
         } catch (error) {
@@ -90,12 +90,12 @@ const ProjectService = {
         }
     },
 
-    acceptProjectRequest:async(projectId)=>{
+    acceptProjectRequest: async (projectId) => {
         try {
             if (!projectId) {
                 throw new Error("Project ID is required");
             }
-            
+
             const response = await axiosInstance.post(`/project/accept-project/${projectId}`);
             console.log("Project request accepted successfully:", response.data);
             return response.data;
@@ -107,12 +107,12 @@ const ProjectService = {
             };
         }
     },
-    mentorDecision:async({projectId , decision})=>{
+    mentorDecision: async ({ projectId, decision }) => {
         try {
             if (!projectId) {
                 throw new Error("Project ID is required");
             }
-            const response = await axiosInstance.post(`/project/assign-mentor/${projectId}`,{
+            const response = await axiosInstance.post(`/project/assign-mentor/${projectId}`, {
                 decision
             });
             console.log("Mentor decision made successfully:", response.data);
@@ -187,7 +187,22 @@ const ProjectService = {
                 originalError: error
             };
         }
+    },
+
+    getProjectReview: async (projectId) => {
+        try {
+            const response = await axiosInstance.get(`/project/project-review/${projectId}`);
+            console.log("Project review fetched successfully:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching project review:", error);
+            throw {
+                message: error.response?.data?.message || "Failed to fetch project review. Please try again.",
+                originalError: error
+            };
+        }
     }
+
 };
 
 export default ProjectService;

@@ -18,7 +18,7 @@ export const HoverEffect = ({
       {items.map((item, idx) => (
         <a
           href={item?.link}
-          key={item?.link || idx}
+          key={item?.id || idx}
           className="relative group block p-2 h-full w-full"
           onMouseEnter={() => setHoveredIndex(idx)}
           onMouseLeave={() => setHoveredIndex(null)}
@@ -145,7 +145,7 @@ export const ProjectCard = ({
           )}
           
           {/* Card description */}
-          <CardDescription className="text-zinc-400 hover:line-clamp-none transition-all">{item.description}</CardDescription>
+          <CardDescription className="text-zinc-400  transition-all">{item.description}</CardDescription>
         </div>
         
         {/* Call to action button */}
