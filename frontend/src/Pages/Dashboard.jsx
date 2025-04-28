@@ -3,14 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layouts/AppLayout';
-import DashboardHeader from '../components/dashboard/DashboardHeader';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import ProjectCards from '../components/dashboard/ProjectCards';
-import ProjectTable from '../components/dashboard/ProjectTable';
+import DashboardHeader from '../features/dashboard/DashboardHeader';
+import DashboardSidebar from '../features/dashboard/DashboardSidebar';
+import ProjectCards from '../features/dashboard/ProjectCards';
+import ProjectTable from '../features/dashboard/ProjectTable';
 import ProjectForm from '../components/ProjectForm';
-import SearchAndFilter from '../components/dashboard/SearchAndFilter';
-import StatsCards from '../components/dashboard/StatsCards';
-import EmptyState from '../components/dashboard/EmptyState';
+import SearchAndFilter from '../features/dashboard/SearchAndFilter';
+import StatsCards from '../features/dashboard/StatsCards';
+import EmptyState from '../features/dashboard/EmptyState';
 import ProjectService from '../service/ProjectService';
 import authService from '../service/authService';
 
@@ -22,9 +22,6 @@ const Dashboard = () => {
   const [formOpen, setFormOpen] = React.useState(false);
 
   const navigate = useNavigate();
-
-
-
 
   const {data:user}=useQuery({
     queryKey: ['user'],

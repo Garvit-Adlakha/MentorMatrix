@@ -6,8 +6,6 @@ import { IconMessage, IconCalendar, IconFiles, IconShare } from '../components/u
 import MeetingScheduler from '../components/meetings/MeetingScheduler';
 import MeetingsList from '../components/meetings/MeetingsList';
 import FileSharing from '../components/ui/FileSharing';
-import ProjectChatList from '../components/chat/projects/ProjectChatList';
-import LampDemo from '../components/ui/LampDemo';
 
 const CollaborationPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -18,9 +16,10 @@ const CollaborationPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    
     if (tabParam && ['chat', 'meetings', 'files'].includes(tabParam)) {
       setActiveTab(tabParam);
+    } else {
+      setActiveTab('overview');
     }
   }, [location.search]);
 

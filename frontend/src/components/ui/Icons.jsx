@@ -79,17 +79,22 @@ import {
   IconSparkles,
   IconClipboard,
   IconListCheck,
+  IconMoodSmile,
   IconCoins,
   IconCloudUpload,
   IconShieldCheck,
   IconStar,
-  IconScale
+  IconHome,
+  IconScale,
   
 } from '@tabler/icons-react';
 
 export {
   IconChevronDown,
   IconShieldCheck,
+  IconHome,
+  IconArrowRight,
+  IconMoodSmile,
   IconListCheck,
   IconLock,
   IconScale,
@@ -139,7 +144,6 @@ export {
   IconCircleX,
   IconAlertTriangle,
   // Additional icons for replacing inline SVGs
-  IconArrowRight,
   IconChevronRight,
   IconFolder,
   IconInfoCircle,

@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import { getSummary } from "../utils/summarizer.js";
 import { Chat } from "../models/chat.model.js";
 import Gemini from "../utils/Gemini.js";
+import fs from "fs/promises";
 
 export const createProject = catchAsync(async (req, res, next) => {
     const { title, description, teamMembers, targetFaculty } = req.body;
@@ -538,6 +539,10 @@ export const addDocument = catchAsync(async (req, res, next) => {
     const { projectId } = req.params;
     const userId = req.id;
     const document = req.file;
+    const type = req.body.type; // <-- get type from body
+
+    console.log(type)
+    console.log(document)
 
     if (!document) return next(new AppError("Please provide a file", 400));
 
@@ -560,14 +565,25 @@ export const addDocument = catchAsync(async (req, res, next) => {
     let documentToUpload = null;
     try {
         const result = await uploadMedia(document.path);
+        console.log(result)
+        if (!result || !result.secure_url) {
+            // Clean up local file if upload fails
+            await fs.unlink(document.path);
+            return next(new AppError("Cloudinary upload failed", 500));
+        }
         documentToUpload = {
             name: document.originalname,
-            url: result?.secure_url || document.path,
+            publicId: result.public_id,
+            url: result.secure_url,
             format: document.mimetype,
             uploadedAt: new Date(),
+            type: type || 'other',
         };
+        // Delete local file after successful upload
+        await fs.unlink(document.path);
     } catch (error) {
-        // TODO: Optionally delete local file if upload fails to avoid orphaned files
+        // Clean up local file if any error occurs
+        await fs.unlink(document.path).catch(() => {});
         return next(new AppError("File upload failed", 500));
     }
     project.documents = [...(project.documents || []), documentToUpload];
@@ -577,10 +593,56 @@ export const addDocument = catchAsync(async (req, res, next) => {
     const populatedProject = await Project.findById(project._id)
         .populate("createdBy assignedMentor teamMembers");
 
+    // Set download headers for pptx and other files if requested via query param
+    if (req.query.download === 'true') {
+        res.setHeader('Content-Disposition', `attachment; filename="${documentToUpload.name}"`);
+        res.setHeader('Content-Type', documentToUpload.format);
+        return res.redirect(documentToUpload.url); // For Cloudinary files, redirect to the file URL
+    }
+
     res.status(200).json({
         success: true,
         message: "Document added successfully",
         project: populatedProject,
+    });
+});
+
+export const deleteDocument = catchAsync(async (req, res, next) => {
+    const { projectId, documentId } = req.params;
+    const userId = req.id;
+
+    const project = await Project.findById(projectId);
+    if (!project) return next(new AppError("Project not found", 404));
+
+    const user = await User.findById(userId).select("role");
+    const isTeamMember = project.teamMembers.some(id => id.equals(userId));
+    if (!isTeamMember && user.role !== "mentor") {
+        return next(new AppError("You are not authorized to delete documents from this project", 403));
+    }
+
+    const docIndex = project.documents.findIndex(doc => doc._id.toString() === documentId);
+    if (docIndex === -1) {
+        return next(new AppError("Document not found", 404));
+    }
+
+    // Optionally delete from Cloudinary
+    const publicId = project.documents[docIndex].publicId;
+    if (publicId) {
+        try {
+            await deleteMediaFromCloudinary([publicId]);
+        } catch (err) {
+            // Log error but continue
+            console.error("Cloudinary deletion error:", err);
+        }
+    }
+
+    project.documents.splice(docIndex, 1);
+    await project.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Document deleted successfully",
+        project
     });
 });
 

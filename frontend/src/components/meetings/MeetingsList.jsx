@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import MeetingService from '../../service/MeetingService';
+import { formatDate, formatTime } from '../../libs/utils';
 import {
   IconCalendar,
   IconClock,
@@ -79,26 +80,6 @@ const MeetingsList = () => {
     } catch (error) {
       toast.error('Failed to join meeting');
     }
-  };
-
-  // Format date function
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  // Format time function
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   // Get meeting type icon

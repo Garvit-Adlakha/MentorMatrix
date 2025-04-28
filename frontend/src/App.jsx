@@ -19,7 +19,6 @@ const App = () => {
   return (
     <>
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
       <BrowserRouter>
       <AppRouter />
       </BrowserRouter>

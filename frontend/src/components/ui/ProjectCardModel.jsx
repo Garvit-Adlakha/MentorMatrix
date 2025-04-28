@@ -19,6 +19,7 @@ import authService from '../../service/authService';
 import AlertBox from './AlertBox';
 import Loader from './Loader';
 import ProjectSummaryModal from './ProjectSummaryModal';
+import { formatDate } from '../../libs/utils';
 
 const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
     const navigate = useNavigate();
@@ -46,16 +47,6 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
     const user = userData?.user;
     const project = projectData?.project;
-
-    // Function to format dates
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
 
     const queryClient = useQueryClient();
 

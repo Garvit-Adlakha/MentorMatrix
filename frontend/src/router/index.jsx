@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import Protected from '../components/auth/Protected';
 import Loader from '../components/ui/Loader';
+import Protected from '../features/auth/Protected'
 
 // Lazy load page components
 const HomePage = lazy(() => import("../Pages/HomePage"))
-const Login = lazy(() => import("../components/auth/Login"))
-const Signup = lazy(() => import("../components/auth/Signup"))
+const Login = lazy(() => import("../features/auth/Login"))
+const Signup = lazy(() => import("../features/auth/Signup"))
 const MentorPage = lazy(() => import("../Pages/MentorPage"))
 const Dashboard = lazy(() => import("../Pages/Dashboard"))
 const Profile = lazy(() => import("../Pages/Profile"))
@@ -67,7 +67,7 @@ const AppRouter = () => {
                     </Protected>
                 </Suspense>
             } />
-            <Route path="/chat/:id" element={
+            <Route path="/chat/:chatId" element={
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading chat..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <ChatPage />

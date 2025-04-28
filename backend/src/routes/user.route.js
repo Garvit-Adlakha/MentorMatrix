@@ -14,7 +14,7 @@ import {
 
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
-import upload from "../utils/multer.js";
+import  { uploadAvatar } from "../utils/multer.js";
 import { validateSignup, validateSignin, validatePasswordChange } from "../middleware/validation.middleware.js";
 
 const router = express.Router();
@@ -26,7 +26,7 @@ router.post("/signout", signOutUser); // No authentication middleware for signou
 
 // Profile routes
 router.get("/profile", isAuthenticated, getCurrentUserProfile);
-router.patch("/profile", isAuthenticated, upload.single("avatar"), updateUserProfile);
+router.patch("/profile", isAuthenticated, uploadAvatar, updateUserProfile);
 
 router.get('/mentor/search',isAuthenticated,SearchMentor)
 // Password routes

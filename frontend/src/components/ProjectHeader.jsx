@@ -1,16 +1,8 @@
 import React from 'react';
 import { IconBriefcase, IconUsers, IconCalendar, IconFileDescription, IconClipboardList, IconCode, IconUserCircle, IconMessage, IconCircleCheck, IconX, IconCheck } from './ui/Icons';
+import { formatDate } from '../libs/utils';
 
 const ProjectHeader = ({ project, onChat, onSummarize, onReview }) => {
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   return (
     <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-6 mb-8">
       {/* Status indicator */}

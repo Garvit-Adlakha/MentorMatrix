@@ -140,7 +140,7 @@ const ProjectService = {
     // Upload a document to a project
     uploadProjectDocument: async (projectId, formData) => {
         try {
-            const response = await axiosInstance.post(`/project/${projectId}/document`, formData, {
+            const response = await axiosInstance.put(`/project/${projectId}/document/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -171,6 +171,7 @@ const ProjectService = {
         }
     },
 
+    
     // Add team members to a project
     addTeamMembers: async (projectId, memberEmails) => {
         try {
@@ -201,7 +202,8 @@ const ProjectService = {
                 originalError: error
             };
         }
-    }
+    },
+
 
 };
 

@@ -1,7 +1,8 @@
-import { addMemberToProject, createProject, getProject, getProjectById, getProjectReview, getProjectSummary, listProjects, mentorDecision, requestMentor } from "../controllers/project.controller.js";
+import { addDocument, addMemberToProject, createProject, deleteDocument, getProject, getProjectById, getProjectReview, getProjectSummary, listProjects, mentorDecision, requestMentor } from "../controllers/project.controller.js";
 import { Router } from "express";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { validateDescription } from "../middleware/validation.middleware.js";
+import { uploadFile } from "../utils/multer.js";
 
 const router=Router()
 
@@ -18,4 +19,9 @@ router.get('/get-project/:projectId',isAuthenticated,getProjectById)
 router.get('/list-projects',isAuthenticated,listProjects)
 router.get('/:projectId/summary',isAuthenticated,getProjectSummary)
 router.get('/project-review/:projectId',isAuthenticated,getProjectReview)
+
+router.put('/:projectId/document/upload',isAuthenticated,uploadFile,addDocument)
+router.delete('/:projectId/document/:documentId',isAuthenticated,deleteDocument)
+
+
 export default router

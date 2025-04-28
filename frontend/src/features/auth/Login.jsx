@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
-import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff } from '../ui/Icons';
+import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff } from '../../components/ui/Icons';
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import authService from "../../service/authService";
-import Loader from "../ui/Loader";
+import Loader from "../../components/ui/Loader";
 
 const Login = () => {
   const [formData, setFormData] = useState({

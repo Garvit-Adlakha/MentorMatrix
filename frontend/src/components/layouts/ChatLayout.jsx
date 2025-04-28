@@ -1,23 +1,26 @@
-import React from 'react'
 import Sidebar from './Sidebar';
-import AppLayout from './AppLayout';
 import { motion } from 'motion/react';
 
 // Define the layout HOC
 const ChatLayoutInner = (WrappedComponent) => {
   const WithLayout = (props) => {
     return (
-      <div className="flex flex-col md:grid md:grid-cols-4 lg:grid-cols-4 max-h-[95v] md:mt-3 px-3 sm:px-6 gap-4">
-        <div className="md:inline-block  max-h-[95vh] md:col-span-1 z-20">
+      <div className="flex flex-col md:grid md:grid-cols-12 lg:grid-cols-12 gap-0 md:gap-3 h-screen max-h-screen min-h-0 px-0 md:px-4 pb-3 pt-3
+           
+      ">
+        {/* Sidebar - takes up 3 columns on medium screens, 3 on large */}
+        <div className="md:col-span-3 lg:col-span-3 z-20 md:pr-2 h-full min-h-0">
           <Sidebar />
         </div>
+
+        {/* Main Chat Area - takes up 9 columns on medium screens, 9 on large */}
         <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full md:col-span-3 h-[95vh] mt-2 md:pl-3 z-10 rounded-xl shadow-md bg-neutral-800/80 overflow-hidden"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="w-full md:col-span-9 lg:col-span-9 h-full min-h-0 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-800/95 to-neutral-900/95 shadow-lg border border-neutral-700/30"
         >
-          <div className="h-full md:col-span-3 p-4 rounded-lg">
+          <div className="h-full w-full rounded-xl m-2 overflow-hidden min-h-0 max-h-[96vh]"> 
             <WrappedComponent {...props} />
           </div>
         </motion.div>
@@ -28,9 +31,4 @@ const ChatLayoutInner = (WrappedComponent) => {
   return WithLayout;
 }
 
-// Compose the HOCs correctly: First apply AppLayout, then apply ChatLayout
-const ChatLayout = (Component) => {
-  return ChatLayoutInner(Component);
-};
-
-export default ChatLayout;
+export default ChatLayoutInner;

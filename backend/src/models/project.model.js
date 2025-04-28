@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const projectSchema = new mongoose.Schema(
     {
@@ -65,8 +66,13 @@ const projectSchema = new mongoose.Schema(
             {
                 name: { 
                     type: String, 
+                    unique: true,
                     required: true, 
                     trim: true 
+                },
+                publicId:{
+                    type: String, 
+                    required: true
                 },
                 url: { 
                     type: String, 
@@ -79,6 +85,12 @@ const projectSchema = new mongoose.Schema(
                 uploadedAt: { 
                     type: Date, 
                     default: Date.now 
+                },
+                type:{
+                    type: String,
+                    enum: ["project SRS", "presentation", "report","other"],
+                    default: "other",
+                    trim: true,
                 }
             }
         ],

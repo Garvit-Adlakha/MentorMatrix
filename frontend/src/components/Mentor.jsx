@@ -63,7 +63,7 @@ const Mentor = () => {
             transition={{ delay: 0.2 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
               Find Your Perfect Project Mentor
             </h1>
             <p className="text-lg text-muted-foreground mb-8">

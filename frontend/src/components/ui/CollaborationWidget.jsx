@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { IconMessage, IconCalendar, IconFiles, IconShare, IconClock } from './Icons';
 import MeetingService from '../../service/MeetingService';
+import { formatRelativeDate } from '../../libs/utils';
 
 const CollaborationWidget = () => {
   const navigate = useNavigate();
@@ -23,32 +24,6 @@ const CollaborationWidget = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  // Format date function for today/tomorrow display
-  const formatRelativeDate = (dateString) => {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    
-    const isToday = date.toDateString() === today.toDateString();
-    const isTomorrow = date.toDateString() === tomorrow.toDateString();
-    
-    if (isToday) {
-      return `Today, ${formatTime(dateString)}`;
-    } else if (isTomorrow) {
-      return `Tomorrow, ${formatTime(dateString)}`;
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
   };
 
   // Get the next upcoming meeting

@@ -4,7 +4,7 @@ import { AppError } from "../middleware/error.middleware.js";
 import { catchAsync } from "../middleware/error.middleware.js";
 import { Chat } from '../models/chat.model.js';
 import mongoose from 'mongoose';
-import { io } from '../socket/socket.js';
+import { getIO } from '../socket/socket.js';
 
 export const createGroup = async (projectId) => {
   try {
@@ -43,16 +43,15 @@ export const createGroup = async (projectId) => {
 
     // Socket events can be handled here if io is available
     try {
-      if (io) {
-        // Broadcast to all participants that they have joined the chat
-        participants.forEach(participantId => {
-          io.to(participantId).emit('joinedChat', {
-            chatId: groupChat._id,
-            chatName: groupChat.name,
-            projectId: projectId,
-          });
+      const io = getIO();
+      // Broadcast to all participants that they have joined the chat
+      participants.forEach(participantId => {
+        io.to(participantId).emit('joinedChat', {
+          chatId: groupChat._id,
+          chatName: groupChat.name,
+          projectId: projectId,
         });
-      }
+      });
     } catch (socketError) {
       console.error("Socket notification error:", socketError);
       // Don't let socket errors fail the whole operation
@@ -134,20 +133,26 @@ export const getUserChats = catchAsync(async (req, res, next) => {
   });
 });
 
+export const getChatById = catchAsync(async (req, res, next) => {
+  const { chatId } = req.params;
+  console.log("Chat ID:", chatId);
 
-// export const getALlGroups=catchAsync(async(req,res,next)=>{
-//     const userId=req.id
+  if (!mongoose.isValidObjectId(chatId)) {
+    return next(new AppError('Invalid chat ID', 400));
+  }
 
-//   const groups=await Chat.find({participants:userId,isGroupChat:true})
-//   .populate("participants","name email")
+  const chat = await Chat.findById(chatId)
+    .populate('participants', 'name email')
+    .populate('project', 'title description')
+    .lean();
 
-//   if(!groups){
-//     return next(new AppError("No groups found",404))
-//   }
-//   return res.status(200).json({
-//     success:true,
-//     results:groups.length,
-//     groups
-//   })
-// })
+  if (!chat) {
+    return next(new AppError('Chat not found', 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    chat
+  });     
+})
 
