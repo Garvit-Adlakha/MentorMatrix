@@ -63,45 +63,68 @@ const StatCard = ({
 };
 
 const StatsCards = ({ 
+  userRole,
   totalProposals, 
   acceptedProposals, 
   pendingProposals, 
   rejectedProposals 
 }) => {
+  // Determine which cards to show based on userRole
+  const isStudent = userRole === 'student';
+  const isMentor = userRole === 'mentor';
+
+  // Build cards array dynamically
+  const cards = [
+    {
+      key: 'total',
+      title: 'Total Proposals',
+      count: totalProposals,
+      color: 'primary',
+      icon: <IconFileText size={16} className="text-primary" />,
+    },
+    {
+      key: 'approved',
+      title: 'Approved',
+      count: acceptedProposals,
+      color: 'teal',
+      icon: <IconCircleCheck size={16} className="text-teal-600" />,
+    },
+    isStudent && {
+      key: 'pending',
+      title: 'Pending',
+      count: pendingProposals,
+      color: 'amber',
+      icon: <IconAlertTriangle size={16} className="text-amber-600" />,
+    },
+    {
+      key: 'rejected',
+      title: 'Rejected',
+      count: rejectedProposals,
+      color: 'rose',
+      icon: <IconCircleX size={16} className="text-rose-600" />,
+    },
+  ].filter(Boolean); // Remove false entries
+
+  // Adjust grid columns based on number of cards
+  const gridCols = cards.length === 4 ? 'md:grid-cols-4' : cards.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2';
+
   return (
     <motion.div 
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+      className={`grid grid-cols-1 sm:grid-cols-2 ${gridCols} gap-4 mb-8`}
     >
-      <StatCard
-        title="Total Proposals"
-        count={totalProposals}
-        color="primary"
-        icon={<IconFileText size={16} className="text-primary" />}
-      />
-      
-      <StatCard
-        title="Approved"
-        count={acceptedProposals}
-        color="teal"
-        icon={<IconCircleCheck size={16} className="text-teal-600" />}
-      />
-      
-      <StatCard
-        title="Pending"
-        count={pendingProposals}
-        color="amber"
-        icon={<IconAlertTriangle size={16} className="text-amber-600" />}
-      />
-      
-      <StatCard
-        title="Rejected"
-        count={rejectedProposals}
-        color="rose"
-        icon={<IconCircleX size={16} className="text-rose-600" />}
-      />
+      {cards.map((card, idx) => (
+        <StatCard
+          key={card.key}
+          title={card.title}
+          count={card.count}
+          color={card.color}
+          icon={card.icon}
+          delay={0.1 * idx}
+        />
+      ))}
     </motion.div>
   );
 };

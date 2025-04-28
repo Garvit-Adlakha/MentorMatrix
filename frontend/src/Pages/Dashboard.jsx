@@ -123,6 +123,7 @@ const Dashboard = () => {
         >
           {/* Dashboard Header */}
           <DashboardHeader 
+            userRole={userRole}
             viewMode={viewMode} 
             toggleViewMode={toggleViewMode} 
             handleNewProposalForm={handleNewProposalForm} 
@@ -140,6 +141,7 @@ const Dashboard = () => {
           
           {/* Stats Cards */}
           <StatsCards
+              userRole={userRole}
               totalProposals={totalProposals}
               acceptedProposals={acceptedProposals}
               pendingProposals={pendingProposals}

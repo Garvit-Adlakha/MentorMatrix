@@ -3,7 +3,7 @@ import { Project } from "../models/project.model.js";
 import { User } from "../models/user.model.js";
 import { catchAsync } from "../middleware/error.middleware.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { deleteMediaFromCloudinary,uploadMedia } from "../utils/cloudinary.js";
+import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 import { createGroup } from "./chat.controller.js";
 import mongoose from "mongoose";
 import { getSummary } from "../utils/summarizer.js";
@@ -26,7 +26,7 @@ export const createProject = catchAsync(async (req, res, next) => {
     }
 
     let teamMembersIds = [];
-    
+
     // Only process team members if provided
     if (teamMembers && teamMembers.length > 0) {
         const foundUsers = await User.find({
@@ -35,10 +35,10 @@ export const createProject = catchAsync(async (req, res, next) => {
                 { email: { $in: teamMembers } }
             ]
         }).select("_id email");
-        
+
         teamMembersIds = foundUsers.map(user => user._id);
     }
-    
+
     // Create new project with properly structured details
     const newProject = await Project.create({
         title,
@@ -46,7 +46,7 @@ export const createProject = catchAsync(async (req, res, next) => {
         createdBy: userId,
         teamMembers: [userId, ...teamMembersIds] // Add user as the first team member, followed by any found team members
     });
-    
+
     // Generate project summary
     try {
         const summary = await getSummary(newProject);
@@ -67,19 +67,19 @@ export const createProject = catchAsync(async (req, res, next) => {
                 name: { $regex: targetFaculty, $options: 'i' },
                 role: "mentor"
             });
-            
+
             if (potentialMentor) {
                 // Add mentor request to the project
                 newProject.mentorRequests.push(potentialMentor._id);
                 await newProject.save();
-                
+
                 // Send email to the mentor
                 await sendEmail({
                     email: potentialMentor.email,
                     subject: "Mentor Request",
                     message: `You have a new mentor request for project '${newProject.title}'.`,
                 });
-                
+
                 mentorRequestResult = {
                     success: true,
                     mentorName: potentialMentor.name
@@ -103,28 +103,31 @@ export const createProject = catchAsync(async (req, res, next) => {
         success: true,
         message: "Project created successfully",
         project: populatedProject,
-         mentorRequest: mentorRequestResult
+        mentorRequest: mentorRequestResult
     });
 });
 
-export const addMemberToProject = catchAsync(async(req, res, next) => {
+export const addMemberToProject = catchAsync(async (req, res, next) => {
     const { teamMembers, projectId } = req.body;
     const userId = req.id;
-    
-    if (!teamMembers || !Array.isArray(teamMembers) || teamMembers.length === 0) {
-        return next(new AppError("Please provide valid team members", 400));
-    }
-    
+
     if (!projectId) {
         return next(new AppError("Project ID is required", 400));
     }
+
+    // Check if teamMembers is provided and is a non-empty array
+    if (!Array.isArray(teamMembers) || teamMembers.length === 0) {
+        return next(new AppError("teamMembers must be a non-empty array", 400));
+    }
+
+    // Remove duplicate entries from teamMembers
+    const uniqueTeamMembers = [...new Set(teamMembers)];
 
     // Find the project and verify the user is authorized to add members
     const project = await Project.findById(projectId);
     if (!project) {
         return next(new AppError("Project not found", 404));
     }
-    
     // Verify the user is the project creator
     if (!project.createdBy.equals(userId)) {
         return next(new AppError("Only project creator can add team members", 403));
@@ -133,82 +136,93 @@ export const addMemberToProject = catchAsync(async(req, res, next) => {
     // Find all users that match the provided roll numbers or emails
     const usersToAdd = await User.find({
         $or: [
-            { roll_no: { $in: teamMembers } },
-            { email: { $in: teamMembers } }
+            { roll_no: { $in: uniqueTeamMembers } },
+            { email: { $in: uniqueTeamMembers } }
         ]
-    }).select("_id email");
+    }).select("_id email roll_no");
 
+    // Log which users/emails were not found
+    const foundRollNos = usersToAdd.map(u => u.roll_no).filter(Boolean);
+    const foundEmails = usersToAdd.map(u => u.email).filter(Boolean);
+    const notFound = uniqueTeamMembers.filter(
+        m => !foundRollNos.includes(m) && !foundEmails.includes(m)
+    );
     if (usersToAdd.length === 0) {
-        return next(new AppError("No valid users found", 404));
+        console.error("No valid users found for:", uniqueTeamMembers);
+        return next(new AppError(`No valid users found for: ${uniqueTeamMembers.join(", ")}`, 404));
     }
-    
+    if (notFound.length > 0) {
+        console.warn("Some users/emails not found:", notFound);
+    }
+
     // Get IDs of users to add
     const userIds = usersToAdd.map(user => user._id);
-    
     // Add unique team members to the project (avoid duplicates)
     const existingMembers = project.teamMembers.map(id => id.toString());
     const newMembers = userIds.filter(id => !existingMembers.includes(id.toString()));
-    
     if (newMembers.length === 0) {
         return next(new AppError("All provided users are already team members", 400));
     }
-    
-    // Add the new members to the project
-    project.teamMembers = [...project.teamMembers, ...newMembers];
-    await project.save();
-    
-    // Update the chat group if it exists
+
+    // Use a transaction for atomicity (optional, but recommended)
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
+        // Add the new members to the project
+        project.teamMembers = [...project.teamMembers, ...newMembers];
+        await project.save({ session });
+
+        // Update the chat group if it exists
         const chatGroup = await Chat.findOne({ project: project._id });
         if (chatGroup) {
-            // Only add participants who aren't already in the chat
             const existingParticipants = chatGroup.participants.map(id => id.toString());
             const newParticipants = newMembers.filter(id => !existingParticipants.includes(id.toString()));
-            
             if (newParticipants.length > 0) {
                 chatGroup.participants = [...chatGroup.participants, ...newParticipants];
-                await chatGroup.save();
+                await chatGroup.save({ session });
             }
         }
-    } catch (error) {
-        console.error("Error updating chat group:", error);
-        // Don't fail the member addition if chat update fails
+        await session.commitTransaction();
+    } catch (err) {
+        await session.abortTransaction();
+        console.error("Transaction error while adding members:", err);
+        return next(new AppError("Failed to add members to project. Please try again.", 500));
+    } finally {
+        session.endSession();
     }
 
     // Populate the project to return complete data
     const updatedProject = await Project.findById(project._id)
         .populate("createdBy teamMembers assignedMentor");
-        
+
     // Notify the added members via email if needed
     try {
-        const addedUsers = usersToAdd.filter(user => 
-            newMembers.some(id => id.equals(user._id)));
-            
+        const addedUsers = usersToAdd.filter(user =>
+            newMembers.some(id => id.equals(user._id))
+        );
         const emails = addedUsers.map(user => user.email).filter(Boolean);
-        
         if (emails.length > 0) {
-            // Send email notification (assuming sendEmail utility exists)
             await sendEmail({
                 email: emails,
                 subject: `You've been added to project: ${project.title}`,
-                message: `You have been added as a team member to the project "${project.title}".`
+                message: `You have been added as a team member to the project \"${project.title}\".`
             });
         }
     } catch (emailError) {
         console.error("Error sending notification emails:", emailError);
-        // Continue even if email notifications fail
     }
-    
+
     res.status(200).json({
         success: true,
-        message: `${newMembers.length} team members added successfully`,
-        project: updatedProject
+        message: `${newMembers.length} team members added successfully` + (notFound.length > 0 ? `. Some users/emails not found: ${notFound.join(", ")}` : ""),
+        project: updatedProject,
+        notFound
     });
 });
 
 export const requestMentor = catchAsync(async (req, res, next) => {
     // Only team leader can request mentor
-    const { mentorName, email,mentorId,projectId} = req.body;
+    const { mentorName, email, mentorId, projectId } = req.body;
     const userId = req.id;
     if (!userId) {
         return next(new AppError("User not found", 404));
@@ -219,7 +233,7 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         return next(new AppError("You don't lead any project", 403));
     }
 
-    if(project.mentorRequests.length>0){
+    if (project.mentorRequests.length > 0) {
         return next(new AppError("You have already requested a mentor", 403));
     }
 
@@ -228,7 +242,7 @@ export const requestMentor = catchAsync(async (req, res, next) => {
             { name: mentorName, email },
             { _id: mentorId }
         ]
-    }) 
+    })
     if (!mentor) {
         return next(new AppError("Mentor not found", 404));
     }
@@ -252,7 +266,7 @@ export const requestMentor = catchAsync(async (req, res, next) => {
         subject: "Mentor Request",
         message: `You have a new mentor request for project '${project.title}'.`,
     })
-    
+
     // Get the user's email for confirmation
     const user = await User.findById(userId).select("email");
     if (user && user.email) {
@@ -354,7 +368,7 @@ export const mentorDecision = catchAsync(async (req, res, next) => {
 });
 
 export const updateProject = catchAsync(async (req, res, next) => {
-    const { projectId } = req.params; 
+    const { projectId } = req.params;
     const { title, description } = req.body;
 
     const project = await Project.findById(projectId);
@@ -417,7 +431,7 @@ export const deleteProject = catchAsync(async (req, res, next) => {
         return next(new AppError("Project not found", 404));
     }
 
-    if(!project.createdBy.equals(userId)){
+    if (!project.createdBy.equals(userId)) {
         return next(new AppError("You are not authorized to delete this project only team leader can", 403));
     }
 
@@ -457,8 +471,8 @@ export const listProjects = catchAsync(async (req, res, next) => {
     // Build Filter
     const filter = {};
     if (status) filter.status = status;
-    if (mentor && mongoose.Types.ObjectId.isValid(mentor)) filter.assignedMentor = mentor; 
-    if (search) filter.title = { $regex: search, $options: "i" }; 
+    if (mentor && mongoose.Types.ObjectId.isValid(mentor)) filter.assignedMentor = mentor;
+    if (search) filter.title = { $regex: search, $options: "i" };
 
     // **Fetch Projects**
     const [projects, totalProjects] = await Promise.all([
@@ -491,11 +505,11 @@ export const getProject = catchAsync(async (req, res, next) => {
     if (user.role === "student") {
         filter = { $or: [{ createdBy: userId }, { teamMembers: userId }] };
     } else if (user.role === "mentor") {
-        filter ={ $or:[{ assignedMentor: userId },{mentorRequests: userId}]}; 
+        filter = { $or: [{ assignedMentor: userId }, { mentorRequests: userId }] };
     }
     const projects = await Project.find(filter)
         .populate("createdBy assignedMentor teamMembers mentorRequests")
-        .select("-documents") 
+        .select("-documents")
         .lean(); //  Convert to plain objects for better performance
 
     if (!projects.length) return next(new AppError("No projects found", 404));
@@ -507,32 +521,32 @@ export const getProject = catchAsync(async (req, res, next) => {
     });
 });
 
-export const getProjectById=catchAsync(async(req,res,next)=>{
-    const {projectId}=req.params
-    const userId=req.id
-    const user=await User.findById(userId).select("role")
-    if(!user) return next(new AppError("User not found",404))
-    
-    const project=await Project.findById(projectId).populate("createdBy assignedMentor teamMembers")
+export const getProjectById = catchAsync(async (req, res, next) => {
+    const { projectId } = req.params
+    const userId = req.id
+    const user = await User.findById(userId).select("role")
+    if (!user) return next(new AppError("User not found", 404))
+
+    const project = await Project.findById(projectId).populate("createdBy assignedMentor teamMembers")
 
     return res.status(201)
-    .json({
-        success:true,
-        message:"Project fetched successfully",
-        project
-    })
+        .json({
+            success: true,
+            message: "Project fetched successfully",
+            project
+        })
 })
 
-export const getProjectSummary=catchAsync(async(req,res,next)=>{
-    const {projectId}=req.params
-    const summary=await Project.findById(projectId).select("summary")
-    if(!summary) return next(new AppError("Project not found",404))
+export const getProjectSummary = catchAsync(async (req, res, next) => {
+    const { projectId } = req.params
+    const summary = await Project.findById(projectId).select("summary")
+    if (!summary) return next(new AppError("Project not found", 404))
     return res.status(200)
-    .json({
-        success:true,
-        message:"Project summary fetched successfully",
-        summary
-    })
+        .json({
+            success: true,
+            message: "Project summary fetched successfully",
+            summary
+        })
 })
 
 export const addDocument = catchAsync(async (req, res, next) => {
@@ -583,7 +597,7 @@ export const addDocument = catchAsync(async (req, res, next) => {
         await fs.unlink(document.path);
     } catch (error) {
         // Clean up local file if any error occurs
-        await fs.unlink(document.path).catch(() => {});
+        await fs.unlink(document.path).catch(() => { });
         return next(new AppError("File upload failed", 500));
     }
     project.documents = [...(project.documents || []), documentToUpload];

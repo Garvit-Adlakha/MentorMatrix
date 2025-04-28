@@ -86,6 +86,7 @@ import {
   IconStar,
   IconHome,
   IconScale,
+  IconArrowLeft
   
 } from '@tabler/icons-react';
 
@@ -111,6 +112,7 @@ export {
   IconLogout,
   IconFocus,
   IconMapPin,
+  IconArrowLeft,
   IconMail,
   IconSearch,
   IconAdjustmentsHorizontal,

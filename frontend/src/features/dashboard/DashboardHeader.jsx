@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { IconLayoutGrid, IconList, IconPlus } from '../../components/ui/Icons';
 
-const DashboardHeader = ({ viewMode, toggleViewMode, handleNewProposalForm }) => {
+const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalForm }) => {
   return (
     <motion.div 
       initial={{ y: -20, opacity: 0 }}
@@ -27,6 +27,7 @@ const DashboardHeader = ({ viewMode, toggleViewMode, handleNewProposalForm }) =>
             <><IconList size={16} /> Table View</>
           )}
         </motion.button>
+        { userRole === 'student' &&
         <motion.button 
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
@@ -36,6 +37,7 @@ const DashboardHeader = ({ viewMode, toggleViewMode, handleNewProposalForm }) =>
           <IconPlus size={16} />
           New Proposal
         </motion.button>
+}
       </div>
     </motion.div>
   );

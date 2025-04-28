@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/layouts/AppLayout';
 import ProjectService from '../service/ProjectService';
 import {
-  IconBriefcase,
   IconUsers,
   IconCalendar,
   IconFileDescription,
-  IconClipboardList,
-  IconCode,
   IconFileText,
-  IconUserCircle,
-  IconMessage,
-  IconArrowRight,
-  IconDownload,
-  IconEdit,
-  IconCheck,
-  IconCircleCheck,
-  IconX
+  IconArrowLeft
 } from '../components/ui/Icons';
 import ProjectSummaryModal from '../components/ui/ProjectSummaryModal';
 import Loader from '../components/ui/Loader';
@@ -31,8 +21,9 @@ import TeamSection from '../components/TeamSection';
 import DocumentsSection from '../components/DocumentsSection';
 import ActivitySection from '../components/ActivitySection';
 import ProjectReviewModal from '../components/ui/ProjectReviewModal';
+import toast from 'react-hot-toast';
 
-const ProjectDetailPage = () => {
+const ProjectDetailPageComponent = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -49,11 +40,22 @@ const ProjectDetailPage = () => {
     enabled: !!projectId,
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => ProjectService.getCurrentUser(),
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnReconnect: false,
+  })
+  const userRole = user?.role;
+
   const project = data?.project;
+  console.log("Project data:", project);
+  const ProjectLead = project?.createdBy
 
   // Accept project request mutation
   const acceptRequestMutation = useMutation({
-    mutationFn: () => ProjectService.acceptProjectRequest(projectId),
+    mutationFn: () => ProjectService.mentorDecision({ projectId, decision: 'accept' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['project', projectId]);
       queryClient.invalidateQueries(['projects']);
@@ -62,7 +64,7 @@ const ProjectDetailPage = () => {
 
   // Reject project request mutation
   const rejectRequestMutation = useMutation({
-    mutationFn: () => ProjectService.rejectProjectRequest(projectId),
+    mutationFn: () => ProjectService.mentorDecision({ projectId, decision: 'reject' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['project', projectId]);
       queryClient.invalidateQueries(['projects']);
@@ -79,10 +81,34 @@ const ProjectDetailPage = () => {
     });
   };
 
+
+  const handleTeamAddMembersMutation = useMutation({
+    mutationFn: ({ newMembersEmails }) => ProjectService.addTeamMembers({ projectId, newMembersEmails }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['project', projectId]);
+      queryClient.invalidateQueries(['projects']);
+      toast.success('Team members added successfully!');
+    },
+    onError: (error) => {
+      toast.error(`Error adding team members: ${error.message}`);
+    }
+  });
+
+  const handleAddTeamMembers = async (newMembersEmails) => {
+    try {
+
+      console.log("Adding team members:", newMembersEmails);
+      await handleTeamAddMembersMutation.mutateAsync({ newMembersEmails });
+    } catch (error) {
+      console.error("Error adding team members:", error);
+    }
+  };
+
+
   // Handle accept request
   const onAcceptRequest = async () => {
     try {
-      await acceptRequestMutation.mutateAsync();
+      await acceptRequestMutation.mutateAsync();  
       setShowConfirmation(false);
     } catch (error) {
       console.error("Error accepting request:", error);
@@ -118,14 +144,6 @@ const ProjectDetailPage = () => {
     { key: 'activity', icon: <IconCalendar size={18} />, label: 'Activity' },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader text="Loading project details..." />
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
@@ -145,19 +163,23 @@ const ProjectDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-back text-center ring-0 inset 0 rounded-xl shadow-lg border border-primary/10 p-6 mb-8 w-fit flex items-center ">
-        <button
-          className='btn-priamry'
+      <div className=" text-center p-6 mb-8 w-fit flex items-center ">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex items-center gap-2 px-5 py-2 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/15 text-white rounded-lg shadow-md hover:from-primary/90 hover:to-primary/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30"
           onClick={handleGoBack}
         >
-          Go Back
-        </button>
+          <IconArrowLeft size={18} />
+          <span className="font-medium">Go Back</span>
+        </motion.button>
       </div>
 
       {/* Project Header */}
       <ProjectHeader
+        userRole={userRole}
         project={project}
-        onChat={() => navigate(`/chat/${projectId}`)}
+        onChat={() => navigate(`/chat`)}
         onSummarize={() => setShowSummaryModal(true)}
         onReview={() => setShowReviewModal(true)}
       />
@@ -175,30 +197,37 @@ const ProjectDetailPage = () => {
           variants={tabContentVariants}
           className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-6 mb-8"
         >
-          {activeTab === 'overview' && (
-            <OverviewSection description={project?.description} />
-          )}
-          {activeTab === 'team' && (
-            <TeamSection teamMembers={project?.teamMembers} assignedMentor={project?.assignedMentor} />
-          )}
-          {activeTab === 'documents' && (
-            <DocumentsSection documents={project?.documents} formatDate={formatDate} />
-          )}
-          {activeTab === 'activity' && (
-            <ActivitySection
-              activity={[
-                { id: 1, action: 'Project created', user: project?.createdBy?.name || 'User', date: project?.createdAt },
-                { id: 2, action: 'Team member added', user: 'System', date: project?.updatedAt },
-                { id: 3, action: 'Updated project description', user: project?.createdBy?.name || 'User', date: project?.updatedAt }
-              ]}
-              formatDate={formatDate}
-            />
+          {(isLoading || acceptRequestMutation.isPending || rejectRequestMutation.isPending || handleTeamAddMembersMutation.isPending) ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader text="Loading project details..." />
+            </div>
+          ) : (
+            <>
+              {activeTab === 'overview' && (
+                <OverviewSection description={project?.description} />
+              )}
+              {activeTab === 'team' && (
+                <TeamSection teamMembers={project?.teamMembers} createdBy={ProjectLead} assignedMentor={project?.assignedMentor} handleAddTeamMembers={handleAddTeamMembers}  />
+              )}
+              {activeTab === 'documents' && (
+                <DocumentsSection documents={project?.documents} formatDate={formatDate} />
+              )}
+              {activeTab === 'activity' && (
+                <ActivitySection
+                  activity={[
+                    { id: 1, action: 'Project created', user: project?.createdBy?.name || 'User', date: project?.createdAt },
+                    { id: 2, action: 'Team member added', user: 'System', date: project?.updatedAt },
+                    { id: 3, action: 'Updated project description', user: project?.createdBy?.name || 'User', date: project?.updatedAt }
+                  ]}
+                  formatDate={formatDate}
+                />
+              )}
+            </>
           )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Action buttons for mentors - Accept/Reject */}
-      {project?.status === 'pending' && project?.mentorRequests && (
+      {userRole === 'mentor' && project?.status === 'pending' && project?.mentorRequests && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -271,4 +300,5 @@ const ProjectDetailPage = () => {
   );
 };
 
-export default AppLayout()(ProjectDetailPage);
+const ProjectDetailPage = AppLayout()(ProjectDetailPageComponent);
+export default ProjectDetailPage;

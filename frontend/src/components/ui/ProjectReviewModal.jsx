@@ -17,10 +17,10 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
 
   const { data: reviewData, isLoading: loading, isError: error } = useQuery({
     queryKey: ['projectReview', projectId],
-    queryFn: async () => {
-      const res = await ProjectService.getProjectReview(projectId);
-      return res;
-    },
+    queryFn: ()=> ProjectService.getProjectReview(projectId),
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnReconnect: false,
     enabled: !!projectId && open,
   });
 

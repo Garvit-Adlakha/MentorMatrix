@@ -90,23 +90,6 @@ const ProjectService = {
         }
     },
 
-    acceptProjectRequest: async (projectId) => {
-        try {
-            if (!projectId) {
-                throw new Error("Project ID is required");
-            }
-
-            const response = await axiosInstance.post(`/project/accept-project/${projectId}`);
-            console.log("Project request accepted successfully:", response.data);
-            return response.data;
-        } catch (error) {
-            console.error("Error accepting project request:", error);
-            throw {
-                message: error.response?.data?.message || "Failed to accept project request. Please try again.",
-                originalError: error
-            };
-        }
-    },
     mentorDecision: async ({ projectId, decision }) => {
         try {
             if (!projectId) {
@@ -173,11 +156,13 @@ const ProjectService = {
 
     
     // Add team members to a project
-    addTeamMembers: async (projectId, memberEmails) => {
+    addTeamMembers: async ({projectId, newMembersEmails}) => {
         try {
+            console.log("Adding team members:", newMembersEmails);
+            console.log("Project ID:", projectId);
             const response = await axiosInstance.post('/project/add-members', {
                 projectId,
-                teamMembers: memberEmails
+                teamMembers: newMembersEmails
             });
             console.log("Team members added successfully:", response.data);
             return response.data;

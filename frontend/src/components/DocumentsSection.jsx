@@ -1,8 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { IconFileText, IconArrowRight, IconDownload } from './ui/Icons';
+import { useNavigate } from 'react-router-dom';
 
-const DocumentsSection = ({ documents, formatDate }) => (
+const DocumentsSection = ({ documents, formatDate }) => {
+
+  const navigate=useNavigate()
+
+  const handleUploadDocument = () => {
+    // Navigate to the upload document page
+    navigate('/collaborate?tab=files');
+  }
+  return (
   <div>
     <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
       <IconFileText className="text-primary" size={20} />
@@ -50,6 +59,7 @@ const DocumentsSection = ({ documents, formatDate }) => (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleUploadDocument}
           className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium inline-flex items-center gap-2"
         >
           Upload Document
@@ -58,6 +68,7 @@ const DocumentsSection = ({ documents, formatDate }) => (
       </div>
     )}
   </div>
-);
+)}
+;
 
 export default DocumentsSection;
