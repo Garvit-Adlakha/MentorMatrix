@@ -11,3 +11,17 @@
 // - Meeting update
 // - Meeting cancellation
 // - Meeting reminder (24h before)
+import {Router} from 'express';
+import { isAuthenticated } from "../middleware/auth.middleware.js";
+import { createMeeting, getMeetingById, getUserMeetings } from '../controllers/meeting.controller.js';
+
+
+const router= Router();
+
+router.post('/create/:projectId',isAuthenticated,createMeeting)
+
+router.get('/',isAuthenticated, getUserMeetings);
+
+router.get('/:meetingId',isAuthenticated, getMeetingById);
+
+export default router;

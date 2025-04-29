@@ -18,8 +18,8 @@ export const sendEmail = async ({ email, subject, message, textMessage }) => {
             from: `MentorMatrix<${process.env.SMTP_USER}>`,
             to: email,
             subject,
-            html: message, // assume message is already HTML
-            text: textMessage || message.replace(/<[^>]*>/g, ""), // allow explicit text fallback
+            html: message || "", // provide fallback if message is undefined
+            text: textMessage || (message ? message.replace(/<[^>]*>/g, "") : ""), // handle case when message is undefined
         };
 
         // Send Email

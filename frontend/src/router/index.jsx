@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import Loader from '../components/ui/Loader';
 import Protected from '../features/auth/Protected'
+import NotFound from '../Pages/NotFound';
 
 // Lazy load page components
 const HomePage = lazy(() => import("../Pages/HomePage"))
@@ -13,6 +14,7 @@ const Profile = lazy(() => import("../Pages/Profile"))
 const ChatPage = lazy(() => import("../Pages/ChatPage"))
 const CollaborationPage = lazy(() => import("../Pages/CollaborationPage"))
 const ProjectDetailPage = lazy(() => import("../Pages/ProjectDetailPage"))
+const MeetingRoomPage = lazy(() => import("../Pages/MeetingRoomPage"));
 
 const AppRouter = () => { 
     return (
@@ -88,13 +90,20 @@ const AppRouter = () => {
                     </Protected>
                 </Suspense>
             } />
+            <Route path="/meetings/:meetingId" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading meeting..." /></div>}>
+                    <Protected requiredAuth={true} redirect="/login">
+                        <MeetingRoomPage />
+                    </Protected>
+                </Suspense>
+            } />
             
 
             
             {/* 404 route */}
             <Route path="*" element={
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Page not found" /></div>}>
-                    <div>Not Found</div>
+                   <NotFound />
                 </Suspense>
             } />
         </Routes>

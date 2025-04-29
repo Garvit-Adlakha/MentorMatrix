@@ -219,23 +219,26 @@ const FileSharing = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="bg-black border border-primary/20 rounded-2xl p-10 shadow-2xl max-w-3xl mx-auto mt-12 backdrop-blur-md"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="bg-gradient-to-br from-[#18181b] to-[#23272f] rounded-2xl p-8 shadow-xl backdrop-blur-xl border-none max-w-3xl mx-auto mt-12"
     >
       {/* Go Back Button */}
-      <button
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.05 }}
         onClick={() => navigate('/collaborate')}
-        className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow"
+        className="flex items-center gap-2 mb-6 px-4 py-2 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 transition-all shadow"
       >
         Go Back
-      </button>
+      </motion.button>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2 items-center justify-center mb-4">
-          <h2 className="text-3xl font-extrabold text-primary drop-shadow-sm mb-1 tracking-tight">Project File Sharing</h2>
-          <p className="text-[16px] text-primary/80 font-medium">Share, preview, and manage your project documents with your team.</p>
+          <h2 className="text-3xl font-extrabold text-white drop-shadow mb-1 tracking-tight">Project File Sharing</h2>
+          <p className="text-[16px] text-zinc-300 font-medium">Share, preview, and manage your project documents with your team.</p>
         </div>
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center bg-neutral-800/90 dark:bg-card/90 rounded-xl p-8 shadow-lg border border-primary/10">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-center bg-zinc-900/80 rounded-xl p-8 shadow-lg border-none">
           <div className="flex flex-col gap-2 w-full md:w-1/3">
             <label htmlFor="project-select" className="font-medium text-sm mb-1">Select Project</label>
             <select
@@ -352,13 +355,22 @@ const FileSharing = () => {
             {filteredDocuments.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">No documents of this type.</div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {filteredDocuments.map((document) => (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.08 } },
+                }}
+                className="grid grid-cols-1 gap-4"
+              >
+                {filteredDocuments.map((document, idx) => (
                   <motion.div
                     key={document._id || document.url}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="border border-border/50 rounded-lg p-4 hover:border-primary/30 transition-all bg-card flex justify-between items-center"
+                    transition={{ delay: idx * 0.08, duration: 0.5, ease: 'easeOut' }}
+                    className="rounded-xl p-6 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 shadow-lg hover:shadow-2xl hover:scale-[1.015] transition-all border-none flex justify-between items-center"
                   >
                     <div className="flex items-center gap-3">
                       <button
@@ -383,7 +395,7 @@ const FileSharing = () => {
                         href={document.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-accent/50 text-foreground rounded hover:bg-accent transition-colors"
+                        className="p-2 bg-blue-600/20 text-blue-300 rounded hover:bg-blue-600/40 transition-colors shadow"
                         title="Download"
                         aria-label={`Download ${document.name}`}
                       >
@@ -391,13 +403,13 @@ const FileSharing = () => {
                       </a>
                       <button
                         onClick={() => handleDeleteFile(document._id)}
-                        className="p-2 bg-red-500 text-red-800 rounded hover:bg-red-200 transition-colors"
+                        className="p-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/40 transition-colors shadow"
                         title="Delete"
                         aria-label={`Delete ${document.name}`}
                         disabled={deletingFileId === document._id}
                       >
                         {deletingFileId === document._id ? (
-                          <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-red-800 rounded-full"></div>
+                          <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-red-400 rounded-full"></div>
                         ) : (
                           <IconTrash size={18} />
                         )}
@@ -405,7 +417,7 @@ const FileSharing = () => {
                     </div>
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </>
         )}
@@ -415,27 +427,66 @@ const FileSharing = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setPreviewImage(null)}>
             <img src={previewImage} alt="Project file preview" className="max-h-[80vh] max-w-[90vw] rounded shadow-lg" />
           </div>
-        )} 
-        {/* Delete confirmation dialog */}
+        )}
+        {/* Enhanced Delete confirmation modal */}
         {showConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-black dark:bg-card rounded-lg p-6 shadow-xl w-full max-w-xs flex flex-col items-center">
-              <p className="mb-4 text-center">Are you sure you want to delete this file?</p>
-              <div className="flex gap-4">
-                <button
-                  onClick={confirmDeleteFile}
-                  className="px-4 py-2 bg-red-100 text-neutral-400   rounded hover:bg-red-700 transition-colors"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={cancelDeleteFile}
-                  className="px-4 py-2 bg-gray-500 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-2xl animate-fadeIn" onClick={cancelDeleteFile}>
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.3 }}
+              className="relative bg-gradient-to-br from-card to-card/95 border border-primary/20 rounded-2xl shadow-2xl w-full max-w-xs p-7 mx-4 focus:outline-none"
+              onClick={e => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-file-title"
+              tabIndex={-1}
+            >
+              {/* Decorative elements */}
+              <div className="absolute -top-16 -right-16 w-32 h-32 bg-primary/20 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/10 rounded-full blur-2xl opacity-40 pointer-events-none"></div>
+              {/* Close button */}
+              <button
+                className="close-button"
+                onClick={cancelDeleteFile}
+                aria-label="Close delete confirmation"
+                type="button"
+              >
+                ×
+              </button>
+              {/* Modal content */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="p-3 rounded-full bg-red-100 dark:bg-red-900/20 mb-2">
+                  <IconTrash size={24} className="text-red-500" />
+                </div>
+                <h3 id="delete-file-title" className="text-lg font-bold text-foreground mb-2 text-center">Delete File</h3>
+                <p className="text-sm text-muted-foreground text-center mb-6">Are you sure you want to delete this file? This action cannot be undone.</p>
+                <div className="flex gap-3 w-full justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={confirmDeleteFile}
+                    className="px-4 py-2.5 text-sm font-medium rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white hover:from-red-600 hover:to-red-800 transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-red-400 focus:outline-none disabled:opacity-50"
+                    disabled={deletingFileId}
+                  >
+                    {deletingFileId ? (
+                      <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full mx-auto"></div>
+                    ) : (
+                      'Delete'
+                    )}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={cancelDeleteFile}
+                    className="px-4 py-2.5 text-sm font-medium rounded-lg bg-accent/50 text-foreground hover:bg-accent/80 transition-all duration-200 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
       </div>

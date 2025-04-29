@@ -13,6 +13,7 @@ import userRoute from './routes/user.route.js';
 import projectRoute from './routes/project.route.js';
 import chatRoute from './routes/chat.route.js';
 import messageRoute from './routes/message.route.js';
+import meetingRoute from './routes/meeting.route.js';
 
 // Import the initializeSocket function
 import { initializeSocket } from './socket/socket.js';
@@ -75,6 +76,7 @@ app.use('/api/v1/user', userRoute);
 app.use('/api/v1/project', projectRoute);
 app.use('/api/v1/chat', chatRoute);
 app.use('/api/v1/message', messageRoute);
+app.use('/api/v1/meeting', meetingRoute);
 
 // 404 Route Handler
 app.use((req, res) => {

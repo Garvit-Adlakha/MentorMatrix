@@ -59,6 +59,10 @@ const meetingSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        roomName: {
+            type: String,
+        },
+        
         recurring: {
             isRecurring: {
                 type: Boolean,

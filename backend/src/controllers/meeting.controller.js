@@ -5,12 +5,14 @@
 // - updateMeeting: Update meeting details
 // - deleteMeeting: Cancel/delete a meeting
 // - addMeetingNotes: Add notes after a meeting
-import { catchAsync } from "../middleware/error.middleware.js";
+import { AppError, catchAsync } from "../middleware/error.middleware.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import Project from "../models/project.model.js";
+import { Project } from "../models/project.model.js";
 import { Meeting } from "../models/meeting.model.js";
+import mongoose from "mongoose";
 
-const createMeeting = catchAsync(async (req, res, next) => {
+
+export const createMeeting = catchAsync(async (req, res, next) => {
     const { projectId } = req.params;
     const userId = req.id;
 
@@ -38,10 +40,7 @@ const createMeeting = catchAsync(async (req, res, next) => {
     // Fetch project and validate
     const project = await Project.findById(projectId).select("teamMembers title");
     if (!project) {
-        return res.status(404).json({
-            status: "fail",
-            message: "Project not found."
-        });
+      throw new AppError(404, "Project not found");
     }
 
     // Ensure unique participants
@@ -64,7 +63,8 @@ const createMeeting = catchAsync(async (req, res, next) => {
         startTime,
         endTime,
         location,
-        meetingLink
+        meetingLink,
+        roomName: jitsiRoom,
     };
     const meetingCreated = await Meeting.create(meeting);
     const meetingDetails = await Meeting.findById(meetingCreated._id)
@@ -73,12 +73,27 @@ const createMeeting = catchAsync(async (req, res, next) => {
         .populate("projectId", "title");
 
     // Send email notification
-    const emailData = {
-        subject: `Meeting Scheduled for ${project.title}`,
-        to: meetingDetails.participants.map((participant) => participant.email),
-        text: `Hello, \n\nA meeting has been scheduled for the project \"${project.title}\".\n\nDetails:\nTitle: ${meetingDetails.title}\nDescription: ${meetingDetails.description}\nStart Time: ${meetingDetails.startTime}\nEnd Time: ${meetingDetails.endTime}\nLocation: ${meetingDetails.location}\nMeeting Link: ${meetingDetails.meetingLink}\n\nBest regards,\nMentorMatrix Team`
-    };
-    await sendEmail(emailData);
+    for (const participant of meetingDetails.participants) {
+        const emailData = {
+            email: participant.email,
+            subject: `Meeting Scheduled for ${project.title}`,
+            message: `<p>Hello ${participant.name},</p>
+                <p>A meeting has been scheduled for the project "${project.title}".</p>
+                <h3>Details:</h3>
+                <ul>
+                    <li><strong>Title:</strong> ${meetingDetails.title}</li>
+                    <li><strong>Description:</strong> ${meetingDetails.description || 'N/A'}</li>
+                    <li><strong>Start Time:</strong> ${new Date(meetingDetails.startTime).toLocaleString()}</li>
+                    <li><strong>End Time:</strong> ${new Date(meetingDetails.endTime).toLocaleString()}</li>
+                    <li><strong>Location:</strong> ${meetingDetails.location || 'Online'}</li>
+                    <li><strong>Meeting Link:</strong> <a href="${meetingDetails.meetingLink}">${meetingDetails.meetingLink}</a></li>
+                </ul>
+                <p>Best regards,<br>MentorMatrix Team</p>`,
+            textMessage: `Hello ${participant.name},\n\nA meeting has been scheduled for the project "${project.title}".\n\nDetails:\nTitle: ${meetingDetails.title}\nDescription: ${meetingDetails.description || 'N/A'}\nStart Time: ${new Date(meetingDetails.startTime).toLocaleString()}\nEnd Time: ${new Date(meetingDetails.endTime).toLocaleString()}\nLocation: ${meetingDetails.location || 'Online'}\nMeeting Link: ${meetingDetails.meetingLink}\n\nBest regards,\nMentorMatrix Team`
+        };
+        await sendEmail(emailData);
+    }
+
     res.status(201).json({
         status: "success",
         message: "Meeting created successfully",
@@ -88,22 +103,24 @@ const createMeeting = catchAsync(async (req, res, next) => {
     });
 });
 
-const getUserMeetings = catchAsync(async (req, res, next) => {
+export const getUserMeetings = catchAsync(async (req, res, next) => {
     const userId = req.id;
     const { status, page = 1, limit = 10, sort = "-startTime" } = req.query;
-
+    const userObjectId = new mongoose.Types.ObjectId(userId);
     const query = {
         $or: [
-            { scheduledBy: userId },
-            { participants: userId }
+            { scheduledBy: { $eq: userObjectId } },
+            { participants: { $eq: userObjectId } }
         ]
     };
-
-    if (status) {
-        // Optionally, validate status here if needed
+    const now = new Date();
+    if (status === 'upcoming') {
+        query.startTime = { $gte: now };
+    } else if (status === 'past') {
+        query.endTime = { $lt: now };
+    } else if (status) {
         query.status = status;
     }
-
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const meetings = await Meeting.find(query)
         .sort(sort)
@@ -112,9 +129,7 @@ const getUserMeetings = catchAsync(async (req, res, next) => {
         .populate("participants", "name email")
         .populate("scheduledBy", "name email")
         .populate("projectId", "title");
-
     const total = await Meeting.countDocuments(query);
-
     res.status(200).json({
         status: "success",
         data: {
@@ -129,3 +144,33 @@ const getUserMeetings = catchAsync(async (req, res, next) => {
     });
 });
 
+
+export const getMeetingById = catchAsync(async (req, res, next) => {
+    const { meetingId } = req.params;
+    const userId = req.id;
+
+    console.log("Meeting ID:", meetingId);
+
+    // Validate meeting ID
+    if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+        return res.status(400).json({
+            status: "fail",
+            message: "Invalid meeting ID."
+        });
+    }
+
+    // Fetch meeting details
+    const meeting = await Meeting.findById(meetingId)
+        .populate("participants", "name email")
+        .populate("scheduledBy", "name email")
+        .populate("projectId", "title");
+
+  
+    res.status(200).json({
+        status: "success",
+        data: {
+            meeting
+        }
+    });
+}
+);
