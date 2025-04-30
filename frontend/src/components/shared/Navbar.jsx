@@ -145,19 +145,20 @@ export const Navbar = ({ navOpen }) => {
   return (
     <nav 
       ref={navRef} 
-      className={`navbar relative ${
+      className={`navbar relative w-full z-10 ${
         navOpen 
-          ? "active flex flex-col items-center space-y-4 py-4 " 
-          : "flex items-center space-x-4"
+          ? "active flex flex-col items-stretch space-y-1 py-2 bg-background md:bg-transparent md:flex-row md:space-y-0 md:space-x-4 rounded-xl shadow-lg md:shadow-none" 
+          : "hidden md:flex items-center space-x-4"
       }`}
+      style={navOpen ? { maxWidth: '90vw', margin: '0 auto', left: 0, right: 0 } : {}}
     >
       {navItems.map(({ label, link, className, id }, key) => (
         <Link
           to={link}
           key={key}
-          className={`${className} px-4 py-2 rounded-lg transition-all duration-300 hover:bg-accent/10 
-            ${navOpen ? 'w-full text-center' : ''} 
-            ${activeSection === id ? 'text-primary font-medium' : 'text-foreground/80'}`}
+          className={`${className} px-4 py-3 rounded-lg transition-all duration-300 hover:bg-accent/10 
+            ${navOpen ? 'w-full text-left font-medium text-lg' : ''} 
+            ${activeSection === id ? 'text-primary font-semibold' : 'text-foreground/80'}`}
           onClick={(e) => handleLinkClick(e, id)}
         >
           {label}

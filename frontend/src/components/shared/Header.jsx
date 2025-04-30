@@ -99,7 +99,7 @@ const Header = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="flex items-center"
         >
-          <a href="/" className="group relative">
+          <div className="group relative cursor-default select-none">
             <div className="flex items-center">
               <img
                 src="/logo.png"
@@ -119,7 +119,7 @@ const Header = () => {
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
             </div>
-          </a>
+          </div>
         </motion.div>
 
         {/* Navigation Section */}

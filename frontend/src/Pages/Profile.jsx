@@ -68,7 +68,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/60 pt-6 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/60 pb-16">
       <div className="container mx-auto px-4">
         <motion.h1 
           variants={fadeInUp}
@@ -76,7 +76,7 @@ const Profile = () => {
           animate="animate"
           className="text-3xl md:text-4xl font-bold text-center mb-8"
         >
-          My <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Profile</span>
+          My <span className="text-primary bg-clip-text  bg-gradient-to-r from-primary to-primary/70">Profile</span>
         </motion.h1>
         
         {isEditing ? (
@@ -104,7 +104,7 @@ const Profile = () => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="absolute bottom-4 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
+                    <div className="absolute bottom-4 right-2 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
                   </div>
                   <h2 className="text-xl font-bold mb-1">{user?.name}</h2>
                   <p className="text-sm text-muted-foreground mb-4">{user.role}</p>
@@ -135,14 +135,14 @@ const Profile = () => {
                       ))}
                     </div>
                   </div>
-                  
+{/*                   
                   <button
                     onClick={handleEditClick}
                     className="w-full btn bg-primary text-white hover:bg-primary/90 font-medium group px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                   >
                     <IconEdit size={16} className="mr-2" />
                     Edit Profile
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

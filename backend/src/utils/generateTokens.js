@@ -9,9 +9,9 @@ export const generateToken = (res, user, message, tokenExpiry = 24 * 60 * 60 * 1
         .status(200)
         .cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-            sameSite: "strict",
-            maxAge: tokenExpiry, // Use the provided expiry time
+            secure: true, // Always true for devtunnels and production (HTTPS)
+            sameSite: 'none', // Required for cross-site cookies with HTTPS (devtunnels)
+            maxAge: tokenExpiry,
             path: '/'
         })
         .json({
