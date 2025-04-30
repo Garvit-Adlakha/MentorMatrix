@@ -23,7 +23,6 @@ const Signup = () => {
       return;
     }
     // TODO: Implement signup logic
-    console.log('Signup data:', formData);
   };
 
   return (

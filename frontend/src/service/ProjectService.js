@@ -7,7 +7,6 @@ const ProjectService = {
             // Use the appropriate endpoint based on user role
             const endpoint = "/project/get-project";
             const response = await axiosInstance.get(`${endpoint}`);
-            console.log("Projects fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching projects:", error);
@@ -22,7 +21,6 @@ const ProjectService = {
     createProject: async (data) => {
         try {
             const response = await axiosInstance.post("/project/create-project", data);
-            console.log("Project created successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error creating project:", error);
@@ -41,7 +39,6 @@ const ProjectService = {
             }
 
             const response = await axiosInstance.get(`/project/get-project/${projectId}`);
-            console.log("Project fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching project:", error);
@@ -56,7 +53,6 @@ const ProjectService = {
     getSelfProject: async () => {
         try {
             const response = await axiosInstance.get("/project/get-project");
-            console.log("Self project fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching self project:", error);
@@ -79,7 +75,6 @@ const ProjectService = {
                 projectId
             });
 
-            console.log("Mentor request sent successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error sending mentor request:", error);
@@ -98,7 +93,6 @@ const ProjectService = {
             const response = await axiosInstance.post(`/project/assign-mentor/${projectId}`, {
                 decision
             });
-            console.log("Mentor decision made successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error making mentor decision:", error);
@@ -112,7 +106,6 @@ const ProjectService = {
     getSummary: async (projectId) => {
         try {
             const response = await axiosInstance.get(`/project/${projectId}/summary`)
-            console.log("Project summary fetched successfully:", response.data);
             return response.data.summary.summary;
         } catch (error) {
             console.error("Error getting project summary:", error);
@@ -128,7 +121,6 @@ const ProjectService = {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            console.log("Document uploaded successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error uploading document:", error);
@@ -143,7 +135,6 @@ const ProjectService = {
     deleteProjectDocument: async (projectId, documentId) => {
         try {
             const response = await axiosInstance.delete(`/project/${projectId}/document/${documentId}`);
-            console.log("Document deleted successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error deleting document:", error);
@@ -158,13 +149,10 @@ const ProjectService = {
     // Add team members to a project
     addTeamMembers: async ({projectId, newMembersEmails}) => {
         try {
-            console.log("Adding team members:", newMembersEmails);
-            console.log("Project ID:", projectId);
             const response = await axiosInstance.post('/project/add-members', {
                 projectId,
                 teamMembers: newMembersEmails
             });
-            console.log("Team members added successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error adding team members:", error);
@@ -178,7 +166,6 @@ const ProjectService = {
     getProjectReview: async (projectId) => {
         try {
             const response = await axiosInstance.get(`/project/project-review/${projectId}`);
-            console.log("Project review fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching project review:", error);

@@ -18,7 +18,6 @@ const MeetingRoomPage = () => {
     queryFn: () => MeetingService.getProjectMeetings(meetingId),
   });
 
-  console.log('Meeting data:', data);
 
   useEffect(() => {
     if (data?.meeting) {

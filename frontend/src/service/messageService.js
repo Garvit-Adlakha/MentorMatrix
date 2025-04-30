@@ -28,8 +28,7 @@ const MessageService = {
                 content = message;
             }
             
-            console.log("Sending message to chat:", chatId);
-            console.log("Message content:", content);
+           
             
             const response = await axiosInstance.post(`/message/${chatId}/message`, { content });
             return response.data;

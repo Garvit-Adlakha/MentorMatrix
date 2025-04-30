@@ -45,7 +45,6 @@ const Profile = () => {
 
 
 
-  console.log(user);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -56,7 +55,6 @@ const Profile = () => {
 
   const handleSaveClick = (updatedData) => {
     // Save the updated data to the backend
-    console.log('Updated Data:', updatedData);
     setIsEditing(false);
     navigate('/projects');
   };

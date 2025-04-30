@@ -5,7 +5,6 @@ const mentorService={
         try {
             const encodedQuery = encodeURIComponent(query);
             const response = await axiosInstance.get(`user/mentor?search=${encodedQuery}`);
-            console.log("Mentors fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching mentors:", error);
@@ -20,7 +19,6 @@ const mentorService={
         try {
             const encodedQuery = encodeURIComponent(searchQuery);
             const response = await axiosInstance.get(`user/mentor?search=${encodedQuery}`);
-            console.log("Mentors fetched successfully:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching mentors:", error);

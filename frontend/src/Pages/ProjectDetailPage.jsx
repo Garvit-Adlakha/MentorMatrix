@@ -50,7 +50,6 @@ const ProjectDetailPageComponent = () => {
   const userRole = user?.role;
 
   const project = data?.project;
-  console.log("Project data:", project);
   const ProjectLead = project?.createdBy
 
   // Accept project request mutation
@@ -97,7 +96,6 @@ const ProjectDetailPageComponent = () => {
   const handleAddTeamMembers = async (newMembersEmails) => {
     try {
 
-      console.log("Adding team members:", newMembersEmails);
       await handleTeamAddMembersMutation.mutateAsync({ newMembersEmails });
     } catch (error) {
       console.error("Error adding team members:", error);

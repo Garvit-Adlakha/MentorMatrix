@@ -82,16 +82,12 @@ const Chat = () => {
 
   // Listen for new messages via socket
   useEffect(() => {
-    console.log("chatId", chatId);
-    console.log("activeChat", activeChat);
-    console.log("socket", socket);
+;
     if (!socket || !(activeChat?._id || chatId)) return;
     
-    console.log('Joining chat room:', activeChat?._id || chatId, 'Socket:', socket.id);
     socket.emit('joinChat', activeChat?._id || chatId);
     
     const handleReceiveMessage = (msg) => {
-      console.log('Received message via socket:', msg);
       if (msg.chatId === (activeChat?._id || chatId)) {
         // Ensure the message has complete sender information
         const newMessage = {
@@ -116,7 +112,6 @@ const Chat = () => {
           );
           
           if (!messageExists) {
-            console.log('Adding new message to state:', newMessage);
             return [...prev, newMessage];
           }
           return prev;
@@ -145,7 +140,6 @@ const Chat = () => {
   useEffect(() => {
     if (socket && user?._id) {
       socket.emit('authenticate', { userId: user._id });
-      console.log('Socket authenticated with userId:', user._id);
     }
   }, [socket, user]);
   
@@ -210,7 +204,6 @@ const Chat = () => {
     onSuccess: (data) => {
       setAttachment(null);
       // Don't add message here - wait for the socket event
-      console.log('Message sent successfully:', data);
       // The message will be added via the receiveMessage socket event
     },
     onError: (error) => {
