@@ -140,7 +140,7 @@ const CollaborationPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <motion.div 
                 onClick={() => handleTabChange('chat')}
-                className="card p-6 hover:border-primary/40 hover:scale-105 bg-white/10 backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20 transition-all cursor-pointer group glass-card"
+                className="card p-6 hover:border-primary/40 hover:scale-105 bg-gradient-to-br from-[#18181b] to-[#23272f] backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20  transition-all cursor-pointer group glass-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -160,7 +160,7 @@ const CollaborationPage = () => {
               
               <motion.div 
                 onClick={() => handleTabChange('meetings')}
-                className="card p-6 hover:border-primary/40 hover:scale-105 bg-white/10 backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20 transition-all cursor-pointer group glass-card"
+                className="card p-6 hover:border-primary/40 hover:scale-105 bg-gradient-to-br from-[#18181b] to-[#23272f] backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20 transition-all cursor-pointer group glass-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -169,7 +169,7 @@ const CollaborationPage = () => {
                   scale: 1.05
                 }}
               >
-                <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <div className="bg-primary/10 w-12 h-12 rounded-full  flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <IconCalendar size={24} className="text-primary" />
                 </div>
                 <h4 className="text-lg font-medium mb-2 text-white">Schedule Meetings</h4>
@@ -180,7 +180,7 @@ const CollaborationPage = () => {
               
               <motion.div 
                 onClick={() => handleTabChange('files')}
-                className="card p-6 hover:border-primary/40 hover:scale-105 bg-white/10 backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20 transition-all cursor-pointer group glass-card"
+                className="card p-6 hover:border-primary/40 hover:scale-105 bg-gradient-to-br from-[#18181b] to-[#23272f] backdrop-blur-xl shadow-2xl rounded-3xl border border-white/20 transition-all cursor-pointer group glass-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
