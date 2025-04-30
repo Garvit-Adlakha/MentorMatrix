@@ -43,7 +43,7 @@ MentorMatrix is a full-stack web application designed to streamline mentor-stude
 ### Frontend
 - **Core**: React 
 - **State/Data**: React Query, Zustand 
-- **Styling**: Tailwind CSS, motion/react
+- **Styling**: Tailwind CSS, motion/react,daisy UI,Tabler Icons
 - **Build Tool**: Vite
 - **HTTP**: Axios
 
@@ -133,7 +133,7 @@ MentorMatrix/
    ```
    Create a `.env` file with the following variables:
    ```env
-   PORT=4000
+   PORT=8000
    MONGODB_URI=your_mongodb_uri
    JWT_SECRET=your_jwt_secret
    SMTP_HOST=your_smtp_host
@@ -144,7 +144,7 @@ MentorMatrix/
    CLOUDINARY_API_KEY=your_cloudinary_key
    CLOUDINARY_API_SECRET=your_cloudinary_secret
    GEMINI_API_KEY=your_gemini_api_key
-   SUMMARIZER_API_URL=http://localhost:8000
+   SUMMARIZER_API_URL=http://localhost:8080
    ```
 
 3. **Frontend Setup**
@@ -154,7 +154,7 @@ MentorMatrix/
    ```
    Create a `.env` file with:
    ```env
-   VITE_API_URL=http://localhost:4000/api/v1
+   VITE_API_URL=http://localhost:800/api/v1
    ```
 
 4. **Summarizer API Setup**

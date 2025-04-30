@@ -135,3 +135,4 @@ start-services.sh
 SummarizerApi/model.pkl
 SummarizerApi/Project_Summarizer_Demo.ipynb
 SummarizerApi/__pycache__/app.cpython-313.pyc
+frontend/model.pkl
