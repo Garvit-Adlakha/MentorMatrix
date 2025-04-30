@@ -42,7 +42,7 @@ MentorMatrix is a full-stack web application designed to streamline mentor-stude
 
 ### Frontend
 - **Core**: React 
-- **State/Data**: React Query, Context API
+- **State/Data**: React Query, Zustand 
 - **Styling**: Tailwind CSS, motion/react
 - **Build Tool**: Vite
 - **HTTP**: Axios
