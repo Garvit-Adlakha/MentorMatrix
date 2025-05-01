@@ -4,6 +4,7 @@ import { IconX, IconDownload, IconClipboard, IconCheck, IconFileDescription, Ico
 import ProjectService from '../../service/ProjectService';
 import { FadeIn } from './AnimatedCard';
 import { useQuery } from '@tanstack/react-query';
+import ReactDOM from 'react-dom';
 
 /**
  * Modal component for displaying AI-generated project summaries
@@ -86,7 +87,7 @@ const ProjectSummaryModal = ({ open, onOpenChange, projectId }) => {
 
   if (!open) return null;
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {open && (
         <>
@@ -115,7 +116,7 @@ const ProjectSummaryModal = ({ open, onOpenChange, projectId }) => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-summary-title"
-            className="fixed z-50 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] sm:w-[90vw] max-w-3xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-card to-card/95 border border-primary/20 rounded-2xl shadow-2xl shadow-primary/10 focus:outline-none"
+            className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] sm:w-[90vw] max-w-3xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-card to-card/95 border border-primary/20 rounded-2xl shadow-2xl shadow-primary/10 focus:outline-none"
             tabIndex={-1}
           >
             {/* Decorative elements */}
@@ -251,6 +252,8 @@ const ProjectSummaryModal = ({ open, onOpenChange, projectId }) => {
       )}
     </AnimatePresence>
   );
+
+  return ReactDOM.createPortal(modalContent, document.getElementById('portal-root'));
 };
 
 export default ProjectSummaryModal;

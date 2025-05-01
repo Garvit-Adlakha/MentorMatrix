@@ -1,5 +1,11 @@
 # MentorMatrix
 
+## Demo Video
+
+Click the image below to watch a demo of MentorMatrix:
+
+[![Watch the demo]()](https://drive.google.com/file/d/193BhDNuK40wuWcTuAEsB_vlB18H8C4dZ/view?usp=sharing)
+
 ## Overview
 
 MentorMatrix is a full-stack web application designed to streamline mentor-student collaboration for academic projects. It provides robust project management, mentor assignment workflows, secure file/document sharing, AI-powered project summaries and reviews, and real-time group chat for project teams.
