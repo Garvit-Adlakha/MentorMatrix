@@ -10,7 +10,7 @@ export const generateToken = (res, user, message, tokenExpiry = 24 * 60 * 60 * 1
         .cookie("token", token, {
             httpOnly: true,
             secure: true, // Always true for devtunnels and production (HTTPS)
-            sameSite: 'none', // Required for cross-site cookies with HTTPS (devtunnels)
+            sameSite: 'none', // Required for cross-site cookies
             maxAge: tokenExpiry,
             path: '/'
         })

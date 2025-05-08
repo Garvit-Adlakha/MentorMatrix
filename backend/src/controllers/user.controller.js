@@ -135,12 +135,13 @@ export const authenticateUser = catchAsync(async (req, res, next) => {
  * @route POST /api/v1/user/signout
  */
 export const signOutUser = catchAsync(async(req, res) => {
-    // Clear token cookie (legacy)
+    // Clear token cookie
     res.cookie('token', "", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         maxAge: 0,
-        sameSite: 'strict'
+        sameSite: 'none',
+        path: '/' 
     });
     
     
