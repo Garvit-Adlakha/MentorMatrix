@@ -24,6 +24,10 @@ await connectDB();
 // generateUsers(10)
 
 const app = express();
+
+// Trust the first proxy (Render's load balancer)
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 4000;
 
 // Create HTTP server
@@ -59,6 +63,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // CORS configuration
+console.log(process.env.CLIENT_URL);
 app.use(cors({
   origin: [process.env.CLIENT_URL, "https://rhtlrq56-5173.inc1.devtunnels.ms", "http://localhost:5173","http://localhost:4173"],
   credentials: true,
