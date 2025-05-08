@@ -2,6 +2,9 @@
 ## Live Link 
   https://mentor-matrix.vercel.app/
 
+## Admin Dashboard Demo Video
+[![Watch the demo]()](https://drive.google.com/file/d/18eTZJFPvdXYCehsIltx9gpQnXlO0hGS6/view?usp=sharing)
+
 ## Demo Video
 
 [![Watch the demo]()](https://drive.google.com/file/d/193BhDNuK40wuWcTuAEsB_vlB18H8C4dZ/view?usp=sharing)
