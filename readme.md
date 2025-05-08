@@ -4,8 +4,6 @@
 
 ## Demo Video
 
-Click the image below to watch a demo of MentorMatrix:
-
 [![Watch the demo]()](https://drive.google.com/file/d/193BhDNuK40wuWcTuAEsB_vlB18H8C4dZ/view?usp=sharing)
 
 ## Overview
