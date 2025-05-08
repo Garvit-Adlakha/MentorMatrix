@@ -98,14 +98,14 @@ const Header = () => {
         >
           <div className="group relative cursor-default select-none">
             <div className="flex items-center">
-              <img
-                src="/logo.png"
+              {/* <img
+                src="/logo-2.png"
                 alt="MentorMatrix Logo"
-                className="h-10 w-auto mr-3 transition-all duration-300 group-hover:scale-110 group-hover:brightness-110"
+                className="h-16 w-auto mr-3 transition-all duration-300 group-hover:scale-110 group-hover:brightness-110"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
-              />
+              /> */}
               <span className={`text-xl font-bold ${
                 user?.role === 'admin' 
                   ? 'text-primary' 
