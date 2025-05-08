@@ -14,7 +14,7 @@ import projectRoute from './routes/project.route.js';
 import chatRoute from './routes/chat.route.js';
 import messageRoute from './routes/message.route.js';
 import meetingRoute from './routes/meeting.route.js';
-
+import adminRoute from './routes/admin.route.js';
 // Import the initializeSocket function
 import { initializeSocket } from './socket/socket.js';
 
@@ -60,7 +60,7 @@ if (process.env.NODE_ENV === "development") {
 
 // CORS configuration
 app.use(cors({
-  origin: [process.env.CLIENT_URL, "https://rhtlrq56-5173.inc1.devtunnels.ms", "http://localhost:5173"],
+  origin: [process.env.CLIENT_URL, "https://rhtlrq56-5173.inc1.devtunnels.ms", "http://localhost:5173","http://localhost:4173"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -71,12 +71,18 @@ app.get('/ws', (req, res) => {
   res.send('WebSocket server is running');
 });
 
+// Health Check Route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: "UP" });
+});
+
 // API Routes
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/project', projectRoute);
 app.use('/api/v1/chat', chatRoute);
 app.use('/api/v1/message', messageRoute);
 app.use('/api/v1/meeting', meetingRoute);
+app.use('/api/v1/admin', adminRoute);
 
 // 404 Route Handler
 app.use((req, res) => {
@@ -88,7 +94,6 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err);
   if (res.headersSent) {
     return next(err);
   }

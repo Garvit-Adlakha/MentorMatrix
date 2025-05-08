@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { IconX, IconDownload, IconClipboard, IconCheck, IconFileDescription, IconSparkles } from './Icons';
-import ProjectService from '../../service/ProjectService';
-import { FadeIn } from './AnimatedCard';
+import { motion, AnimatePresence } from 'motion/react';
+import { IconX, IconDownload, IconClipboard, IconCheck, IconFileDescription, IconSparkles } from '../../ui/Icons';
+import ProjectService from '../../../service/ProjectService';
+import { FadeIn } from '../../ui/cards/AnimatedCard';
 import { useQuery } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
-import ProjectReviewDetails from './ProjectReviewDetails';
+import ProjectReviewDetails from '../../ui/ProjectReviewDetails';
 
 /**
  * Modal component for displaying AI-generated project reviews

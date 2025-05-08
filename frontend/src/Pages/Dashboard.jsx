@@ -1,13 +1,13 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query'; 
+import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layouts/AppLayout';
 import DashboardHeader from '../features/dashboard/DashboardHeader';
 import DashboardSidebar from '../features/dashboard/DashboardSidebar';
 import ProjectCards from '../features/dashboard/ProjectCards';
 import ProjectTable from '../features/dashboard/ProjectTable';
-import ProjectForm from '../components/ProjectForm';
+import ProjectForm from '../components/project/ProjectForm';
 import SearchAndFilter from '../features/dashboard/SearchAndFilter';
 import StatsCards from '../features/dashboard/StatsCards';
 import EmptyState from '../features/dashboard/EmptyState';
@@ -113,7 +113,7 @@ const Dashboard = () => {
   
   return (
     <div className="container mx-auto px-4 py-8 ">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="">
         {/* Main Content */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -183,6 +183,7 @@ const Dashboard = () => {
                   }
                   action={projects.length === 0 ? handleNewProposalForm : null}
                   actionText={projects.length === 0 ? "Create your first project" : null}
+                  handleNewProposalForm={handleNewProposalForm}
                 />
               ) : (
                 viewMode === 'card' ? (
@@ -204,9 +205,9 @@ const Dashboard = () => {
         </motion.div>
         
         {/* Sidebar */}
-        <div className="lg:col-span-3">
+        {/* <div className="lg:col-span-3">
           <DashboardSidebar />
-        </div>
+        </div> */}
       </div>
       
       {/* Project Form Modal */}

@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { IconFileText, IconArrowRight, IconDownload } from './ui/Icons';
+import { motion } from 'motion/react';
+import { IconFileText, IconArrowRight, IconDownload } from '../ui/Icons';
 import { useNavigate } from 'react-router-dom';
 
 const DocumentsSection = ({ documents, formatDate }) => {

@@ -3,6 +3,7 @@ import {
     authenticateUser,
     changeUserPassword,
     createUserAccount,
+    createMentorAccount,
     deleteUserAccount,
     getCurrentUserProfile,
     signOutUser,
@@ -11,7 +12,8 @@ import {
     resetPassword,
     getAllMentors,
     SearchMentor,
-
+    getPendingMentors,
+    verifyMentor
 } from "../controllers/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import  { uploadAvatar } from "../utils/multer.js";
@@ -21,6 +23,7 @@ const router = express.Router();
 
 // Auth routes
 router.post("/signup", validateSignup, createUserAccount);
+router.post("/mentor/signup", validateSignup, uploadAvatar, createMentorAccount);
 router.post("/signin", validateSignin, authenticateUser);
 router.post("/signout", signOutUser); // No authentication middleware for signout
 
@@ -28,7 +31,12 @@ router.post("/signout", signOutUser); // No authentication middleware for signou
 router.get("/profile", isAuthenticated, getCurrentUserProfile);
 router.patch("/profile", isAuthenticated, uploadAvatar, updateUserProfile);
 
-router.get('/mentor/search',isAuthenticated,SearchMentor)
+// Mentor routes
+router.get('/mentor/search', isAuthenticated, SearchMentor);
+router.get('/mentor', getAllMentors);
+router.get('/mentor/pending', isAuthenticated, getPendingMentors);
+router.patch('/mentor/verify/:id', isAuthenticated, verifyMentor);
+
 // Password routes
 router.patch("/change-password", isAuthenticated, validatePasswordChange, changeUserPassword);
 router.delete("/account", isAuthenticated, deleteUserAccount);
@@ -38,8 +46,6 @@ router.post(
     "/forgot-password",
     forgotPassword
 );
-
-router.get('/mentor',getAllMentors)
 
 // Reset Password Route (validate new password)
 router.post(

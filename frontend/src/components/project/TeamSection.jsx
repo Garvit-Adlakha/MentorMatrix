@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { IconUsers, IconUserCircle, IconMessage, IconArrowRight } from './ui/Icons';
+import { motion } from 'motion/react';
+import { IconUsers, IconUserCircle, IconMessage, IconArrowRight } from '../ui/Icons';
 
 const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembers }) => {
   const [showDialog, setShowDialog] = useState(false);

@@ -15,18 +15,11 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
         name, 
         email, 
         password, 
-        role = "student", 
-        university, 
-        department, 
-        yearOfStudy, 
-        skills = [], 
-        expertise = [], 
         roll_no, 
-        sap_id,
-        cgpa
+        sap_id
     } = req.body;
 
-    const avatar=req.file?.avatar
+    const avatar = req.file?.avatar;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -39,40 +32,39 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
         return next(new AppError("User already exists with this email", 400, "USER_EXISTS"));
     }
 
-    // Validate roll_no and sap_id for students
-    if (role === "student" && (!roll_no || !sap_id)) {
+    // Validate student-specific requirements
+    if (!roll_no || !sap_id) {
         return next(new AppError("Roll number and SAP ID are required for students", 400, "MISSING_STUDENT_INFO"));
     }
 
-    const Uploadedavatar=uploadMedia(avatar?.path)
+    let resultAvatar = {
+        publicId: "default_avatar.png",
+        url: "https://res.cloudinary.com/dxqj5v0gk/image/upload/v1697061234/default_avatar.png"
+    };
 
-    const resultAvatar={
-        publicId: Uploadedavatar?.public_id,
-        url: Uploadedavatar?.secure_url,
+    if (avatar) {
+        const uploadedAvatar = await uploadMedia(avatar.path);
+        resultAvatar = {
+            publicId: uploadedAvatar?.public_id,
+            url: uploadedAvatar?.secure_url,
+        };
     }
 
-    // Create new user
+    // Create new user with only essential fields
     const user = await User.create({
         name,
         email: email.toLowerCase(),
         password,
-        resultAvatar,
-        role,
-        university,
-        department, 
-        cgpa,
-        roll_no: role === "student" ? roll_no : undefined,
-        sap_id: role === "student" ? sap_id : undefined,
-        yearOfStudy: role === "student" ? yearOfStudy : undefined,
-        skills: role === "student" ? skills.map(skill => skill.toLowerCase().trim()) : [],
-        expertise: role === "mentor" ? expertise.map(exp => exp.toLowerCase().trim()) : [],
-        resetPasswordToken: undefined,
-        resetPasswordExpire: undefined,
-        availability: role === "mentor" ? true : undefined,
+        avatar: resultAvatar,
+        role: "student",
+        roll_no,
+        sap_id,
         passwordChangedAt: new Date(),
     });
+
     // Update last active timestamp
     await user.updateLastActive();
+
     // Send welcome email
     try {
         await sendEmail({
@@ -82,6 +74,7 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
                 <h1>Welcome to MentorMatrix, ${user.name}!</h1>
                 <p>Thank you for joining our platform. We're excited to have you with us!</p>
                 <p>You can now log in to your account and start exploring the platform.</p>
+                <p>Please complete your profile to get the most out of MentorMatrix!</p>
             `,
         });
     } catch (error) {
@@ -114,6 +107,16 @@ export const authenticateUser = catchAsync(async (req, res, next) => {
     // Check if user account is active
     if (user.status === 'inactive') {
         throw new AppError("Your account has been deactivated", 401, "ACCOUNT_INACTIVE");
+    }
+
+    // Check if mentor account is pending
+    if (user.role === "mentor" && user.status === "pending") {
+        throw new AppError("Your mentor account is pending verification. Please wait for admin approval.", 401, "ACCOUNT_PENDING");
+    }
+
+    // Check if mentor account is rejected
+    if (user.role === "mentor" && user.status === "rejected") {
+        throw new AppError("Your mentor application has been rejected. Please contact support for more information.", 401, "ACCOUNT_REJECTED");
     }
 
     // Update last login information
@@ -212,7 +215,18 @@ export const getCurrentUserProfile = catchAsync(async (req, res) => {
  * @route PUT /api/v1/user/profile
  */
 export const updateUserProfile = catchAsync(async (req, res) => {
-    const { name, email, bio, skills, expertise, university, department, yearOfStudy } = req.body;
+    const { 
+        name, 
+        email, 
+        bio, 
+        skills, 
+        expertise, 
+        university, 
+        department, 
+        yearOfStudy,
+        cgpa
+    } = req.body;
+    
     const updateData = {};
 
     // Fetch the user
@@ -227,6 +241,7 @@ export const updateUserProfile = catchAsync(async (req, res) => {
     if (university) updateData.university = university;
     if (department) updateData.department = department;
     if (yearOfStudy && user.role === "student") updateData.yearOfStudy = yearOfStudy;
+    if (cgpa && user.role === "student") updateData.cgpa = cgpa;
 
     // Validate email update
     if (email && email.toLowerCase() !== user.email) {
@@ -253,11 +268,14 @@ export const updateUserProfile = catchAsync(async (req, res) => {
     if (req.file) {
         try {
             const avatarResult = await uploadMedia(req.file.path);
-            updateData.avatar = avatarResult?.secure_url || req.file.path;
+            updateData.avatar = {
+                publicId: avatarResult?.public_id,
+                url: avatarResult?.secure_url
+            };
 
             // Delete old avatar if it's not the default one
-            if (user.avatar && !user.avatar.includes("default-avatar")) {
-                await deleteMediaFromCloudinary(user.avatar);
+            if (user.avatar && !user.avatar.publicId.includes("default_avatar")) {
+                await deleteMediaFromCloudinary(user.avatar.publicId);
             }
         } catch (error) {
             throw new AppError("Error uploading profile image", 500, "UPLOAD_ERROR");
@@ -289,6 +307,7 @@ export const updateUserProfile = catchAsync(async (req, res) => {
             skills: updatedUser.skills,
             expertise: updatedUser.expertise,
             avatar: updatedUser.avatar,
+            cgpa: updatedUser.cgpa
         },
     });
 });
@@ -465,9 +484,9 @@ export const deleteUserAccount = catchAsync(async (req, res) => {
     }
 
     // Delete avatar if not default
-    if (user.avatar && !user.avatar.includes("default-avatar")) {
+    if (user.avatar && !user.avatar.publicId.includes("default_avatar")) {
         try {
-            await deleteMediaFromCloudinary(user.avatar);
+            await deleteMediaFromCloudinary(user.avatar.publicId);
         } catch (error) {
             console.error("Error deleting avatar:", error);
         }
@@ -499,6 +518,7 @@ export const getAllMentors = catchAsync(async (req, res) => {
   
     const filter = {
       role: "mentor",
+      status: "active"
     };
   
     if (search) {
@@ -565,6 +585,176 @@ export const SearchMentor=catchAsync(async(req,res)=>{
         success: true,
         count: mentors.length,
         mentors,
+    });
+});
+
+/**
+ * Create a new mentor account (pending admin verification)
+ * @route POST /api/v1/user/mentor/signup
+ */
+export const createMentorAccount = catchAsync(async (req, res, next) => {
+    const { 
+        name, 
+        email, 
+        password,
+        department,
+        university,
+        expertise = []
+    } = req.body;
+
+    const avatar = req.file?.avatar;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+        return next(new AppError("Name, email and password are required", 400, "MISSING_REQUIRED_FIELDS"));
+    }
+
+    // Validate mentor-specific required fields
+    if (!department || !university) {
+        return next(new AppError("Department and university are required for mentors", 400, "MISSING_MENTOR_INFO"));
+    }
+
+    // Validate expertise
+    if (!expertise || expertise.length === 0) {
+        return next(new AppError("At least one area of expertise is required", 400, "MISSING_EXPERTISE"));
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+        return next(new AppError("User already exists with this email", 400, "USER_EXISTS"));
+    }
+
+    let resultAvatar = {
+        publicId: "default_avatar.png",
+        url: "https://res.cloudinary.com/dxqj5v0gk/image/upload/v1697061234/default_avatar.png"
+    };
+
+    if (avatar) {
+        const uploadedAvatar = await uploadMedia(avatar.path);
+        resultAvatar = {
+            publicId: uploadedAvatar?.public_id,
+            url: uploadedAvatar?.secure_url,
+        };
+    }
+
+    // Create new mentor account with pending status
+    const user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password,
+        avatar: resultAvatar,
+        role: "mentor",
+        status: "pending",
+        department,
+        university,
+        expertise: expertise.map(exp => exp.toLowerCase().trim()),
+        availability: false, // Set to false until approved
+        passwordChangedAt: new Date(),
+    });
+
+    // Send pending verification email
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: "Mentor Account Pending Verification",
+            message: `
+                <h1>Welcome to MentorMatrix, ${user.name}!</h1>
+                <p>Thank you for applying to become a mentor. Your account is currently pending verification by our admin team.</p>
+                <p>We will review your application and notify you once it's approved.</p>
+                <p>Please note that you won't be able to log in until your account is verified.</p>
+            `,
+        });
+    } catch (error) {
+        console.error("Verification email could not be sent:", error);
+    }
+
+    res.status(201).json({
+        success: true,
+        message: "Mentor account created successfully. Pending admin verification.",
+        data: {
+            name: user.name,
+            email: user.email,
+            status: user.status
+        }
+    });
+});
+
+/**
+ * Get all pending mentor requests
+ * @route GET /api/v1/user/mentor/pending
+ */
+export const getPendingMentors = catchAsync(async (req, res) => {
+    const pendingMentors = await User.find({
+        role: "mentor",
+        status: "pending"
+    }).select('-password -resetPasswordToken -resetPasswordExpire');
+
+    res.status(200).json({
+        success: true,
+        count: pendingMentors.length,
+        mentors: pendingMentors
+    });
+});
+
+/**
+ * Verify mentor account
+ * @route PATCH /api/v1/user/mentor/verify/:id
+ */
+export const verifyMentor = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { action } = req.body; // 'approve' or 'reject'
+
+    if (!['approve', 'reject'].includes(action)) {
+        throw new AppError("Invalid action. Must be 'approve' or 'reject'", 400);
+    }
+
+    const mentor = await User.findOne({
+        _id: id,
+        role: "mentor",
+        status: "pending"
+    });
+
+    if (!mentor) {
+        throw new AppError("Pending mentor request not found", 404);
+    }
+
+    // Update mentor status
+    mentor.status = action === 'approve' ? 'active' : 'rejected';
+    if (action === 'approve') {
+        mentor.availability = true;
+    }
+
+    await mentor.save();
+
+    // Send notification email
+    try {
+        await sendEmail({
+            email: mentor.email,
+            subject: action === 'approve' ? "Mentor Account Approved" : "Mentor Account Rejected",
+            message: `
+                <h1>${action === 'approve' ? 'Congratulations!' : 'Application Update'}</h1>
+                <p>${action === 'approve' 
+                    ? `Your mentor account has been approved! You can now log in and start mentoring students.` 
+                    : `We regret to inform you that your mentor application has not been approved at this time.`}</p>
+                ${action === 'approve' 
+                    ? `<p>You can now log in to your account and start exploring the platform.</p>` 
+                    : `<p>If you have any questions, please contact our support team.</p>`}
+            `,
+        });
+    } catch (error) {
+        console.error("Notification email could not be sent:", error);
+    }
+
+    res.status(200).json({
+        success: true,
+        message: `Mentor account ${action === 'approve' ? 'approved' : 'rejected'} successfully`,
+        mentor: {
+            _id: mentor._id,
+            name: mentor.name,
+            email: mentor.email,
+            status: mentor.status
+        }
     });
 });
 

@@ -19,6 +19,7 @@ import {
   IconUserCheck,
   IconUserExclamation,
   IconLoader2,
+  IconDots ,
   IconFiles,
   IconMenu2,
   // New icons added for ProjectCardModel
@@ -55,7 +56,6 @@ import {
   IconMessage,
   IconSend,
   IconChevronLeft,
-  IconDotsVertical,
   IconPaperclip,
   IconMicrophone,
   IconMenu,
@@ -79,6 +79,7 @@ import {
   IconSparkles,
   IconClipboard,
   IconListCheck,
+  IconShieldLock,
   IconMoodSmile,
   IconCoins,
   IconCloudUpload,
@@ -86,15 +87,29 @@ import {
   IconStar,
   IconHome,
   IconScale,
-  IconArrowLeft
+  IconTags,
+  IconBuilding,
+  IconArrowLeft,
+  IconArrowDown,
+  IconArrowUp,
+  IconUserX,
+  IconTrendingUp
   
 } from '@tabler/icons-react';
 
 export {
   IconChevronDown,
+  IconArrowDown,
+  IconTrendingUp,
+  IconUserX,
+  IconArrowUp,
+  IconBuilding,
   IconShieldCheck,
+  IconTags,
   IconHome,
+  IconDots,
   IconArrowRight,
+  IconShieldLock,
   IconMoodSmile,
   IconListCheck,
   IconLock,
@@ -159,7 +174,6 @@ export {
   IconMessage,
   IconSend,
   IconChevronLeft,
-  IconDotsVertical,
   IconPaperclip,
   IconMicrophone,
   IconMenu,

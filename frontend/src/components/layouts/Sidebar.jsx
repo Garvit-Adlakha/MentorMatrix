@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconSettings, IconMessage, IconArrowRight, IconPlus, IconHome, IconUsers, IconFolder } from '../ui/Icons';
+import { IconSettings, IconMessage, IconArrowRight, IconPlus, IconHome, IconUsers, IconFolder, IconSearch } from '../ui/Icons';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import ChatService from '../../service/ChatService';
 
@@ -45,6 +45,7 @@ const SettingsDropdown = () => {
 const ProjectsList = () => {
   const navigate = useNavigate();
   const [hoveredChat, setHoveredChat] = useState(null);
+  const [search, setSearch] = useState('');
   
   const { data: userChats = [] } = useSuspenseQuery({
     queryKey: ['userChats'],
@@ -52,7 +53,9 @@ const ProjectsList = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  // Only show group chats
+  const filteredProjects = userChats.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="px-3 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-120px)] scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent">
@@ -69,10 +72,21 @@ const ProjectsList = () => {
         </motion.button>
       </div>
       
+      <div className="relative mb-4">
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search projects..."
+          className="w-full px-4 py-2 rounded-lg bg-black/30 border border-zinc-700 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <IconSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+      </div>
+      
       <AnimatePresence>
-        {userChats.length > 0 ? (
+        {filteredProjects.length > 0 ? (
           <div className="space-y-2">
-            {userChats.map(chat => (
+            {filteredProjects.map(chat => (
               <motion.div
                 key={chat._id}
                 initial={{ opacity: 0, x: -10 }}

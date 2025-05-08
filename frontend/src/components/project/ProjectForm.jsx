@@ -5,10 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ProjectService from "../service/ProjectService";
-import MentorService from "../service/MentorService";
+import ProjectService from "../../service/ProjectService";
+import MentorService from "../../service/MentorService";
 import { motion, AnimatePresence } from "framer-motion";
-import { IconX } from "../components/ui/Icons";
+import { IconX } from "../ui/Icons";
+import PropTypes from 'prop-types';
 
 // Zod schema aligned with backend requirements
 const formSchema = z.object({
@@ -62,7 +63,7 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
 
   const createProjectMutation = useMutation({
     mutationFn: (formattedData) => ProjectService.createProject(formattedData),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Project created successfully!");
       queryClient.invalidateQueries(["projects"]);
       reset();
@@ -71,7 +72,9 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
     },
     onError: (error) => {
       console.error("Error creating project:", error);
-      toast.error(error.response?.data?.message || "Failed to create project");
+      const errorMessage = error.response?.data?.message || "Failed to create project. Please try again.";
+      toast.error(errorMessage);
+      setIsSubmitting(false);
     },
     onSettled: () => {
       setIsSubmitting(false);
@@ -122,6 +125,27 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
       document.body.style.overflow = '';
     };
   }, [open, onOpenChange]);
+
+  // Add useEffect for outside click handling
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (open && modalRef.current && !modalRef.current.contains(event.target)) {
+        reset();
+        setSelectedMentor(null);
+        setMentorSuggestions([]);
+        setShowMentorDropdown(false);
+        onOpenChange(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [open, onOpenChange, reset]);
 
   const fetchMentorSuggestions = async (query) => {
     if (!query.trim()) {
@@ -208,30 +232,30 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
       setIsSubmitting(true);
 
       const formattedData = {
-        title: data.title,
+        title: data.title.trim(),
         description: {
-          abstract: data.description.abstract,
-          problemStatement: data.description.problemStatement,
-          proposedMethodology: data.description.proposedMethodology,
-          techStack: data.description.techStack.split(',').map(tech => tech.trim())
+          abstract: data.description.abstract.trim(),
+          problemStatement: data.description.problemStatement.trim(),
+          proposedMethodology: data.description.proposedMethodology.trim(),
+          techStack: data.description.techStack.split(',').map(tech => tech.trim()).filter(Boolean)
         }
       };
 
       if (data.teamMembers) {
-        formattedData.teamMembers = data.teamMembers.split(',').map(member => member.trim());
-        console.log("Team members to add:", formattedData.teamMembers);
+        formattedData.teamMembers = data.teamMembers.split(',')
+          .map(member => member.trim())
+          .filter(Boolean);
       }
 
       if (selectedMentor) {
         formattedData.targetFaculty = selectedMentor._id;
-        console.log("Will request mentor:", selectedMentor.name, selectedMentor._id);
       }
 
-      createProjectMutation.mutate(formattedData);
+      await createProjectMutation.mutateAsync(formattedData);
 
     } catch (error) {
       console.error("Error preparing project data:", error);
-      toast.error("Failed to prepare project data");
+      toast.error("Failed to prepare project data. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -269,14 +293,14 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-form-title"
-            onClick={(e) => e.stopPropagation()}
+            aria-describedby="project-form-description"
           >
             <div
-              className="bg-gradient-to-br from-card to-card/95 p-8 rounded-2xl shadow-2xl w-full max-w-2xl overflow-y-auto max-h-[90vh] border border-primary/10 transition-all duration-300 relative"
+              className="bg-gradient-to-br from-card to-card/95 p-8 rounded-2xl shadow-2xl w-full  max-w-2xl overflow-y-auto no-scrollbar max-h-[90vh] border border-primary/10 transition-all duration-300 relative"
             >
               {/* Decorative elements */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
-              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl opacity-70 pointer-events-none" aria-hidden="true"></div>
+              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" aria-hidden="true"></div>
               
               {/* Modal header with improved styling */}
               <div className="flex justify-between items-center mb-6 relative z-10">
@@ -287,15 +311,21 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                   ref={closeBtnRef}
                   onClick={() => onOpenChange(false)}
                   className="p-2 rounded-full hover:bg-accent/30 transition-colors transform active:scale-95 focus:ring-2 focus:ring-primary/30 focus:outline-none duration-150"
-                  aria-label="Close"
+                  aria-label="Close project form"
                 >
                   <IconX size={18} />
                 </button>
               </div>
 
-              <p className="text-muted-foreground text-sm mb-8 relative z-10">Complete the form below to create a new project proposal.</p>
+              <p id="project-form-description" className="text-muted-foreground text-sm mb-8 relative z-10">
+                Complete the form below to create a new project proposal.
+              </p>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 relative z-10">
+              <form 
+                onSubmit={handleSubmit(onSubmit)} 
+                className="space-y-8 relative z-10"
+                aria-label="Project creation form"
+              >
                 <div className="bg-gradient-to-br from-primary/20 via-primary/5 to-transparent p-5 rounded-xl space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">Project Title</label>
@@ -507,6 +537,12 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
     </AnimatePresence>,
     document.getElementById('portal-root')
   );
+};
+
+ProjectForm.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onOpenChange: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func
 };
 
 export default ProjectForm;

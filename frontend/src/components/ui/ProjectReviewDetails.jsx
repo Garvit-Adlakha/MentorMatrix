@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { IconStar, IconListCheck, IconAlertCircle, IconShieldCheck, IconCloudUpload, 
-         IconUserCheck, IconCoins, IconScale, IconFileDescription } from './Icons';
+         IconUserCheck, IconCoins, IconScale, IconFileDescription } from '../ui/Icons';
 
 /**
  * Component that displays a structured project review with sections and formatting

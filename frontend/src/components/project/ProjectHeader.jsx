@@ -1,5 +1,5 @@
-import { IconBriefcase, IconUsers, IconCalendar, IconFileDescription, IconClipboardList, IconCode, IconUserCircle, IconMessage, IconCircleCheck, IconX, IconCheck } from './ui/Icons';
-import { formatDate } from '../libs/utils';
+  import { IconBriefcase, IconUsers, IconCalendar, IconFileDescription, IconClipboardList, IconCode, IconUserCircle, IconMessage, IconCircleCheck, IconX, IconCheck } from '../ui/Icons';
+import { formatDate } from '../../libs/utils';
 
 const ProjectHeader = ({ userRole, project, onChat, onSummarize, onReview }) => {
   // Safe formatDate function that handles null/undefined dates

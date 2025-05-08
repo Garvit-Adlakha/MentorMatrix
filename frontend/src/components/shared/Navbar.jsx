@@ -19,20 +19,31 @@ export const Navbar = ({ navOpen }) => {
     retry: false,
   });
   
-  // Define navigation items based on authentication status
+  // Define navigation items based on authentication status and role
   const getNavItems = () => {
-    const items = [
-      { label: "Home", link: "/", className: "nav-link", id: "home" },
-      { label: "Mentor", link: "/mentor", className: "nav-link", id: "mentor" },
-    ];
+    const items = [];
     
-    // Add authenticated-only routes
-    if (user) {
+    // Add admin-specific routes
+    if (user?.role === 'admin') {
       items.push(
-        { label: "Dashboard", link: "/dashboard", className: "nav-link", id: "dashboard" },
-        { label: "Collaborate", link: "/collaborate", className: "nav-link", id: "collaborate" },
-        { label: "Profile", link: "/profile", className: "nav-link", id: "profile" }
+        { label: "Dashboard", link: "/admin", className: "nav-link", id: "admin-dashboard" },
+        { label: "Users", link: "/admin/users", className: "nav-link", id: "admin-users" },
+        { label: "Mentor Requests", link: "/admin/mentor-requests", className: "nav-link", id: "admin-mentor-requests" }
       );
+    } else {
+      // Regular user navigation items
+      items.push(
+        { label: "Home", link: "/", className: "nav-link", id: "home" },
+        { label: "Mentor", link: "/mentor", className: "nav-link", id: "mentor" }
+      );
+      
+      if (user) {
+        items.push(
+          { label: "Dashboard", link: "/dashboard", className: "nav-link", id: "dashboard" },
+          { label: "Collaborate", link: "/collaborate", className: "nav-link", id: "collaborate" },
+          { label: "Profile", link: "/profile", className: "nav-link", id: "profile" }
+        );
+      }
     }
     
     return items;
@@ -81,19 +92,29 @@ export const Navbar = ({ navOpen }) => {
   useEffect(() => {
     const currentPath = location.pathname;
     
-    // Direct path matching to ensure accuracy
-    if (currentPath === "/") {
-      setActiveSection("home");
-    } else if (currentPath === "/mentor") {
-      setActiveSection("mentor");
-    } else if (currentPath === "/dashboard") {
-      setActiveSection("dashboard");
-    } else if (currentPath.startsWith("/chat")) {
-      setActiveSection("chat");
-    } else if (currentPath === "/profile") {
-      setActiveSection("profile");
+    if (user?.role === 'admin') {
+      if (currentPath === "/admin") {
+        setActiveSection("admin-dashboard");
+      } else if (currentPath === "/admin/users") {
+        setActiveSection("admin-users");
+      } else if (currentPath === "/admin/mentor-requests") {
+        setActiveSection("admin-mentor-requests");
+      }
+    } else {
+      // Regular user route handling
+      if (currentPath === "/") {
+        setActiveSection("home");
+      } else if (currentPath === "/mentor") {
+        setActiveSection("mentor");
+      } else if (currentPath === "/dashboard") {
+        setActiveSection("dashboard");
+      } else if (currentPath.startsWith("/chat")) {
+        setActiveSection("chat");
+      } else if (currentPath === "/profile") {
+        setActiveSection("profile");
+      }
     }
-  }, [location.pathname]);
+  }, [location.pathname, user?.role]);
 
   // Update the active link and box when the active section changes
   useEffect(() => {

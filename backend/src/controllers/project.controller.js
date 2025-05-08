@@ -512,7 +512,7 @@ export const getProject = catchAsync(async (req, res, next) => {
         .select("-documents")
         .lean(); //  Convert to plain objects for better performance
 
-    if (!projects.length) return next(new AppError("No projects found", 404));
+    // if (!projects.length) return next(new AppError("No projects found", 404));
 
     res.status(200).json({
         success: true,

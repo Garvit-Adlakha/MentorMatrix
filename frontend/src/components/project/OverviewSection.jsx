@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconFileDescription, IconClipboardList, IconBriefcase, IconCode } from './ui/Icons';
+import { IconFileDescription, IconClipboardList, IconBriefcase, IconCode } from '../ui/Icons';
 
 const OverviewSection = ({ description }) => (
   <div>

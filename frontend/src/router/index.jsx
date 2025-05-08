@@ -7,7 +7,8 @@ import NotFound from '../Pages/NotFound';
 // Lazy load page components
 const HomePage = lazy(() => import("../Pages/HomePage"))
 const Login = lazy(() => import("../features/auth/Login"))
-const Signup = lazy(() => import("../features/auth/Signup"))
+const Signup = lazy(()=> import("../features/auth/StudentSignUp"))
+const MentorSignIn = lazy(() => import("../features/auth/MentorSignUp"))
 const MentorPage = lazy(() => import("../Pages/MentorPage"))
 const Dashboard = lazy(() => import("../Pages/Dashboard"))
 const Profile = lazy(() => import("../Pages/Profile"))
@@ -16,18 +17,27 @@ const CollaborationPage = lazy(() => import("../Pages/CollaborationPage"))
 const ProjectDetailPage = lazy(() => import("../Pages/ProjectDetailPage"))
 const MeetingRoomPage = lazy(() => import("../Pages/MeetingRoomPage"));
 
+// Admin components
+const AdminDashboard = lazy(() => import("../components/admin/AdminDashboard"))
+const AdminUsers = lazy(() => import("../components/admin/Users"))
+const AdminMentorRequests = lazy(() => import("../components/admin/MentorRequests"))
+
 const AppRouter = () => { 
     return (
         <Routes>
-            {/* Public routes - no authentication check */}
+            {/* Public routes - no authentication check but block admin access */}
             <Route path="/" element={
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading homepage..." /></div>}>
-                    <HomePage />
+                    <Protected requiredAuth={false} requiredRole={["student", "mentor"]}>
+                        <HomePage />
+                    </Protected>
                 </Suspense>
             } />
             <Route path="/mentor" element={
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading mentors..." /></div>}>
-                    <MentorPage />
+                    <Protected requiredAuth={false} requiredRole={["student", "mentor"]}>
+                        <MentorPage />
+                    </Protected>
                 </Suspense>
             } />
            
@@ -44,6 +54,11 @@ const AppRouter = () => {
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <Signup />
                     </Protected>
+                </Suspense>
+            } />
+            <Route path="/signup/mentor" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading mentor signin..." /></div>}>
+                    <MentorSignIn />
                 </Suspense>
             } />
             
@@ -97,8 +112,29 @@ const AppRouter = () => {
                     </Protected>
                 </Suspense>
             } />
-            
 
+            {/* Admin routes - protected and require admin role */}
+            <Route path="/admin" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading admin..." /></div>}>
+                    <Protected requiredAuth={true} redirect="/login" requiredRole="admin">
+                        <AdminDashboard />
+                    </Protected>
+                </Suspense>
+            } />
+            <Route path="/admin/users" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading users..." /></div>}>
+                    <Protected requiredAuth={true} redirect="/login" requiredRole="admin">
+                        <AdminUsers />
+                    </Protected>
+                </Suspense>
+            } />
+            <Route path="/admin/mentor-requests" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading mentor requests..." /></div>}>
+                    <Protected requiredAuth={true} redirect="/login" requiredRole="admin">
+                        <AdminMentorRequests />
+                    </Protected>
+                </Suspense>
+            } />
             
             {/* 404 route */}
             <Route path="*" element={

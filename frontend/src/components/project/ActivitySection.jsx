@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { IconCalendar } from './ui/Icons';
+import { motion } from 'motion/react';
+import { IconCalendar } from '../ui/Icons';
 
 const ActivitySection = ({ activity, formatDate }) => (
   <div>

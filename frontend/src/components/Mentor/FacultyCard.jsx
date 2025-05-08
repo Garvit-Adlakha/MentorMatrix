@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   IconChevronDown, 
   IconMail, 
@@ -8,9 +8,9 @@ import {
   IconUserCircle, 
   IconBuildingSkyscraper,
   IconSchool
-} from './ui/Icons';
+} from '../ui/Icons';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import ProjectService from '../service/ProjectService';
+import ProjectService from '../../service/ProjectService';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 

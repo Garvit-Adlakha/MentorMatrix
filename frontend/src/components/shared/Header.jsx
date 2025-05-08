@@ -1,18 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Navbar from "./Navbar";
 import { 
   IconMenu2,
   IconX, 
   IconChevronDown, 
   IconUser,
-  IconLogout,
-  IconSettings,
-  IconDashboard,
-  IconMessageCircle 
+  IconLogout
 } from "../ui/Icons";
-import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import authService from "../../service/authService";
 import toast from "react-hot-toast";
 
@@ -89,7 +86,7 @@ const Header = () => {
         scrolled
           ? "bg-card/80 backdrop-blur-md shadow-md py-3"
           : "bg-transparent py-5"
-      }`}
+      } ${user?.role === 'admin' ? 'bg-primary/5 border-b border-primary/10' : ''}`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
@@ -109,8 +106,12 @@ const Header = () => {
                   e.target.style.display = 'none';
                 }}
               />
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                MentorMatrix
+              <span className={`text-xl font-bold ${
+                user?.role === 'admin' 
+                  ? 'text-primary' 
+                  : 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'
+              }`}>
+                MentorMatrix {user?.role === 'admin' && <span className="text-sm font-normal">Admin</span>}
               </span>
               <motion.div
                 className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary"

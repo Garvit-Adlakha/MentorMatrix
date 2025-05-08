@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import axiosInstance from "../axios/axiosInstance";
 
 const authService = {
@@ -15,16 +16,22 @@ const authService = {
     }
   },
 
-  // Register new user
-  register: async (userData) => {
-    try {
-      const response = await axiosInstance.post('/user/signup', userData);
-      return response.data;
-    } catch (error) {
-      return Promise.reject(error);
+  registerStudent: async (formdata)=>{
+    try{
+      const response=await axiosInstance.post('/user/signup',formdata)
+      return response.data
+    }catch(error){
+      return Promise.reject(error)
     }
   },
-
+  registerMentor: async (formdata)=>{
+    try{
+      const response=await axiosInstance.post('/user/mentor/signup',formdata)
+      return response.data
+    }catch(error){
+      return Promise.reject(error)
+    }
+  },
   // Get current user profile with error handling specifically for refresh scenarios
   currentUser: async () => {
     try {

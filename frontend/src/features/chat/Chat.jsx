@@ -196,6 +196,9 @@ const Chat = () => {
     }
   };
 
+
+
+
   
   
   // Mutation for sending messages
@@ -331,21 +334,21 @@ const Chat = () => {
   // If no active chat, show placeholder
   if (!activeChat && !chatId) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-gradient-to-br from-background to-background/95">
         <div className="text-center p-6 max-w-md">
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5"
+            className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6"
           >
-            <IconArrowRight className="w-8 h-8 text-primary" />
+            <IconArrowRight className="w-10 h-10 text-primary" />
           </motion.div>
           <motion.h3 
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-xl font-medium mb-3"
+            className="text-2xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70"
           >
             Select a conversation
           </motion.h3>
@@ -353,7 +356,7 @@ const Chat = () => {
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-muted-foreground"
+            className="text-muted-foreground text-lg"
           >
             Choose a project chat from the sidebar to start messaging
           </motion.p>
@@ -366,35 +369,49 @@ const Chat = () => {
   // Define isLoading based on messages being null (initial fetch)
   const isLoading = messages === null;
   
-  if (isLoading) {
+  if (isLoading || userLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-gradient-to-br from-background to-background/95">
         <div className="flex flex-col items-center">
-          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          <p className="mt-4 text-muted-foreground">Loading messages...</p>
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          <p className="mt-4 text-muted-foreground text-lg">Loading messages...</p>
         </div>
       </div>
     );
   }
   
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 bg-gradient-to-br from-background to-background/95 ">
       <ChatHeader
         activeChat={activeChat}
         socketConnected={socketConnected}
         toggleSidebar={toggleSidebar}
       />
-      <MessageList
-        groupedMessages={groupedMessages}
-        user={user}
-        isAnyoneTyping={isAnyoneTyping}
-        getTypingString={getTypingString}
-        isScrolledToBottom={isScrolledToBottom}
-        scrollToBottom={scrollToBottom}
-        messagesEndRef={messagesEndRef}
-        handleScroll={handleScroll}
-        messagesContainerRef={messagesContainerRef} // <-- pass the ref
-      />
+      <div className="flex-1 overflow-auto relative">
+        <MessageList
+          groupedMessages={groupedMessages}
+          user={user}
+          isAnyoneTyping={isAnyoneTyping}
+          getTypingString={getTypingString}
+          isScrolledToBottom={isScrolledToBottom}
+          scrollToBottom={scrollToBottom}
+          messagesEndRef={messagesEndRef}
+          handleScroll={handleScroll}
+          messagesContainerRef={messagesContainerRef}
+        />
+        {!isScrolledToBottom && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={scrollToBottom}
+            className="absolute bottom-24 right-6 bg-primary text-primary-foreground p-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+            aria-label="Scroll to bottom"
+          >
+            <IconArrowRight className="w-5 h-5 rotate-90" />
+          </motion.button>
+        )}
+      </div>
       <MessageInput
         newMessage={newMessage}
         setNewMessage={setNewMessage}

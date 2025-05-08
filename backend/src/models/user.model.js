@@ -42,10 +42,22 @@ const userSchema = new mongoose.Schema(
             enum: ["student", "mentor", "admin"],
             default: "student",
         },
+        status: {
+            type: String,
+            enum: {
+                values: ["pending", "active", "inactive", "rejected"],
+                message: "Status must be either: pending (awaiting verification), active (verified), inactive (temporarily disabled), or rejected (verification denied)"
+            },
+            default: function() {
+                // Mentors require verification before becoming active
+                return this.role === "mentor" ? "pending" : "active";
+            },
+            required: [true, "Account status is required"]
+        },
         roll_no: {
             type: String,
             unique: true,
-            partialFilterExpression:{role:"student"},
+            partialFilterExpression: { role: "student" },
             required: function () {
                 return this.role === "student"; 
             },
@@ -53,7 +65,7 @@ const userSchema = new mongoose.Schema(
         sap_id: {
             type: String, 
             unique: true,
-            partialFilterExpression:{role:"student"},
+            partialFilterExpression: { role: "student" },
             required: function () {
                 return this.role === "student"; 
             },

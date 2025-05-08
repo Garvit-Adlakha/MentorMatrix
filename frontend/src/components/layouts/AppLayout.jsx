@@ -1,6 +1,4 @@
-import React from 'react'
 import Header from '../shared/Header'
-import Footer from '../shared/footer'
 import { motion } from 'motion/react'
 
 const AppLayout = () => (WrappedComponent) => {

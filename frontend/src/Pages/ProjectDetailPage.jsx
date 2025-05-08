@@ -11,16 +11,16 @@ import {
   IconFileText,
   IconArrowLeft
 } from '../components/ui/Icons';
-import ProjectSummaryModal from '../components/ui/ProjectSummaryModal';
+import ProjectSummaryModal from '../components/ui/modals/ProjectSummaryModal';
 import Loader from '../components/ui/Loader';
-import AlertBox from '../components/ui/AlertBox';
-import ProjectHeader from '../components/ProjectHeader';
-import TabNavigation from '../components/TabNavigation';
-import OverviewSection from '../components/OverviewSection';
-import TeamSection from '../components/TeamSection';
-import DocumentsSection from '../components/DocumentsSection';
-import ActivitySection from '../components/ActivitySection';
-import ProjectReviewModal from '../components/ui/ProjectReviewModal';
+import AlertBox from '../components/ui/alerts/AlertBox';
+import ProjectHeader from '../components/project/ProjectHeader';
+import TabNavigation from '../components/common/TabNavigation';
+import OverviewSection from '../components/project/OverviewSection';
+import TeamSection from '../components/project/TeamSection';
+import DocumentsSection from '../components/project/DocumentsSection';
+import ActivitySection from '../components/project/ActivitySection';
+import ProjectReviewModal from '../components/ui/modals/ProjectReviewModal';
 import toast from 'react-hot-toast';
 
 const ProjectDetailPageComponent = () => {

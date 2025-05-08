@@ -1,5 +1,5 @@
 import React from 'react';
-import { HoverEffect } from '../../components/ui/card-hover-effect';
+import { HoverEffect } from '../../components/ui/cards/card-hover-effect';
 
 const ProjectCards = ({ proposals, userRole, handleViewDetails }) => {
   // Format proposals as items for HoverEffect component

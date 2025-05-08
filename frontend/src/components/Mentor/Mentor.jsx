@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion';
-import { IconSearch, IconAdjustmentsHorizontal, IconFilter } from './ui/Icons';
-import FacultyCards from './FacultyCards';
+import { motion } from 'motion/react';
+import { IconSearch, IconFilter } from '../ui/Icons';
+import FacultyCards from './FacultyCards';  
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import mentorService from '../service/MentorService';
+import mentorService from '../../service/MentorService';
 
 const Mentor = () => {
   const [searchTerm, setSearchTerm] = useState('');
