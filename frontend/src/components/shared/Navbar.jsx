@@ -112,6 +112,8 @@ export const Navbar = ({ navOpen }) => {
         setActiveSection("chat");
       } else if (currentPath === "/profile") {
         setActiveSection("profile");
+      } else if (currentPath === "/collaborate") {
+        setActiveSection("collaborate");
       }
     }
   }, [location.pathname, user?.role]);
