@@ -12,7 +12,7 @@ const ChatPage = () => {
   const {setSocket,setUser}=useChatStore()
 
   useEffect(()=>{
-    const socket=io("http://localhost:8000")
+    const socket=io(import.meta.env.VITE_SERVER_URL)
 
     setSocket(socket)
     return()=>{
