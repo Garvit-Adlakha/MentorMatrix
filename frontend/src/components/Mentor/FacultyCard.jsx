@@ -13,12 +13,20 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import ProjectService from '../../service/ProjectService';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 // Avatar component with improved error handling and loading state
 const Avatar = ({ src, alt, initials }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   
+  Avatar.propTypes = {
+    src: PropTypes.string,
+    alt: PropTypes.string.isRequired,
+    initials: PropTypes.string.isRequired,
+  };
+
   return (
     <div className="w-24 h-24 rounded-full ring-2 ring-primary/30 ring-offset-2 overflow-hidden shadow-md">
       {!imageError && src ? (
@@ -50,6 +58,10 @@ const Avatar = ({ src, alt, initials }) => {
 const ResearchInterests = ({ interests }) => {
   if (!interests || interests.length === 0) return null;
 
+  ResearchInterests.propTypes = {
+    interests: PropTypes.arrayOf(PropTypes.string).isRequired,
+  };
+
   return (
     <div>
       <h4 className="font-medium mb-2 text-sm text-foreground/90 flex items-center gap-1">
@@ -78,22 +90,25 @@ const ResearchInterests = ({ interests }) => {
 export const FacultyCard = ({ faculty }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const cardRef = useRef(null);
 
   const getInitials = useCallback((name) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }, []);
 
+  const navigate=useNavigate()
   // Handle data structure differences - create fallbacks for missing fields
   const avatar = faculty.avatar || faculty.image || 'default-avatar.png';
   const expertise = faculty.expertise || [];
   const researchInterests = faculty.researchInterests || expertise || [];
 
   const queryClient = useQueryClient();
+  const user=queryClient.getQueryData(['user'])
   
   const facultyRequestMutation = useMutation({
     mutationFn: ({ facultyId, projectId }) => ProjectService.requestMentor({ mentorId: facultyId, projectId }),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['mentors']); 
       toast.success('Mentor request sent successfully!');
       setShowProjectModal(false);
@@ -104,7 +119,12 @@ export const FacultyCard = ({ faculty }) => {
   });
   
   const handleContactClick = () => {
-    setShowProjectModal(true);
+    if (!user) {
+      setShowProjectModal(false);
+      setShowLoginModal(true);
+    } else {
+      setShowProjectModal(true);
+    }
   };
   
   const handleProjectSelect = (project) => {
@@ -112,6 +132,21 @@ export const FacultyCard = ({ faculty }) => {
       facultyId: faculty._id,
       projectId: project._id
     });
+  };
+
+  FacultyCard.propTypes = {
+    faculty: PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      avatar: PropTypes.string,
+      image: PropTypes.string,
+      expertise: PropTypes.arrayOf(PropTypes.string),
+      researchInterests: PropTypes.arrayOf(PropTypes.string),
+      department: PropTypes.string,
+      university: PropTypes.string,
+      bio: PropTypes.string,
+      lastActiveAt: PropTypes.string,
+    }).isRequired,
   };
 
   return (
@@ -303,7 +338,8 @@ export const FacultyCard = ({ faculty }) => {
           )}
         </div>
       </motion.div>
-      
+      {showLoginModal && <LoginModal />}
+
       {/* Project Selection Modal */}
       {showProjectModal && (
         <ProjectSelectionModal 
@@ -314,6 +350,25 @@ export const FacultyCard = ({ faculty }) => {
         />
       )}
     </>
+  );
+};
+
+export const LoginModal = () => {
+  const navigate = useNavigate();
+  return createPortal(
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-neutral-900/80 z-[9000]">
+      <div className="bg-neutral-900 p-8 rounded-lg shadow-lg backdrop-blur-2xl max-w-sm w-full mx-4">
+        <h1 className="text-2xl font-bold mb-6 text-center text-foreground">Please Login</h1>
+        <p className="text-center text-muted-foreground mb-4">You need to log in to request a mentor.</p>
+        <button 
+          className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-200 font-medium"
+          onClick={() => navigate('/login')}
+        >
+          Login
+        </button>
+      </div>
+    </div>,
+    document.getElementById('portal-root')
   );
 };
 
@@ -331,6 +386,21 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
     if (e.target === e.currentTarget && !isLoading) {
       onClose();
     }
+  };
+
+  ProjectListItem.propTypes = {
+    project: PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.shape({
+          abstract: PropTypes.string,
+        }),
+      ]),
+    }).isRequired,
+    onSelect: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
   };
 
   return createPortal(
@@ -446,7 +516,7 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
             transition={{ delay: 0.4 }}
             className="p-8 text-center bg-background/30 backdrop-blur-sm rounded-xl border border-border/20"
           >
-            <p className="mb-4 break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>You don't have any projects yet.</p>
+            <p className="mb-4 break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>You don&apos;t have any projects yet.</p>
             <p className="text-sm text-muted-foreground break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Create a project first to request mentorship.</p>
           </motion.div>
         )}
@@ -457,6 +527,21 @@ export const ProjectSelectionModal = ({ onClose, onSelect, facultyName, isLoadin
 };
 
 export const ProjectListItem = ({ project, onSelect, disabled = false }) => {
+  ProjectListItem.propTypes = {
+    project: PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.shape({
+          abstract: PropTypes.string,
+        }),
+      ]),
+    }).isRequired,
+    onSelect: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
+  };
+
   return (
     <motion.div 
       className="p-4 hover:bg-accent/20 transition-all duration-200"

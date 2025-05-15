@@ -122,4 +122,4 @@ const FilterButton = ({ label, active, onClick, color }) => {
   );
 };
 
-export default SearchAndFilter;
+export default React.memo(SearchAndFilter);

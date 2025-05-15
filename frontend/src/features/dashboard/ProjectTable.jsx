@@ -155,4 +155,4 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default ProjectTable;
+export default React.memo(ProjectTable);

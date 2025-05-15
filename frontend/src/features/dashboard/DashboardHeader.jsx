@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { IconLayoutGrid, IconList, IconPlus } from '../../components/ui/Icons';
 
 const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalForm }) => {
@@ -18,7 +18,8 @@ const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalF
         <motion.button 
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/50 to-accent/30 hover:from-accent/70 hover:to-accent/50 border border-accent/20 backdrop-blur-sm transition-all duration-300 flex items-center gap-2 text-sm font-medium shadow-sm"
+          transition={{ duration: 0.3 }}
+          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/50 to-accent/30 border border-accent/20 backdrop-blur-sm flex items-center gap-2 text-sm font-medium shadow-sm"
           onClick={toggleViewMode}
         >
           {viewMode === 'table' ? (
@@ -43,4 +44,4 @@ const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalF
   );
 };
 
-export default DashboardHeader;
+export default React.memo(DashboardHeader);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { HoverEffect } from '../../components/ui/cards/card-hover-effect';
 
-const ProjectCards = ({ proposals, userRole, handleViewDetails }) => {
+const ProjectCards = ({ proposals, handleViewDetails }) => {
   // Format proposals as items for HoverEffect component
   const getHoverEffectItems = () => {
     return proposals.map(proposal => ({
@@ -80,4 +80,4 @@ const EmptyState = () => {
   );
 };
 
-export default ProjectCards;
+export default React.memo(ProjectCards);

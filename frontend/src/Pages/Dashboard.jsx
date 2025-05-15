@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layouts/AppLayout';
 import DashboardHeader from '../features/dashboard/DashboardHeader';
-import DashboardSidebar from '../features/dashboard/DashboardSidebar';
 import ProjectCards from '../features/dashboard/ProjectCards';
 import ProjectTable from '../features/dashboard/ProjectTable';
 import ProjectForm from '../components/project/ProjectForm';
@@ -70,7 +69,6 @@ const Dashboard = () => {
   const acceptedProposals = projects.filter(p => p.status === 'approved').length;
   const pendingProposals = projects.filter(p => p.status === 'pending').length;
   const rejectedProposals = projects.filter(p => p.status === 'rejected').length;
-  const completedProjects = projects.filter(p => p.status === 'completed').length;
 
 
 

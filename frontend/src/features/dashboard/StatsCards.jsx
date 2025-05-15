@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { 
   IconFileText, 
   IconCircleCheck, 
@@ -11,8 +11,7 @@ const StatCard = ({
   title, 
   count, 
   color = 'primary', 
-  icon, 
-  delay = 0 
+  icon 
 }) => {
   const colorClasses = {
     primary: {
@@ -71,7 +70,6 @@ const StatsCards = ({
 }) => {
   // Determine which cards to show based on userRole
   const isStudent = userRole === 'student';
-  const isMentor = userRole === 'mentor';
 
   // Build cards array dynamically
   const cards = [
@@ -115,18 +113,17 @@ const StatsCards = ({
       transition={{ duration: 0.5, delay: 0.1 }}
       className={`grid grid-cols-1 sm:grid-cols-2 ${gridCols} gap-4 mb-8`}
     >
-      {cards.map((card, idx) => (
+      {cards.map((card) => (
         <StatCard
           key={card.key}
           title={card.title}
           count={card.count}
           color={card.color}
           icon={card.icon}
-          delay={0.1 * idx}
         />
       ))}
     </motion.div>
   );
 };
 
-export default StatsCards;
+export default React.memo(StatsCards);
