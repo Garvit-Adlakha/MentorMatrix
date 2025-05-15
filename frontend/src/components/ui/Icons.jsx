@@ -93,7 +93,9 @@ import {
   IconArrowDown,
   IconArrowUp,
   IconUserX,
-  IconTrendingUp
+  IconTrendingUp,
+  IconBook,
+  IconDeviceFloppy,
   
 } from '@tabler/icons-react';
 
@@ -102,6 +104,13 @@ export {
   IconArrowDown,
   IconTrendingUp,
   IconUserX,
+  IconBook,
+  IconSparkles,
+  IconUpload,
+  IconX,
+  IconDeviceFloppy,
+  IconId,
+  IconCalendar,
   IconArrowUp,
   IconBuilding,
   IconShieldCheck,
@@ -117,7 +126,7 @@ export {
   IconStar,
   IconDashboard,
   IconCloudUpload,
-  IconId,
+
   IconClipboard,
   IconCoins,
   IconUser,
@@ -136,7 +145,7 @@ export {
   IconDeviceLaptop,
   IconEye, 
   IconEyeOff,
-  IconX,
+
   IconPlus,
   IconTrash,
   IconPencil,
@@ -148,7 +157,6 @@ export {
   IconUserCheck,
   IconUserExclamation,
   // New icons added for ProjectCardModel
-  IconCalendar,
   IconUserCircle,
   IconClipboardList,
   IconFileText,
@@ -186,10 +194,8 @@ export {
   IconCamera,
   IconVideo,
   IconDownload,
-  IconUpload,
   IconList,
   IconClock,
   IconCircleCheck,
-  IconSparkles,
   IconFilter
 };

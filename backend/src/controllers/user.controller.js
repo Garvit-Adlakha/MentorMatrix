@@ -16,7 +16,6 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
         email, 
         password, 
         roll_no, 
-        sap_id
     } = req.body;
 
     const avatar = req.file?.avatar;
@@ -33,13 +32,13 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
     }
 
     // Validate student-specific requirements
-    if (!roll_no || !sap_id) {
-        return next(new AppError("Roll number and SAP ID are required for students", 400, "MISSING_STUDENT_INFO"));
+    if (!roll_no) {
+        return next(new AppError("Roll number is required for students", 400, "MISSING_STUDENT_INFO"));
     }
 
     let resultAvatar = {
         publicId: "default_avatar.png",
-        url: "https://res.cloudinary.com/dxqj5v0gk/image/upload/v1697061234/default_avatar.png"
+        url: "https://res.cloudinary.com/garvitadlakha08/image/upload/v1745998142/b2nsmmeoqfyenykzeaiu.png"
     };
 
     if (avatar) {
@@ -58,7 +57,6 @@ export const createUserAccount = catchAsync(async (req, res, next) => {
         avatar: resultAvatar,
         role: "student",
         roll_no,
-        sap_id,
         passwordChangedAt: new Date(),
     });
 
@@ -225,7 +223,8 @@ export const updateUserProfile = catchAsync(async (req, res) => {
         university, 
         department, 
         yearOfStudy,
-        cgpa
+        cgpa,
+        roll_no
     } = req.body;
     
     const updateData = {};
@@ -266,6 +265,7 @@ export const updateUserProfile = catchAsync(async (req, res) => {
     }
 
     // Handle avatar upload if file is provided
+    console.log(req.file);
     if (req.file) {
         try {
             const avatarResult = await uploadMedia(req.file.path);
@@ -305,6 +305,7 @@ export const updateUserProfile = catchAsync(async (req, res) => {
             university: updatedUser.university,
             department: updatedUser.department,
             yearOfStudy: updatedUser.yearOfStudy,
+            roll_no: updatedUser.roll_no,
             skills: updatedUser.skills,
             expertise: updatedUser.expertise,
             avatar: updatedUser.avatar,

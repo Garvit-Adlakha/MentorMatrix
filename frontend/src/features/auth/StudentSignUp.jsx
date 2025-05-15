@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'motion/react';
 import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff, IconUser, IconId, IconShieldLock } from '../../components/ui/Icons';
 import authService from '../../service/authService';
@@ -14,7 +14,6 @@ const StudentSignIn = () => {
         password: '',
         confirmPassword: '',
         roll_no: '',
-        sap_id: '',
         rememberMe: false
     });
     const [errors, setErrors] = useState({});
@@ -49,11 +48,11 @@ const StudentSignIn = () => {
             newErrors.confirmPassword = 'Passwords do not match';
         }
         if (!formData.roll_no.trim()) newErrors.roll_no = 'Roll number is required';
-        if (!formData.sap_id.trim()) newErrors.sap_id = 'SAP ID is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    const queryClient = useQueryClient();
 
     const signupMutation = useMutation({
         mutationFn: async () => {
@@ -65,6 +64,7 @@ const StudentSignIn = () => {
         },
         onSuccess: () => {
             toast.success('Sign up successful! Please sign in to continue.');
+            queryClient.invalidateQueries(["user"]);
             navigate('/');
         },
         onError: (error) => {
@@ -187,28 +187,6 @@ const StudentSignIn = () => {
                                 />
                             </div>
                             {errors.roll_no && <p className="mt-1 text-sm text-red-600">{errors.roll_no}</p>}
-                        </div>
-
-                        <div>
-                            <label htmlFor="sap_id" className="block text-sm font-medium text-foreground mb-1">
-                                SAP ID
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <IconShieldLock size={18} className="text-muted-foreground" />
-                                </div>
-                                <input
-                                    id="sap_id"
-                                    name="sap_id"
-                                    type="text"
-                                    required
-                                    className={`block w-full pl-10 pr-3 py-3 border ${errors.sap_id ? 'border-red-500' : 'border-border'} bg-card/50 focus:ring-2 focus:ring-primary/30 focus:border-primary/30 rounded-lg transition-all placeholder:text-muted-foreground`}
-                                    placeholder="Enter your SAP ID"
-                                    value={formData.sap_id}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                            {errors.sap_id && <p className="mt-1 text-sm text-red-600">{errors.sap_id}</p>}
                         </div>
 
                         <div>

@@ -64,7 +64,11 @@ const authService = {
   // Update user profile
   updateProfile: async (userData) => {
     try {
-      const response = await axiosInstance.put('/user/profile', userData);
+      const response = await axiosInstance.patch('/user/profile', userData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response.data;
     } catch (error) {
       return Promise.reject(error);

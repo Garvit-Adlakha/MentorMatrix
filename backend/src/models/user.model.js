@@ -62,14 +62,6 @@ const userSchema = new mongoose.Schema(
                 return this.role === "student"; 
             },
         },
-        sap_id: {
-            type: String, 
-            unique: true,
-            partialFilterExpression: { role: "student" },
-            required: function () {
-                return this.role === "student"; 
-            },
-        },
         avatar: {
             publicId: {
                 type: String,
@@ -77,7 +69,7 @@ const userSchema = new mongoose.Schema(
             },
             url:{
                 type:String,
-                default: "https://res.cloudinary.com/dxqj5v0gk/image/upload/v1697061234/default_avatar.png",
+                default: "https://res.cloudinary.com/garvitadlakha08/image/upload/v1745998142/b2nsmmeoqfyenykzeaiu.png",
             }
         },
         bio: {

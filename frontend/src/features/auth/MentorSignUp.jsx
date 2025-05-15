@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion } from 'motion/react';
 import { IconAlertCircle, IconLock, IconMail, IconEye, IconEyeOff, IconUser, IconBuilding, IconSchool, IconTags } from '../../components/ui/Icons';
@@ -83,6 +83,8 @@ const MentorSignUp = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const queryClient = useQueryClient();
+
     const signupMutation = useMutation({
         mutationFn: async () => {
             if (!validateForm()) {
@@ -93,6 +95,7 @@ const MentorSignUp = () => {
         },
         onSuccess: () => {
             setShowVerificationModal(true);
+            queryClient.invalidateQueries(["user"]);
         },
         onError: (error) => {
             toast.error(error.response?.data?.message || 'Something went wrong');
