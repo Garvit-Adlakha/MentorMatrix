@@ -9,6 +9,8 @@ const HomePage = lazy(() => import("../Pages/HomePage"))
 const Login = lazy(() => import("../features/auth/Login"))
 const Signup = lazy(()=> import("../features/auth/StudentSignUp"))
 const MentorSignIn = lazy(() => import("../features/auth/MentorSignUp"))
+const ForgotPassword = lazy(() => import("../features/auth/ForgotPassword"))
+const ResetPassword = lazy(() => import("../features/auth/ResetPassword"))
 const MentorPage = lazy(() => import("../Pages/MentorPage"))
 const Dashboard = lazy(() => import("../Pages/Dashboard"))
 const Profile = lazy(() => import("../Pages/Profile"))
@@ -53,6 +55,20 @@ const AppRouter = () => {
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading signup..." /></div>}>
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <Signup />
+                    </Protected>
+                </Suspense>
+            } />
+            <Route path="/forgot-password" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading forgot password..." /></div>}>
+                    <Protected requiredAuth={false} redirect="/dashboard">
+                        <ForgotPassword />
+                    </Protected>
+                </Suspense>
+            } />
+            <Route path="/reset-password/:token" element={
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading reset password..." /></div>}>
+                    <Protected requiredAuth={false} redirect="/dashboard">
+                        <ResetPassword />
                     </Protected>
                 </Suspense>
             } />

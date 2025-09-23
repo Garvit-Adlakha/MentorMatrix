@@ -7,7 +7,25 @@ import torch
 from transformers import PegasusTokenizer
 from rouge_score import rouge_scorer
 
-app = FastAPI()
+
+from contextlib import asynccontextmanager
+
+# Lifespan event handler for FastAPI
+@asynccontextmanager
+async def lifespan(app):
+    global model, tokenizer, scorer
+    try:
+        print(f"Loading model from {MODEL_PATH}")
+        with open(MODEL_PATH, "rb") as file:
+            model = pickle.load(file)
+        tokenizer = PegasusTokenizer.from_pretrained("google/pegasus-cnn_dailymail")
+        scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
+        print("Model and tokenizer loaded successfully!")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # Model paths
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
@@ -17,24 +35,7 @@ model = None
 tokenizer = None
 scorer = None
 
-# Load model on startup
-@app.on_event("startup")
-async def startup_event():
-    global model, tokenizer, scorer
-    try:
-        print(f"Loading model from {MODEL_PATH}")
-        with open(MODEL_PATH, "rb") as file:
-            model = pickle.load(file)
-        
-        # Load PEGASUS tokenizer
-        tokenizer = PegasusTokenizer.from_pretrained("google/pegasus-cnn_dailymail")
-        
-        # Initialize ROUGE scorer
-        scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
-        
-        print("Model and tokenizer loaded successfully!")
-    except Exception as e:
-        print(f"Error loading model: {e}")
+
 
 class ProjectDescription(BaseModel):
     abstract: str = Field(...)
