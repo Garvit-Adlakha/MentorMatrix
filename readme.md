@@ -57,13 +57,7 @@ MentorMatrix is a full-stack web application designed to streamline mentor-stude
 - **HTTP**: Axios
 
 ### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Real-time**: Socket.IO
-- **File Storage**: Cloudinary
-- **Email Service**: Nodemailer (SMTP)
-- **AI/ML**: Gemini API
+- The backend is maintained in a separate repository.
 
 ### AI Summarizer Service
 - **Framework**: FastAPI
@@ -74,18 +68,6 @@ MentorMatrix is a full-stack web application designed to streamline mentor-stude
 
 ```
 MentorMatrix/
-├── backend/              # Node.js Express backend
-│   ├── src/
-│   │   ├── controllers/  # Business logic
-│   │   ├── database/     # Database configuration
-│   │   ├── middleware/   # Custom middleware
-│   │   ├── models/       # Database models
-│   │   ├── routes/       # API routes
-│   │   ├── socket/       # WebSocket implementation
-│   │   ├── utils/        # Utility functions ( Token Generation,Cloudinary, etc.)
-│   │   ├── constants.js  # Application constants
-│   │   └── index.js      # Application entry point
-│   └── package.json
 ├── frontend/             # React frontend
 │   ├── src/
 │   │   ├── axios/        # Axios configuration
@@ -135,28 +117,7 @@ MentorMatrix/
    cd MentorMatrix
    ```
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   ```
-   Create a `.env` file with the following variables:
-   ```env
-   PORT=8000
-   MONGODB_URI=your_mongodb_uri
-   JWT_SECRET=your_jwt_secret
-   SMTP_HOST=your_smtp_host
-   SMTP_PORT=your_smtp_port
-   SMTP_USER=your_smtp_user
-   SMTP_PASS=your_smtp_password
-   CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-   CLOUDINARY_API_KEY=your_cloudinary_key
-   CLOUDINARY_API_SECRET=your_cloudinary_secret
-   GEMINI_API_KEY=your_gemini_api_key
-   SUMMARIZER_API_URL=http://localhost:8080
-   ```
-
-3. **Frontend Setup**
+2. **Frontend Setup**
    ```bash
    cd frontend
    npm install
@@ -166,7 +127,7 @@ MentorMatrix/
    VITE_API_URL=http://localhost:800/api/v1
    ```
 
-4. **Summarizer API Setup**
+3. **Summarizer API Setup**
    ```bash
    cd SummarizerApi
    pip install -r requirements.txt
@@ -174,25 +135,19 @@ MentorMatrix/
    # The model will be loaded when the API starts
    ```
 
-5. **Run Development Servers**
+4. **Run Development Servers**
    
-   Backend:
-   ```bash
-   cd backend
-   npm run dev
-   ```
+  Frontend:
+  ```bash
+  cd frontend
+  npm run dev
+  ```
    
-   Frontend:
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   
-   Summarizer API:
-   ```bash
-   cd SummarizerApi
-   uvicorn app:app --reload
-   ```
+  Summarizer API:
+  ```bash
+  cd SummarizerApi
+  uvicorn app:app --reload
+  ```
 
 ## Core Components
 

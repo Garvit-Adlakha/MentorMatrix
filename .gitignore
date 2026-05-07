@@ -131,8 +131,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 jsconfig.json
-backend/src/seeds/seedUsers.js
-backend/src/socket/websocket-test.html
 start-services.sh
 SummarizerApi/model.pkl
 SummarizerApi/Project_Summarizer_Demo.ipynb
