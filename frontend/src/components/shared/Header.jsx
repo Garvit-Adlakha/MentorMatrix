@@ -111,7 +111,7 @@ const Header = () => {
                   ? 'app-logo-text--admin'
                   : ''
               }`}>
-                CampusConnect {user?.role === 'admin' && <span className="text-sm font-normal">Admin</span>}
+                Mentor Matrix {user?.role === 'admin' && <span className="text-sm font-normal">Admin</span>}
               </span>
               <motion.div
                 className="app-logo-underline"
