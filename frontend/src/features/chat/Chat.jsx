@@ -82,13 +82,22 @@ const Chat = () => {
 
   // Listen for new messages via socket
   useEffect(() => {
-;
     if (!socket || !(activeChat?._id || chatId)) return;
-    
-    socket.emit('joinChat', activeChat?._id || chatId);
+    const roomId = activeChat?._id || chatId;
+
+    const joinRoom = () => {
+      console.log('[Chat] Joining room:', roomId, 'Socket connected:', socket.connected);
+      socket.emit('joinChat', roomId);
+    };
+
+    if (socket.connected) {
+      joinRoom();
+    }
+    socket.on('connect', joinRoom);
     
     const handleReceiveMessage = (msg) => {
-      if (msg.chatId === (activeChat?._id || chatId)) {
+      console.log('[Chat] Message received:', msg.chatId, 'Current room:', roomId, 'Match:', msg.chatId === roomId);
+      if (msg.chatId === roomId) {
         // Ensure the message has complete sender information
         const newMessage = {
           ...msg,
@@ -122,7 +131,8 @@ const Chat = () => {
     socket.on('receiveMessage', handleReceiveMessage);
     
     return () => {
-      socket.emit('leaveChat', activeChat?._id || chatId);
+      socket.emit('leaveChat', roomId);
+      socket.off('connect', joinRoom);
       socket.off('receiveMessage', handleReceiveMessage);
     };
   }, [socket, activeChat, chatId]); // Remove messages from dependency array
@@ -324,7 +334,7 @@ const Chat = () => {
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center">
           <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          <p className="mt-4 text-muted-foreground">Loading user...</p>
+          <p className="mt-4 text-muted-foreground">Fetching your profile...</p>
         </div>
       </div>
     )
@@ -374,7 +384,7 @@ const Chat = () => {
       <div className="flex items-center justify-center h-full bg-gradient-to-br from-background to-background/95">
         <div className="flex flex-col items-center">
           <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          <p className="mt-4 text-muted-foreground text-lg">Loading messages...</p>
+          <p className="mt-4 text-muted-foreground text-lg">Loading conversation history...</p>
         </div>
       </div>
     );

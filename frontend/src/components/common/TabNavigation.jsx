@@ -6,11 +6,7 @@ const TabButton = ({ active, onClick, icon, label }) => (
     whileHover={{ y: -2 }}
     whileTap={{ y: 0 }}
     onClick={onClick}
-    className={`flex items-center gap-2 px-4 py-3 font-medium text-sm rounded-t-lg border-b-2 whitespace-nowrap \
-      ${active ? 
-        'text-primary border-primary' : 
-        'text-muted-foreground border-transparent hover:border-primary/30 hover:text-foreground'
-      }`}
+    className={`project-tab ${active ? 'project-tab--active' : ''}`}
   >
     {icon}
     {label}
@@ -18,8 +14,8 @@ const TabButton = ({ active, onClick, icon, label }) => (
 );
 
 const TabNavigation = ({ activeTab, setActiveTab, tabs }) => (
-  <div className="mb-6 border-b border-border/30">
-    <div className="flex overflow-x-auto space-x-6 pb-2 scrollbar-hide">
+  <div className="project-tabs">
+    <div className="project-tabs-row">
       {tabs.map(tab => (
         <TabButton
           key={tab.key}

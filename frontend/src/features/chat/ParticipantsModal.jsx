@@ -13,24 +13,24 @@ const ParticipantsModal = ({ isOpen, onClose, participants = [] }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-background/95 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl"
+          className="bg-gradient-to-br from-slate-900 to-slate-900/95 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-orange-500/20"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-foreground">Participants</h2>
+            <h2 className="text-xl font-semibold text-slate-100">Participants</h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-md hover:bg-accent/30 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="p-2 rounded-md hover:bg-orange-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/30"
               aria-label="Close modal"
             >
-              <IconX className="w-5 h-5 text-foreground" />
+              <IconX className="w-5 h-5 text-slate-300" />
             </button>
           </div>
           
@@ -39,21 +39,21 @@ const ParticipantsModal = ({ isOpen, onClose, participants = [] }) => {
               participants.map((participant) => (
                 <div
                   key={participant._id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-orange-500/5 hover:bg-orange-500/10 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="font-medium text-neutral-200">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-500/10 flex items-center justify-center flex-shrink-0">
+                    <span className="font-medium text-orange-300">
                       {participant.name?.substring(0, 2)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{participant.name}</p>
-                    <p className="text-sm text-foreground/60">{participant.email}</p>
+                    <p className="font-medium text-slate-100">{participant.name}</p>
+                    <p className="text-sm text-slate-400">{participant.email}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-center text-foreground/60">No participants found</p>
+              <p className="text-center text-slate-400">No participants found</p>
             )}
           </div>
         </motion.div>

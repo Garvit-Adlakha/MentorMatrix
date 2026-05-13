@@ -15,16 +15,16 @@ const SearchAndFilter = ({
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="mb-6"
+      className="dashboard-filter"
     >
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-grow">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <div className="dashboard-search">
+          <div className="dashboard-search-icon">
             <IconSearch size={16} className="text-muted-foreground" />
           </div>
           <input
             type="search"
-            className="w-full px-4 py-2.5 pl-10 rounded-lg bg-gradient-to-br from-card to-background/60 border border-primary/10 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
+            className="dashboard-search-input"
             placeholder="Search proposals by title, faculty, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -35,7 +35,7 @@ const SearchAndFilter = ({
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setShowFilters(!showFilters)}
-            className="px-3 py-2 rounded-lg bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border border-primary/30 backdrop-blur-sm transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+            className="dashboard-filter-btn"
           >
             <IconFilter size={16} className="text-primary" />
             Filter
@@ -52,8 +52,8 @@ const SearchAndFilter = ({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-card to-background/60 border border-primary/10 backdrop-blur-sm shadow-md">
-              <p className="text-xs font-medium text-primary mb-3">Filter by status:</p>
+            <div className="dashboard-filter-panel">
+              <p className="dashboard-filter-label">Filter by status:</p>
               <div className="flex flex-wrap gap-2">
                 <FilterButton 
                   label="All" 

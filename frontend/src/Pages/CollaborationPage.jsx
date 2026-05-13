@@ -208,37 +208,34 @@ const CollaborationPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative min-h-56 rounded-2xl w-[90vw] mx-auto shadow-2xl backdrop-blur-2xl flex flex-col justify-center items-center px-4 py-8 overflow-x-hidden"
-      style={{
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        backgroundImage: 'url(https://www.transparenttextures.com/patterns/cubes.png)',
-        backgroundBlendMode: 'overlay',
-      }}
+      className="collaboration-shell"
     >
       {/* Decorative background shapes */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-60 animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-secondary/20 rounded-full blur-2xl opacity-40 animate-pulse delay-2000" />
+      <div className="collaboration-bg">
+        <div className="collaboration-orb collaboration-orb--one" />
+        <div className="collaboration-orb collaboration-orb--two" />
       </div>
 
       {/* Header Section */}
-      <div className="flex flex-col items-center mb-8 z-10">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="bg-primary/10 p-3 rounded-full">
+      <div className="collaboration-header">
+        <div className="collaboration-title-row">
+          <span className="collaboration-icon-chip">
             <IconShare className="text-primary" size={28} />
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Collaboration Hub</h1>
+          <h1 className="collaboration-title">Collaboration Hub</h1>
         </div>
-        <p className="text-muted-foreground text-center max-w-2xl text-lg">All your project collaboration tools in one place. Chat, share files, and schedule meetings with your team and mentors.</p>
+        <p className="collaboration-subtitle">All your project collaboration tools in one place. Chat, share files, and schedule meetings with your team and mentors.</p>
       </div>
 
       {/* Main Content (no navigation bar) */}
-      <div className="w-full max-w-5xl z-10">
+      <div className="collaboration-content">
         {renderTabContent()}
       </div>
     </motion.div>
   );
 };
+
+CollaborationPage.layoutClassName = "landing-theme";
 
 const Collaboration=AppLayout()(CollaborationPage);
 export default Collaboration;

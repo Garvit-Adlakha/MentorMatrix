@@ -110,8 +110,15 @@ const Dashboard = () => {
   const userRole = user?.role || 'student';
   
   return (
-    <div className="container mx-auto px-4 py-8 ">
-      <div className="">
+    <div className="dashboard-page">
+      <div className="dashboard-bg">
+        <div className="dashboard-orb dashboard-orb--one" />
+        <div className="dashboard-orb dashboard-orb--two" />
+        <div className="dashboard-orb dashboard-orb--three" />
+        <div className="dashboard-grid" />
+      </div>
+
+      <div className="container mx-auto px-4 py-8 dashboard-container">
         {/* Main Content */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -147,8 +154,8 @@ const Dashboard = () => {
           />
           
           {/* Projects Section */}
-          <div className=" backdrop-blur-xl  rounded-xl p-6 shadow-xl inset-0 ">
-            <h2 className="text-xl font-semibold mb-4 text-foreground text-center">Projects</h2>
+          <div className="dashboard-panel">
+            <h2 className="dashboard-panel-title">Projects</h2>
             
             <AnimatePresence mode="wait">
               {isLoading ? (
@@ -168,7 +175,7 @@ const Dashboard = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="bg-destructive/10 text-destructive rounded-lg p-4 text-center"
+                  className="dashboard-error"
                 >
                   <p>Failed to load projects. Please try again later.</p>
                 </motion.div>
@@ -217,5 +224,7 @@ const Dashboard = () => {
     </div>
   );
 };
+
+Dashboard.layoutClassName = "landing-theme";
 
 export default AppLayout()(Dashboard);

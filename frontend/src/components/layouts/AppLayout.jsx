@@ -3,16 +3,19 @@ import { motion } from 'motion/react'
 
 const AppLayout = () => (WrappedComponent) => {
     const WithLayout = (props) => {
+        const layoutClassName = WrappedComponent.layoutClassName || "";
+        const mainClassName = WrappedComponent.mainClassName || "";
+        const contentClassName = WrappedComponent.contentClassName || "";
         return (
-            <div className="flex flex-col min-h-screen bg-[background]">
+            <div className={`flex flex-col min-h-screen bg-[background] ${layoutClassName}`}>
                 <Header />
                 <motion.main 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="flex-grow w-full mx-auto transition-all duration-300 md:container overflow-x-hidden pt-20 pb-10"
+                    className={`flex-grow w-full mx-auto transition-all duration-300 md:container overflow-x-hidden pt-20 pb-10 ${mainClassName}`}
                 >
-                    <div className="w-full animate-fadeIn relative z-10 mt-16  rounded-xl px-3 sm:px-0">
+                    <div className={`w-full animate-fadeIn relative z-10 mt-16 rounded-xl px-3 sm:px-0 ${contentClassName}`}>
                         <WrappedComponent {...props} />
                     </div>
                 </motion.main>

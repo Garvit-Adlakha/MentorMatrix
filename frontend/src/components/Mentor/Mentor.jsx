@@ -49,40 +49,47 @@ const Mentor = () => {
       );
 
   return (
-    <div className="min-h-screen mt-4">
+    <div className="mentor-page">
+      <div className="mentor-bg">
+        <div className="mentor-orb mentor-orb--one" />
+        <div className="mentor-orb mentor-orb--two" />
+        <div className="mentor-orb mentor-orb--three" />
+        <div className="mentor-grid" />
+      </div>
+
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative pb-16"
+        className="mentor-hero"
       >
         <div className="container mx-auto px-4">
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-center max-w-3xl mx-auto"
+            className="mentor-hero-content"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
+            <h1 className="mentor-title">
               Find Your Perfect Project Mentor
             </h1>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="mentor-subtitle">
               Connect with experienced faculty members who can guide you through your academic journey
             </p>
 
             {/* Search and Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <motion.div 
-                className="relative flex-1 max-w-xl"
+                className="mentor-search"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <IconSearch className="mentor-search-icon" />
                 <input
                   type="text"
                   placeholder="Search by name, department, or research interest..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all shadow-sm"
+                  className="mentor-search-input"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -92,7 +99,7 @@ const Mentor = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-colors backdrop-blur-sm border border-primary/20 shadow-sm"
+                className="mentor-filter-btn"
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <IconFilter size={20} />
@@ -110,8 +117,8 @@ const Mentor = () => {
               }}
               className="overflow-hidden transition-all duration-300"
             >
-              <div className="bg-card/40 backdrop-blur-sm p-5 rounded-xl border border-border/50 mb-8 shadow-sm">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Filter by Department:</h3>
+              <div className="mentor-filter-panel">
+                <h3 className="mentor-filter-title">Filter by Department:</h3>
                 <div className="flex flex-wrap gap-2">
                   <button
                     key="all"
@@ -149,16 +156,16 @@ const Mentor = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="py-8 bg-gradient-to-b from-background to-background/80"
+        className="mentor-results"
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-semibold">
+            <h2 className="mentor-count">
               {filteredMentors?.length || 0} {filteredMentors?.length === 1 ? 'Mentor' : 'Mentors'} Available
             </h2>
             
             <div className="flex items-center gap-4">
-              <select className="px-4 py-2 rounded-lg border border-border bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm">
+              <select className="mentor-sort">
                 <option value="relevance">Sort by: Relevance</option>
                 <option value="name">Sort by: Name</option>
                 <option value="department">Sort by: Department</option>

@@ -8,30 +8,30 @@ import ChatService from '../../service/ChatService';
 // Enhanced Settings dropdown component with micro-interactions
 const SettingsDropdown = () => {
   return (
-    <div className="dropdown dropdown-left text-center mb-2">
-      <label tabIndex={0} className="btn btn-ghost btn-circle hover:bg-primary/20 transition-all duration-300">
-        <IconSettings className="w-5 h-5 text-muted-foreground hover:text-primary transition-transform duration-300 hover:rotate-90" />
+    <div className="dropdown dropdown-left text-center mb-2 chat-settings">
+      <label tabIndex={0} className="btn btn-ghost btn-circle chat-settings-toggle">
+        <IconSettings className="w-5 h-5 chat-settings-icon" />
       </label>
-      <ul tabIndex={0} className="dropdown-content z-[1] menu p-4 shadow-xl bg-neutral-800/95 backdrop-blur-sm border border-neutral-700/30 rounded-xl w-52 mt-1">
+      <ul tabIndex={0} className="dropdown-content z-[1] menu p-4 chat-settings-menu">
         <li>
-          <Link to="/profile" className="flex items-center gap-2 py-2 px-3 hover:bg-primary/10 rounded-lg transition-all duration-200 hover:text-primary">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+          <Link to="/profile" className="chat-settings-link">
+            <motion.div whileHover={{ scale: 1.1 }} className="chat-settings-badge">
               <IconUsers className="w-4 h-4" />
             </motion.div>
             <span>Profile</span>
           </Link>
         </li>
         <li>
-          <Link to="/dashboard" className="flex items-center gap-2 py-2 px-3 hover:bg-primary/10 rounded-lg transition-all duration-200 hover:text-primary">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+          <Link to="/dashboard" className="chat-settings-link">
+            <motion.div whileHover={{ scale: 1.1 }} className="chat-settings-badge">
               <IconHome className="w-4 h-4" />
             </motion.div>
             <span>Dashboard</span>
           </Link>
         </li>
         <li>
-          <Link to="/collaborate" className="flex items-center gap-2 py-2 px-3 hover:bg-primary/10 rounded-lg transition-all duration-200 hover:text-primary">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+          <Link to="/collaborate" className="chat-settings-link">
+            <motion.div whileHover={{ scale: 1.1 }} className="chat-settings-badge">
               <IconFolder className="w-4 h-4" />
             </motion.div>
             <span>Collaboration Hub</span>
@@ -58,34 +58,34 @@ const ProjectsList = () => {
   );
 
   return (
-    <div className="px-3 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-120px)] scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent">
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-700/30">
-        <h3 className="font-semibold text-lg text-foreground">Projects</h3>
+    <div className="chat-sidebar-list">
+      <div className="chat-sidebar-header">
+        <h3 className="chat-sidebar-title">Projects</h3>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/dashboard')}
-          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          className="chat-sidebar-action"
           title="Create new project"
         >
           <IconPlus className="w-4 h-4" />
         </motion.button>
       </div>
       
-      <div className="relative mb-4">
+      <div className="chat-sidebar-search">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search projects..."
-          className="w-full px-4 py-2 rounded-lg bg-black/30 border border-zinc-700 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="chat-sidebar-search-input"
         />
-        <IconSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <IconSearch className="chat-sidebar-search-icon" />
       </div>
       
       <AnimatePresence>
         {filteredProjects.length > 0 ? (
-          <div className="space-y-2">
+          <div className="chat-sidebar-items">
             {filteredProjects.map(chat => (
               <motion.div
                 key={chat._id}
@@ -98,22 +98,22 @@ const ProjectsList = () => {
               >
                 <Link 
                   to={`/chat/${chat._id}`}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-all border border-transparent ${
+                  className={`chat-sidebar-item ${
                     hoveredChat === chat._id 
-                      ? 'bg-primary/15 border-primary/30 scale-[1.02]'
-                      : 'hover:bg-neutral-700/30'
+                      ? 'chat-sidebar-item--active'
+                      : ''
                   }`}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
-                    className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"
+                    className="chat-sidebar-item-icon"
                   >
-                    <IconMessage className={`w-5 h-5 ${hoveredChat === chat._id ? 'text-primary' : 'text-primary/70'}`} />
+                    <IconMessage className={hoveredChat === chat._id ? 'text-primary' : 'text-primary/70'} />
                   </motion.div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">{chat.name}</h4>
+                    <h4 className="chat-sidebar-item-title">{chat.name}</h4>
                     {chat.lastMessage && (
-                      <p className="text-xs text-neutral-400 truncate mt-0.5">
+                      <p className="chat-sidebar-item-subtitle">
                         {chat.lastMessage.sender?.name}: {chat.lastMessage.content}
                       </p>
                     )}
@@ -126,18 +126,18 @@ const ProjectsList = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-6 bg-neutral-800/50 rounded-lg border border-dashed border-neutral-700/40"
+            className="chat-sidebar-empty"
           >
             <motion.div 
               whileHover={{ scale: 1.1, rotate: 5 }} 
-              className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center"
+              className="chat-sidebar-empty-icon"
             >
-              <IconMessage className="w-6 h-6 text-primary/70" />
+              <IconMessage className="text-primary/70" />
             </motion.div>
-            <p className="text-sm text-muted-foreground mb-3">No projects available</p>
+            <p className="chat-sidebar-empty-text">No projects available</p>
             <Link 
               to="/dashboard" 
-              className="inline-flex items-center gap-1 text-primary text-sm bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-md transition-all"
+              className="chat-sidebar-empty-link"
             >
               Create a project <IconArrowRight className="w-3 h-3 ml-1" />
             </Link>
@@ -154,13 +154,13 @@ const Sidebar = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="h-full max-h-[98vh]"
+      className="chat-sidebar"
     >
-      <div className="h-full bg-neutral-800/80 backdrop-blur-sm rounded-xl border border-neutral-700/30 shadow-lg overflow-hidden">
-        <div className="p-4 w-full h-full bg-transparent text-foreground flex flex-col">
+      <div className="chat-sidebar-shell">
+        <div className="chat-sidebar-inner">
           {/* Logo & Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-neutral-700/30">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <div className="chat-sidebar-brand">
+            <h2 className="chat-sidebar-brand-title">
               Mentor Matrix
             </h2>
             <SettingsDropdown />

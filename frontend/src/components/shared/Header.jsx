@@ -82,19 +82,19 @@ const Header = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`app-header ${
         scrolled
-          ? "bg-card/80 backdrop-blur-md shadow-md py-3"
-          : "bg-transparent py-5"
-      } ${user?.role === 'admin' ? 'bg-primary/5 border-b border-primary/10' : ''}`}
+          ? "app-header--scrolled"
+          : ""
+      } ${user?.role === 'admin' ? 'app-header--admin' : ''}`}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <div className="app-header-inner">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex items-center"
+          className="app-logo"
         >
           <div className="group relative cursor-default select-none">
             <div className="flex items-center">
@@ -106,15 +106,15 @@ const Header = () => {
                   e.target.style.display = 'none';
                 }}
               /> */}
-              <span className={`text-xl font-bold ${
+              <span className={`app-logo-text ${
                 user?.role === 'admin' 
-                  ? 'text-primary' 
-                  : 'bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'
+                  ? 'app-logo-text--admin'
+                  : ''
               }`}>
-                MentorMatrix {user?.role === 'admin' && <span className="text-sm font-normal">Admin</span>}
+                CampusConnect {user?.role === 'admin' && <span className="text-sm font-normal">Admin</span>}
               </span>
               <motion.div
-                className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary"
+                className="app-logo-underline"
                 initial={{ width: "0%" }}
                 whileHover={{ width: "100%" }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
@@ -124,14 +124,14 @@ const Header = () => {
         </motion.div>
 
         {/* Navigation Section */}
-        <div className="justify-center">
-          <nav className="hidden md:flex">
+        <div className="app-header-nav">
+          <nav className="app-header-nav-desktop">
             <Navbar navOpen={false} />
           </nav>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+            className="app-nav-toggle"
             onClick={() => setNavOpen((prev) => !prev)}
             aria-label="Toggle navigation menu"
             aria-expanded={navOpen}
@@ -167,28 +167,28 @@ const Header = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative"
+          className="app-header-actions"
         >
           {!user ? (
             <Link
               to="/login"
-              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white transition-all duration-300 shadow-sm hover:shadow-md"
+              className="app-login"
             >
               <IconUser size={18} />
-              <span className="font-medium">Login</span>
+              <span>Login</span>
             </Link>
           ) : (
             <div className="relative">
               <motion.button
                 whileHover={{ scale: 1.07, boxShadow: '0 4px 24px 0 rgba(80,80,180,0.10)' }}
                 whileTap={{ scale: 0.97 }}
-                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 border border-primary/20 shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="app-user-button"
                 onClick={() => setProfileOpen(!profileOpen)}
                 aria-expanded={profileOpen}
                 aria-haspopup="true"
                 tabIndex={0}
               >
-                <div className="h-9 w-9 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md">
+                <div className="app-user-avatar">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -200,12 +200,12 @@ const Header = () => {
                       }}
                     />
                   ) : (
-                    <span className="font-medium text-primary">
+                    <span className="app-user-initials">
                       {getInitials(user.name)}
                     </span>
                   )}
                 </div>
-                <span className="font-medium text-foreground/90 max-w-[100px] truncate">{user.name}</span>
+                <span className="app-user-name">{user.name}</span>
                 <motion.div
                   animate={{ rotate: profileOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
@@ -221,15 +221,15 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.97 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute right-0 mt-3 w-64 origin-top-right bg-gradient-to-br from-background/95 to-card/90 shadow-2xl rounded-2xl overflow-hidden border border-primary/20 z-50 backdrop-blur-xl"
+                    className="app-user-menu"
                     onMouseLeave={() => setProfileOpen(false)}
                     tabIndex={-1}
                   >
                     <div className="relative">
-                      <div className="absolute -top-2 right-8 w-4 h-4 bg-background rotate-45 border-t border-l border-primary/20 z-10"></div>
+                      <div className="app-user-menu-arrow"></div>
                     </div>
-                    <div className="p-5 border-b border-border/20 bg-primary/5 flex flex-col items-center gap-2">
-                      <div className="h-14 w-14 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md mb-1">
+                    <div className="app-user-menu-header">
+                      <div className="app-user-menu-avatar">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
@@ -241,19 +241,19 @@ const Header = () => {
                             }}
                           />
                         ) : (
-                          <span className="font-medium text-primary text-lg">
+                          <span className="app-user-initials">
                             {getInitials(user.name)}
                           </span>
                         )}
                       </div>
-                      <h4 className="font-semibold text-foreground truncate w-full text-center">{user.name}</h4>
-                      <p className="text-xs text-muted-foreground truncate w-full text-center">{user.email}</p>
+                      <h4 className="app-user-menu-name">{user.name}</h4>
+                      <p className="app-user-menu-email">{user.email}</p>
                     </div>
-                    <div className="p-3">
+                    <div className="app-user-menu-actions">
                       <motion.button
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.97 }}
-                        className="flex w-full items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-destructive/10 to-destructive/20 hover:from-destructive/20 hover:to-destructive/30 text-destructive font-semibold transition-colors justify-center shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/30"
+                        className="app-user-logout"
                         onClick={logoutHandler}
                         tabIndex={0}
                       >
@@ -277,24 +277,24 @@ const Header = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden absolute top-20 left-0 w-full bg-card/95 backdrop-blur-md shadow-lg border-t border-border/20 overflow-hidden"
+            className="app-mobile-menu"
           >
-            <div className="container mx-auto px-4 py-4">
+            <div className="app-mobile-menu-inner">
               <Navbar navOpen={navOpen} />
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="app-mobile-actions">
                 {!user ? (
                   <Link
                     to="/login"
-                    className="btn bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 w-full transition-all duration-300"
+                    className="app-login app-login--mobile"
                     onClick={() => setNavOpen(false)}
                   >
                     <IconUser size={18} />
-                    <span className="font-medium">Login</span>
+                    <span>Login</span>
                   </Link>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl flex items-center gap-3 shadow-sm">
-                      <div className="h-12 w-12 rounded-full ring-2 ring-primary/30 bg-primary/20 flex items-center justify-center overflow-hidden shadow-md">
+                  <div className="app-mobile-user">
+                    <div className="app-mobile-user-card">
+                      <div className="app-mobile-user-avatar">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
@@ -302,20 +302,20 @@ const Header = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="font-medium text-primary text-lg">
+                          <span className="app-user-initials">
                             {getInitials(user.name)}
                           </span>
                         )}
                       </div>
                       <div>
-                        <h4 className="font-medium text-foreground/90">{user.name}</h4>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        <h4 className="app-mobile-user-name">{user.name}</h4>
+                        <p className="app-mobile-user-email">{user.email}</p>
                       </div>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.97 }}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-destructive/10 to-destructive/20 hover:from-destructive/20 hover:to-destructive/30 text-destructive font-semibold transition-colors w-full justify-center shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/30"
+                      className="app-user-logout app-user-logout--mobile"
                       onClick={() => {
                         logoutHandler();
                         setNavOpen(false);

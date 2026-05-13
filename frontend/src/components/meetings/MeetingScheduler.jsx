@@ -107,13 +107,13 @@ const MeetingScheduler = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="bg-gradient-to-br from-[#18181b] to-[#23272f] rounded-2xl p-8 shadow-xl backdrop-blur-xl border-none"
+      className="meeting-scheduler"
     >
       <motion.button
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 px-4 py-2 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 transition-all shadow"
+        className="meeting-back-btn"
       >
         <IconArrowLeft size={18} />
         Go Back
@@ -124,7 +124,7 @@ const MeetingScheduler = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5, ease: 'easeOut' }}
       >
-        <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow mb-6">Schedule a Meeting</h2>
+        <h2 className="meeting-scheduler-title">Schedule a Meeting</h2>
       </motion.div>
       
       {showJitsi ? (
@@ -132,13 +132,13 @@ const MeetingScheduler = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="my-6 bg-zinc-900/80 p-6 rounded-xl shadow-lg ring-1 ring-zinc-700/40"
+          className="meeting-embed"
         >
           <JitsiMeetComponent roomName={jitsiInfo.roomName} displayName={jitsiInfo.displayName} />
           <motion.button 
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.05 }}
-            className="mt-6 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
+            className="meeting-primary-btn"
             onClick={() => setShowJitsi(false)}
           >
             Close Meeting
@@ -148,9 +148,9 @@ const MeetingScheduler = () => {
         <>
           {/* Step indicator */}
           <div className="flex items-center mb-8">
-            <div className={`rounded-full h-10 w-10 flex items-center justify-center shadow-md ${step >= 1 ? 'bg-gradient-to-r from-primary to-blue-500 text-white' : 'bg-zinc-800 text-zinc-400'}`}>1</div>
-            <div className={`h-1 w-12 mx-2 ${step >= 2 ? 'bg-gradient-to-r from-primary to-blue-500' : 'bg-zinc-700'}`}></div>
-            <div className={`rounded-full h-10 w-10 flex items-center justify-center shadow-md ${step >= 2 ? 'bg-gradient-to-r from-primary to-blue-500 text-white' : 'bg-zinc-800 text-zinc-400'}`}>2</div>
+            <div className={`meeting-step ${step >= 1 ? 'meeting-step--active' : ''}`}>1</div>
+            <div className={`meeting-step-line ${step >= 2 ? 'meeting-step-line--active' : ''}`}></div>
+            <div className={`meeting-step ${step >= 2 ? 'meeting-step--active' : ''}`}>2</div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -160,14 +160,14 @@ const MeetingScheduler = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-xl p-6 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 shadow-lg border-none ring-1 ring-zinc-700/40"
+                className="meeting-card"
               >
                 <div className="mb-5">
                   <label className="block text-sm font-medium text-zinc-300 mb-2">
                     Select Project
                   </label>
                   <select
-                    className="w-full px-4 py-3 rounded-lg border border-zinc-700/50 bg-zinc-800/90 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                    className="meeting-input"
                     {...register('projectId', { required: 'Please select a project' })}
                   >
                     <option value="">Select a project</option>
@@ -187,7 +187,7 @@ const MeetingScheduler = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mb-6 p-5 rounded-lg bg-gradient-to-br from-primary/10 to-transparent border border-primary/20"
+                    className="meeting-highlight"
                   >
                     <h3 className="font-medium text-lg text-white mb-2">{selectedProject.title}</h3>
                     <p className="text-sm text-zinc-400 line-clamp-2">
@@ -220,7 +220,7 @@ const MeetingScheduler = () => {
                     disabled={!selectedProjectId}
                     whileTap={{ scale: 0.95 }}
                     whileHover={{ scale: 1.05 }}
-                    className="px-6 py-2.5 bg-gradient-to-r from-primary to-blue-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="meeting-primary-btn"
                   >
                     Next Step
                   </motion.button>
@@ -234,7 +234,7 @@ const MeetingScheduler = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="rounded-xl p-6 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 shadow-lg border-none ring-1 ring-zinc-700/40"
+                className="meeting-card"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                   <div>
@@ -244,7 +244,7 @@ const MeetingScheduler = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-700/50 bg-zinc-800/90 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                        className="meeting-input meeting-input--icon"
                         placeholder="Enter meeting title"
                         {...register('title', { required: 'Meeting title is required' })}
                       />
@@ -263,7 +263,7 @@ const MeetingScheduler = () => {
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-700/50 bg-zinc-800/90 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                        className="meeting-input meeting-input--icon"
                         {...register('meetingType', { required: 'Meeting type is required' })}
                       >
                         <option value="video">Video Call</option>
@@ -286,7 +286,7 @@ const MeetingScheduler = () => {
                   </label>
                   <div className="relative">
                     <textarea
-                      className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-700/50 bg-zinc-800/90 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner resize-none"
+                      className="meeting-input meeting-input--icon"
                       rows="3"
                       placeholder="Enter meeting description"
                       {...register('description', { required: 'Description is required' })}
@@ -309,7 +309,7 @@ const MeetingScheduler = () => {
                       <input
                         type="date"
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-4 py-3 pl-10 rounded-lg border border-zinc-700/50 bg-zinc-800/90 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all shadow-inner"
+                        className="meeting-input meeting-input--icon"
                         {...register('date', { required: 'Date is required' })}
                       />
                       <div className="absolute left-3 top-3 text-primary/70">

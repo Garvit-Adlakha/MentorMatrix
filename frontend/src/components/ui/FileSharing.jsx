@@ -212,7 +212,7 @@ const FileSharing = () => {
   if(projectLoading){
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -222,28 +222,28 @@ const FileSharing = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="bg-gradient-to-br from-[#18181b] to-[#23272f] rounded-2xl p-8 shadow-xl backdrop-blur-xl border-none max-w-3xl mx-auto mt-12"
+      className="file-sharing"
     >
       {/* Go Back Button */}
       <motion.button
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}
         onClick={() => navigate('/collaborate')}
-        className="flex items-center gap-2 mb-6 px-4 py-2 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 transition-all shadow"
+        className="file-sharing-back"
       >
         Go Back
       </motion.button>
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-2 items-center justify-center mb-4">
-          <h2 className="text-3xl font-extrabold text-white drop-shadow mb-1 tracking-tight">Project File Sharing</h2>
-          <p className="text-[16px] text-zinc-300 font-medium">Share, preview, and manage your project documents with your team.</p>
+        <div className="file-sharing-header">
+          <h2 className="file-sharing-title">Project File Sharing</h2>
+          <p className="file-sharing-subtitle">Share, preview, and manage your project documents with your team.</p>
         </div>
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center bg-zinc-900/80 rounded-xl p-8 shadow-lg border-none">
+        <div className="file-sharing-panel">
           <div className="flex flex-col gap-2 w-full md:w-1/3">
-            <label htmlFor="project-select" className="font-medium text-sm mb-1">Select Project</label>
+            <label htmlFor="project-select" className="font-medium text-sm mb-1 text-slate-200">Select Project</label>
             <select
               id="project-select"
-              className="px-3 py-2 rounded-lg border border-border bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 min-w-[180px]"
+              className="file-sharing-select"
               value={selectedProject}
               onChange={handleProjectChange}
               disabled={projectsLoading}
@@ -258,10 +258,10 @@ const FileSharing = () => {
             </select>
           </div>
           <div className="flex flex-col gap-2 w-full md:w-1/3">
-            <label htmlFor="filetype-select" className="font-medium text-sm mb-1">Select File Type</label>
+            <label htmlFor="filetype-select" className="font-medium text-sm mb-1 text-slate-200">Select File Type</label>
             <select
               id="filetype-select"
-              className="px-3 py-2 rounded-lg border bg-neutral-800  border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 min-w-[180px]"
+              className="file-sharing-select"
               value={selectedFileType}
               onChange={handleFileTypeChange}
               disabled={!selectedProject}
@@ -288,7 +288,7 @@ const FileSharing = () => {
                 fileInputRef.current?.click();
               }}
               disabled={!selectedProject || !selectedFileType || uploadingFile}
-              className="px-5 py-2.5 bg-gradient-to-r from-primary to-purple-500 text-black rounded-lg shadow hover:from-primary/90 hover:to-purple-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center text-base font-semibold"
+              className="file-sharing-upload"
             >
               {uploadingFile ? (
                 <>
@@ -314,26 +314,26 @@ const FileSharing = () => {
 
         {projectLoading ? (
           <div className="py-8 text-center">
-            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading project files...</p>
+            <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-400">Loading project files...</p>
           </div>
         ) : !selectedProject ? (
           <div className="py-8 text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <IconFileText size={32} className="text-primary" />
+            <div className="bg-orange-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <IconFileText size={32} className="text-orange-500" />
             </div>
-            <p className="text-lg font-medium mb-2">No project selected</p>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-lg font-medium mb-2 text-slate-100">No project selected</p>
+            <p className="text-slate-400 mb-4">
               Select a project to view and manage its files
             </p>
           </div>
         ) : projectData?.project?.documents?.length === 0 ? (
           <div className="py-8 text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <IconFileText size={32} className="text-primary" />
+            <div className="bg-orange-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <IconFileText size={32} className="text-orange-500" />
             </div>
-            <p className="text-lg font-medium mb-2">No files yet</p>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-lg font-medium mb-2 text-slate-100">No files yet</p>
+            <p className="text-slate-400 mb-4">
               Upload files to share with your team
             </p>
           </div>
@@ -344,7 +344,7 @@ const FileSharing = () => {
               {documentTypes.map(type => (
                 <button
                   key={type}
-                  className={`px-4 py-2 rounded-lg font-medium border transition-colors ${activeDocType === type ? 'bg-primary text-white border-primary' : 'bg-background text-primary border-primary/30 hover:bg-primary/10'}`}
+                  className={`px-4 py-2 rounded-lg font-medium border transition-colors ${activeDocType === type ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-800 text-orange-500 border-orange-500/30 hover:bg-orange-500/10'}`}
                   onClick={() => setActiveDocType(type)}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -353,7 +353,7 @@ const FileSharing = () => {
             </div>
             {/* Documents of selected type */}
             {filteredDocuments.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">No documents of this type.</div>
+              <div className="text-center text-slate-400 py-8">No documents of this type.</div>
             ) : (
               <motion.div
                 initial="hidden"
@@ -370,7 +370,7 @@ const FileSharing = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.08, duration: 0.5, ease: 'easeOut' }}
-                    className="rounded-xl p-6 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 shadow-lg hover:shadow-2xl hover:scale-[1.015] transition-all border-none flex justify-between items-center"
+                    className="rounded-xl p-6 bg-gradient-to-br from-slate-800/80 to-slate-800/60 shadow-lg hover:shadow-2xl hover:scale-[1.015] transition-all border border-orange-500/10 flex justify-between items-center"
                   >
                     <div className="flex items-center gap-3">
                       <button
@@ -383,8 +383,8 @@ const FileSharing = () => {
                         {getFileIcon(document.format || 'application/octet-stream', document.name)}
                       </button>
                       <div>
-                        <h3 className="font-medium truncate max-w-md" title={document.name}>{document.name}</h3>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <h3 className="font-medium truncate max-w-md text-slate-100" title={document.name}>{document.name}</h3>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
                           <span>Uploaded on {formatDateUtil(document.uploadedAt)}</span>
                           <span>{document.size ? formatFileSize(document.size) : 'Unknown size'}</span>
                         </div>
@@ -424,19 +424,19 @@ const FileSharing = () => {
 
         {/* Image preview modal with Escape key support and better alt text */}
         {previewImage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setPreviewImage(null)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setPreviewImage(null)}>
             <img src={previewImage} alt="Project file preview" className="max-h-[80vh] max-w-[90vw] rounded shadow-lg" />
           </div>
         )}
         {/* Enhanced Delete confirmation modal */}
         {showConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-2xl animate-fadeIn" onClick={cancelDeleteFile}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-2xl animate-fadeIn" onClick={cancelDeleteFile}>
             <motion.div
               initial={{ opacity: 0, y: 40, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 40, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.3 }}
-              className="relative bg-gradient-to-br from-card to-card/95 border border-primary/20 rounded-2xl shadow-2xl w-full max-w-xs p-7 mx-4 focus:outline-none"
+              className="relative bg-gradient-to-br from-slate-900 to-slate-900/95 border border-orange-500/20 rounded-2xl shadow-2xl w-full max-w-xs p-7 mx-4 focus:outline-none"
               onClick={e => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -444,8 +444,8 @@ const FileSharing = () => {
               tabIndex={-1}
             >
               {/* Decorative elements */}
-              <div className="absolute -top-16 -right-16 w-32 h-32 bg-primary/20 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/10 rounded-full blur-2xl opacity-40 pointer-events-none"></div>
+              <div className="absolute -top-16 -right-16 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl opacity-40 pointer-events-none"></div>
               {/* Close button */}
               <button
                 className="close-button"
@@ -457,11 +457,11 @@ const FileSharing = () => {
               </button>
               {/* Modal content */}
               <div className="flex flex-col items-center gap-3">
-                <div className="p-3 rounded-full bg-red-100 dark:bg-red-900/20 mb-2">
+                <div className="p-3 rounded-full bg-red-900/20 mb-2">
                   <IconTrash size={24} className="text-red-500" />
                 </div>
-                <h3 id="delete-file-title" className="text-lg font-bold text-foreground mb-2 text-center">Delete File</h3>
-                <p className="text-sm text-muted-foreground text-center mb-6">Are you sure you want to delete this file? This action cannot be undone.</p>
+                <h3 id="delete-file-title" className="text-lg font-bold text-slate-100 mb-2 text-center">Delete File</h3>
+                <p className="text-sm text-slate-400 text-center mb-6">Are you sure you want to delete this file? This action cannot be undone.</p>
                 <div className="flex gap-3 w-full justify-center">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
@@ -480,7 +480,7 @@ const FileSharing = () => {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={cancelDeleteFile}
-                    className="px-4 py-2.5 text-sm font-medium rounded-lg bg-accent/50 text-foreground hover:bg-accent/80 transition-all duration-200 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                    className="px-4 py-2.5 text-sm font-medium rounded-lg bg-slate-700/50 text-slate-200 hover:bg-slate-700/70 transition-all duration-200 focus:ring-2 focus:ring-orange-500/20 focus:outline-none"
                   >
                     Cancel
                   </motion.button>

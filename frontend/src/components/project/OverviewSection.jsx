@@ -4,37 +4,37 @@ import { IconFileDescription, IconClipboardList, IconBriefcase, IconCode } from 
 const OverviewSection = ({ description }) => (
   <div>
     <div className="mb-8">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="project-section-title">
         <IconFileDescription size={18} className="text-primary flex-shrink-0" />
-        <h2 className="text-xl font-semibold">Abstract</h2>
+        <h2>Abstract</h2>
       </div>
-      <p className="text-muted-foreground mb-6 whitespace-pre-wrap break-words">
+      <p className="project-section-text">
         {description?.abstract || 'No abstract available'}
       </p>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="project-section-title">
         <IconClipboardList size={18} className="text-primary flex-shrink-0" />
-        <h2 className="text-xl font-semibold">Problem Statement</h2>
+        <h2>Problem Statement</h2>
       </div>
-      <p className="text-muted-foreground mb-6 whitespace-pre-wrap break-words">
+      <p className="project-section-text">
         {description?.problemStatement || 'No problem statement available'}
       </p>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="project-section-title">
         <IconBriefcase size={18} className="text-primary flex-shrink-0" />
-        <h2 className="text-xl font-semibold">Proposed Methodology</h2>
+        <h2>Proposed Methodology</h2>
       </div>
-      <p className="text-muted-foreground whitespace-pre-wrap break-words">
+      <p className="project-section-text">
         {description?.proposedMethodology || 'No methodology available'}
       </p>
     </div>
     {description?.techStack && description.techStack.length > 0 && (
       <div className="mt-10">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="project-section-title">
           <IconCode size={18} className="text-primary flex-shrink-0" />
-          <h2 className="text-xl font-semibold">Technologies</h2>
+          <h2>Technologies</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           {description.techStack.map((tech, index) => (
-            <span key={index} className="bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm">
+            <span key={index} className="project-chip">
               {tech}
             </span>
           ))}

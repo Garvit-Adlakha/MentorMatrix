@@ -36,8 +36,8 @@ const AppRouter = () => {
                 </Suspense>
             } />
             <Route path="/mentor" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading mentors..." /></div>}>
-                    <Protected requiredAuth={false} requiredRole={["student", "mentor"]}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Discovering mentors..." /></div>}>
+                    <Protected requiredAuth={false} requiredRole="student">
                         <MentorPage />
                     </Protected>
                 </Suspense>
@@ -45,70 +45,70 @@ const AppRouter = () => {
            
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/login" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading login..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Preparing login..." /></div>}>
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <Login />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/signup" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading signup..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Preparing signup..." /></div>}>
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <Signup />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/forgot-password" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading forgot password..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading password recovery..." /></div>}>
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <ForgotPassword />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/reset-password/:token" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading reset password..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Preparing password reset..." /></div>}>
                     <Protected requiredAuth={false} redirect="/dashboard">
                         <ResetPassword />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/signup/mentor" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading mentor signin..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Preparing mentor signup..." /></div>}>
                     <MentorSignIn />
                 </Suspense>
             } />
             
             {/* Protected routes - redirect to login if not logged in */}
             <Route path="/dashboard" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading dashboard..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Preparing your dashboard..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <Dashboard />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/profile" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading profile..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading your profile..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <Profile />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/projects/:projectId" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading project details..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Fetching project details..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <ProjectDetailPage />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/chat/:chatId" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading chat..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading conversations..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <ChatPage />
                     </Protected>
                 </Suspense>
             } />
             <Route path="/chat" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading chat..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading conversations..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login">
                         <ChatPage />
                     </Protected>
@@ -138,7 +138,7 @@ const AppRouter = () => {
                 </Suspense>
             } />
             <Route path="/admin/users" element={
-                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading users..." /></div>}>
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader size="lg" text="Loading user directory..." /></div>}>
                     <Protected requiredAuth={true} redirect="/login" requiredRole="admin">
                         <AdminUsers />
                     </Protected>

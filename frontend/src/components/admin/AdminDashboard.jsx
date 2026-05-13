@@ -42,23 +42,23 @@ const StatCard = ({ title, value, icon: Icon, color, trend, trendValue }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-[background] rounded-xl shadow-lg p-6 h-full border border-gray-700 hover:shadow-xl transition-shadow"
+        className={`admin-stat admin-stat--${color}`}
     >
         <div className="flex items-center justify-between">
             <div>
-                <h3 className="text-gray-400 text-lg mb-2">{title}</h3>
-                <div className="flex items-baseline space-x-2">
-                    <p className="text-3xl font-bold text-white">{value}</p>
+                <h3 className="admin-stat-title">{title}</h3>
+                <div className="admin-stat-value">
+                    <p>{value}</p>
                     {trend && (
-                        <div className={`flex items-center text-sm ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className={`admin-stat-trend ${trend === 'up' ? 'admin-stat-trend--up' : 'admin-stat-trend--down'}`}>
                             {trend === 'up' ? <IconArrowUp className="w-4 h-4" /> : <IconArrowDown className="w-4 h-4" />}
                             <span>{trendValue}%</span>
                         </div>
                     )}
                 </div>
             </div>
-            <div className={`p-4 rounded-full bg-${color}-900/50`}>
-                <Icon className={`w-8 h-8 text-${color}-400`} />
+            <div className={`admin-stat-icon admin-stat-icon--${color}`}>
+                <Icon className="w-8 h-8" />
             </div>
         </div>
     </motion.div>
@@ -131,17 +131,17 @@ const AdminDashboard = () => {
     const stats = data?.stats || {};
 
     return (
-        <div className="p-6 bg-gray-900 min-h-screen">
+        <div className="admin-page">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-8"
+                className="admin-header"
             >
-                <h1 className="text-3xl font-bold text-white mx-auto text-center">Admin Dashboard</h1>
+                <h1 className="admin-title">Admin Dashboard</h1>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="admin-grid">
                 <StatCard
                     title="Total Students"
                     value={stats.totalStudents}
@@ -184,16 +184,16 @@ const AdminDashboard = () => {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="admin-grid admin-grid--charts">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="bg-gray-800 p-6 rounded-xl shadow-lg"
+                    className="admin-card"
                 >
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-semibold text-white">User Growth</h2>
-                        <IconTrendingUp className="w-6 h-6 text-blue-400" />
+                    <div className="admin-card-header">
+                        <h2 className="admin-card-title">User Growth</h2>
+                        <IconTrendingUp className="admin-card-icon" />
                     </div>
                     <Line 
                         data={userGrowthData}
@@ -237,11 +237,11 @@ const AdminDashboard = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
-                    className="bg-gray-800 p-6 rounded-xl shadow-lg"
+                    className="admin-card"
                 >
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-semibold text-white">Mentor Status Distribution</h2>
-                        <IconUsers className="w-6 h-6 text-green-400" />
+                    <div className="admin-card-header">
+                        <h2 className="admin-card-title">Mentor Status Distribution</h2>
+                        <IconUsers className="admin-card-icon" />
                     </div>
                     <div className="h-64">
                         <Doughnut 

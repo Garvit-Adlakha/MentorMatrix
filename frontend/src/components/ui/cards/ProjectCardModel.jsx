@@ -114,16 +114,20 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
     if (isLoading ) {
         return (
-            <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/60 z-[9999] transition-opacity duration-300">
-                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
-                <p className="text-muted-foreground">Loading project details...</p>
+            <div className="modal-backdrop modal-backdrop--blocking">
+                <div className="modal-loading">
+                    <div className="modal-spinner">
+                        <div className="modal-spinner-ring"></div>
+                    </div>
+                    <p className="modal-loading-title">Loading project details...</p>
+                </div>
             </div>
         );
     }
 
     if(acceptRequestMutation.isPending || rejectRequestMutation.isPending) {
         return createPortal(
-            <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/60 z-[9999] transition-opacity duration-300">
+            <div className="modal-backdrop modal-backdrop--blocking">
                 <Loader />
             </div>,
             document.getElementById('portal-root')
@@ -132,13 +136,13 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
     if (isError) {
         return (
-            <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/60 z-[9999] transition-opacity duration-300">
-                <div className="bg-card p-6 rounded-xl shadow-lg">
-                    <h3 className="text-lg font-medium text-red-500 mb-2">Error Loading Project</h3>
-                    <p className="text-muted-foreground mb-4">Failed to load project details. Please try again later.</p>
+            <div className="modal-backdrop modal-backdrop--blocking">
+                <div className="modal-error modal-error--panel">
+                    <h3 className="modal-error-title">Error Loading Project</h3>
+                    <p>Failed to load project details. Please try again later.</p>
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                        className="modal-btn modal-btn--solid"
                     >
                         Close
                     </button>
@@ -148,28 +152,28 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
     }
 
     return createPortal(
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xl bg-black/60 z-50 transition-opacity duration-300"
+        <div className="project-card-backdrop"
             onClick={handleBackdropClick}
         >
             <div
-                className="bg-card p-8 rounded-2xl shadow-2xl w-full max-w-2xl overflow-y-auto max-h-[90vh] m-4 border border-primary/10 transition-all duration-300 transform animate-fadeIn relative"
+                className="project-card-modal"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header with close button */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70 break-words max-w-full">
+                <div className="project-card-header">
+                    <h2 className="project-card-title">
                         Project Details
                     </h2>
-                    <div className="flex items-center gap-3 self-end sm:self-auto">
+                    <div className="project-card-actions">
                         <button
-                            className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap"
+                            className="project-card-btn project-card-btn--ghost"
                             onClick={handleChatClick}
                         >
                             <IconMessage size={18} />
-                            <span className="font-medium break-normal">Chat</span>
+                            <span className="project-card-btn-text">Chat</span>
                         </button>
                         <button
-                            className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-white rounded-lg shadow-md hover:bg-primary/90 transition-all transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap"
+                            className="project-card-btn project-card-btn--solid"
                             onClick={() => {
                                 setIsSummarizing(true);
                                 ProjectService.getSummary(projectId)
@@ -195,24 +199,24 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
                         >
                             {isSummarizing ? (
                                 <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="project-card-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span className="break-normal">Summarizing...</span>
+                                    <span className="project-card-btn-text">Summarizing...</span>
                                 </>
                             ) : (
                                 <>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                                     </svg>
-                                    <span className="font-medium break-normal">Summarize</span>
+                                    <span className="project-card-btn-text">Summarize</span>
                                 </>
                             )}
                         </button>
                         <button
                             onClick={() => onOpenChange(false)}
-                            className="rounded-full h-9 w-9 flex items-center justify-center hover:bg-accent/30 transition-colors"
+                            className="project-card-close"
                             aria-label="Close"
                         >
                             <IconX size={20} />
@@ -220,66 +224,66 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
                     </div>
                 </div>
                 {/* Project title */}
-                <div className="mb-6">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold break-words max-w-full" style={{ wordBreak: 'break-word' }}>{project?.title}</h3>
+                <div className="project-card-block">
+                    <div className="project-card-row">
+                        <h3 className="project-card-subtitle" style={{ wordBreak: 'break-word' }}>{project?.title}</h3>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
+                    <div className="project-card-meta">
+                        <div className="project-card-meta-item">
                             <IconCalendar size={16} className="flex-shrink-0" />
-                            <span className="break-words">Created: {formatDate(project?.createdAt)}</span>
+                            <span>Created: {formatDate(project?.createdAt)}</span>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="project-card-meta-item">
                             <IconUserCircle size={16} className="flex-shrink-0" />
-                            <span className="break-words">Created by: {project.createdBy?.name || 'Unknown'}</span>
+                            <span>Created by: {project.createdBy?.name || 'Unknown'}</span>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="project-card-meta-item">
                             <IconUsers size={16} className="flex-shrink-0" />
-                            <span className="break-words">Team Members: {project?.totalMembers || 0}</span>
+                            <span>Team Members: {project?.totalMembers || 0}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Project description sections */}
-                <div className="bg-accent/5 rounded-lg p-5 mb-6">
-                    <div className="flex items-center gap-2 mb-3">
+                <div className="project-card-section">
+                    <div className="project-card-section-title">
                         <IconFileDescription size={18} className="text-primary flex-shrink-0" />
-                        <h4 className="text-md font-medium">Abstract</h4>
+                        <h4>Abstract</h4>
                     </div>
-                    <p className="text-muted-foreground mb-4 whitespace-pre-wrap break-words" style={{ wordBreak: 'break-word' }}>
+                    <p className="project-card-text" style={{ wordBreak: 'break-word' }}>
                         {project?.description?.abstract || 'No abstract available'}
                     </p>
 
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="project-card-section-title">
                         <IconClipboardList size={18} className="text-primary flex-shrink-0" />
-                        <h4 className="text-md font-medium">Problem Statement</h4>
+                        <h4>Problem Statement</h4>
                     </div>
-                    <p className="text-muted-foreground mb-4 whitespace-pre-wrap break-words" style={{ wordBreak: 'break-word' }}>
+                    <p className="project-card-text" style={{ wordBreak: 'break-word' }}>
                         {project?.description?.problemStatement || 'No problem statement available'}
                     </p>
 
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="project-card-section-title">
                         <IconBriefcase size={18} className="text-primary flex-shrink-0" />
-                        <h4 className="text-md font-medium">Proposed Methodology</h4>
+                        <h4>Proposed Methodology</h4>
                     </div>
-                    <p className="text-muted-foreground whitespace-pre-wrap break-words" style={{ wordBreak: 'break-word' }}>
+                    <p className="project-card-text" style={{ wordBreak: 'break-word' }}>
                         {project?.description?.proposedMethodology || 'No methodology available'}
                     </p>
                 </div>
 
                 {/* Tech stack */}
                 {project.description?.techStack && project.description.techStack.length > 0 && (
-                    <div className="mb-6">
-                        <div className="flex items-center gap-2 mb-3">
+                    <div className="project-card-block">
+                        <div className="project-card-section-title">
                             <IconCode size={18} className="text-primary flex-shrink-0" />
-                            <h4 className="text-md font-medium">Technologies</h4>
+                            <h4>Technologies</h4>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="project-card-tags">
                             {project.description.techStack.map((tech, index) => (
-                                <span key={index} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm break-words" style={{ wordBreak: 'break-word' }}>
+                                <span key={index} className="project-card-tag" style={{ wordBreak: 'break-word' }}>
                                     {tech}
                                 </span>
                             ))}
@@ -289,20 +293,20 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
                 {/* Team members */}
                 {project.teamMembers && project.teamMembers.length > 0 && (
-                    <div className="mb-6">
-                        <div className="flex items-center gap-2 mb-3">
+                    <div className="project-card-block">
+                        <div className="project-card-section-title">
                             <IconUsers size={18} className="text-primary flex-shrink-0" />
-                            <h4 className="text-md font-medium">Team Members</h4>
+                            <h4>Team Members</h4>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="project-card-grid">
                             {project.teamMembers.map((member, index) => (
-                                <div key={index} className="flex items-center gap-2 bg-accent/10 p-2 rounded-lg">
-                                    <div className="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                                <div key={index} className="project-card-member">
+                                    <div className="project-card-member-icon">
                                         <IconUserCircle size={16} />
                                     </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="font-medium break-words" style={{ wordBreak: 'break-word' }}>{member?.name}</p>
-                                        <p className="text-xs text-muted-foreground break-words" style={{ wordBreak: 'break-word' }}>{member?.email}</p>
+                                    <div className="project-card-member-info">
+                                        <p style={{ wordBreak: 'break-word' }}>{member?.name}</p>
+                                        <p style={{ wordBreak: 'break-word' }}>{member?.email}</p>
                                     </div>
                                 </div>
                             ))}
@@ -312,18 +316,18 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
                 {/* Mentor information */}
                 {project.assignedMentor && (
-                    <div className="mb-6">
-                        <div className="flex items-center gap-2 mb-3">
+                    <div className="project-card-block">
+                        <div className="project-card-section-title">
                             <IconUserCircle size={18} className="text-primary flex-shrink-0" />
-                            <h4 className="text-md font-medium">Assigned Mentor</h4>
+                            <h4>Assigned Mentor</h4>
                         </div>
-                        <div className="bg-accent/10 p-4 rounded-lg flex items-center gap-3">
-                            <div className="h-12 w-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="project-card-mentor">
+                            <div className="project-card-mentor-icon">
                                 <IconUserCircle size={24} />
                             </div>
-                            <div className="min-w-0 flex-1">
-                                <p className="font-medium break-words" style={{ wordBreak: 'break-word' }}>{project.assignedMentor.name}</p>
-                                <p className="text-sm text-muted-foreground break-words" style={{ wordBreak: 'break-word' }}>{project.assignedMentor.email}</p>
+                            <div className="project-card-mentor-info">
+                                <p style={{ wordBreak: 'break-word' }}>{project.assignedMentor.name}</p>
+                                <p style={{ wordBreak: 'break-word' }}>{project.assignedMentor.email}</p>
                             </div>
                         </div>
                     </div>
@@ -332,23 +336,23 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
                 {/* Documents */}
                 {project.documents && project.documents.length > 0 && (
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="project-card-section-title">
                             <IconFileText size={18} className="text-primary flex-shrink-0" />
-                            <h4 className="text-md font-medium">Documents</h4>
+                            <h4>Documents</h4>
                         </div>
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="project-card-docs">
                             {project.documents.map((doc, index) => (
                                 <a
                                     key={index}
                                     href={doc.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-3 bg-accent/10 p-3 rounded-lg hover:bg-accent/20 transition-colors"
+                                    className="project-card-doc"
                                 >
                                     <IconFileText size={18} className="flex-shrink-0" />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="font-medium break-words" style={{ wordBreak: 'break-word' }}>{doc.name}</p>
-                                        <p className="text-xs text-muted-foreground break-words" style={{ wordBreak: 'break-word' }}>
+                                    <div className="project-card-doc-info">
+                                        <p style={{ wordBreak: 'break-word' }}>{doc.name}</p>
+                                        <p style={{ wordBreak: 'break-word' }}>
                                             {doc.format} • Uploaded on {formatDate(doc.uploadedAt)}
                                         </p>
                                     </div>
@@ -360,15 +364,15 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
                 {/* Action buttons for mentor */}
                 {user && project?.mentorRequests && project.mentorRequests.some(request => request === user._id) && project.status === 'pending' && (
-                    <div className="mt-6 pt-4 border-t border-border/30 flex flex-wrap gap-3 sm:gap-4 justify-end">
+                    <div className="project-card-footer">
                         <button
-                            className="px-4 py-2 sm:px-6 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors"
+                            className="project-card-btn project-card-btn--danger"
                             onClick={rejectRequestClickHandler}
                         >
                             Reject
                         </button>
                         <button
-                            className="px-4 py-2 sm:px-6 bg-green-100 text-green-800 font-medium rounded-lg hover:bg-green-200 transition-colors"
+                            className="project-card-btn project-card-btn--success"
                             onClick={acceptRequestClickHandler}
                         >
                             Accept
@@ -408,9 +412,9 @@ const ProjectCardModel = ({ open, onOpenChange, projectId, onSuccess }) => {
 
             {/* add Members To a project */}
             {project?.status === 'pending' && (
-                <div className="mt-6 pt-4 border-t border-border/30 flex flex-wrap gap-3 sm:gap-4 justify-end">
+                <div className="project-card-footer">
                     <button
-                        className="px-4 py-2 sm:px-6 bg-blue-100 text-blue-700 font-medium rounded-lg hover:bg-blue-200 transition-colors"
+                        className="project-card-btn project-card-btn--info"
                         onClick={() => {
                             onOpenChange(false);
                             navigate(`/projects/${projectId}/add-member`);

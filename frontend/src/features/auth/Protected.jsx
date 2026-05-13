@@ -18,7 +18,7 @@ const Protected = ({ children, redirect = '/login', requiredAuth = true, require
             return <Navigate to={redirect} replace />;
         }
         // Not logged in, and route is public (requiredAuth = false).
-        // This allows anonymous access to /, /mentor, /login, /signup.
+        // This allows anonymous access to public pages like /, /mentor, /login, /signup.
         return children || <Outlet />;
     }
 
@@ -53,9 +53,9 @@ const Protected = ({ children, redirect = '/login', requiredAuth = true, require
         if (requiredRole) { // Check if current route has specific role requirements
             const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
             if (roles.includes(user.role)) {
-                return children || <Outlet />; // Role matches (e.g., student on / or /mentor)
+                return children || <Outlet />; // Role matches (e.g., student on /)
             }
-            // Role does not match (e.g. student trying to access a mentor-specific page, if one existed)
+            // Role does not match (e.g. mentor trying to access the student-only /mentor page)
             return <Navigate to="/dashboard" replace />;
         }
         // No specific requiredRole for this route, and user is student/mentor (e.g., /dashboard, /profile)

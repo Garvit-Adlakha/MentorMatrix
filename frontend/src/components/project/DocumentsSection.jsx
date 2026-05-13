@@ -13,7 +13,7 @@ const DocumentsSection = ({ documents, formatDate }) => {
   }
   return (
   <div>
-    <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+    <h2 className="project-section-heading">
       <IconFileText className="text-primary" size={20} />
       Project Documents
     </h2>
@@ -28,9 +28,9 @@ const DocumentsSection = ({ documents, formatDate }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="flex items-center gap-4 p-4 bg-accent/10 rounded-xl border border-primary/10 hover:border-primary/30 hover:shadow-md transition-all"
+            className="project-card"
           >
-            <div className="h-12 w-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="project-avatar">
               <IconFileText size={24} />
             </div>
             <div className="min-w-0 flex-1">
@@ -40,7 +40,7 @@ const DocumentsSection = ({ documents, formatDate }) => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <span className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+              <span className="project-icon-btn">
                 <IconDownload size={20} className="text-primary" />
               </span>
             </div>
@@ -48,19 +48,19 @@ const DocumentsSection = ({ documents, formatDate }) => {
         ))}
       </div>
     ) : (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+      <div className="project-empty">
+        <div className="project-empty-icon">
           <IconFileText size={32} className="text-primary" />
         </div>
-        <h3 className="text-xl font-medium mb-2">No Documents Yet</h3>
-        <p className="text-muted-foreground max-w-md mx-auto mb-6">
+        <h3 className="project-empty-title">No Documents Yet</h3>
+        <p className="project-empty-text">
           There are no documents uploaded for this project yet.
         </p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleUploadDocument}
-          className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium inline-flex items-center gap-2"
+          className="project-action-btn"
         >
           Upload Document
           <IconArrowRight size={16} />

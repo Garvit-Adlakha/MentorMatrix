@@ -102,15 +102,15 @@ const MeetingsList = () => {
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'pending':
-        return <span className="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded">Pending</span>;
+        return <span className="meeting-badge meeting-badge--pending">Pending</span>;
       case 'accepted':
-        return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">Accepted</span>;
+        return <span className="meeting-badge meeting-badge--accepted">Accepted</span>;
       case 'rejected':
-        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">Rejected</span>;
+        return <span className="meeting-badge meeting-badge--rejected">Rejected</span>;
       case 'cancelled':
-        return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">Cancelled</span>;
+        return <span className="meeting-badge meeting-badge--cancelled">Cancelled</span>;
       case 'completed':
-        return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">Completed</span>;
+        return <span className="meeting-badge meeting-badge--completed">Completed</span>;
       default:
         return null;
     }
@@ -125,7 +125,7 @@ const MeetingsList = () => {
           <button
             onClick={() => handleAcceptMeeting(meeting._id)}
             disabled={updateStatusMutation.isPending}
-            className="p-1.5 bg-green-100 text-green-800 rounded hover:bg-green-200 transition-colors"
+            className="meeting-action meeting-action--accept"
             title="Accept"
           >
             <IconCheck size={16} />
@@ -133,7 +133,7 @@ const MeetingsList = () => {
           <button
             onClick={() => handleRejectMeeting(meeting._id)}
             disabled={updateStatusMutation.isPending}
-            className="p-1.5 bg-red-100 text-red-800 rounded hover:bg-red-200 transition-colors"
+            className="meeting-action meeting-action--reject"
             title="Reject"
           >
             <IconX size={16} />
@@ -148,14 +148,14 @@ const MeetingsList = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleJoinMeeting(meeting._id)}
-            className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
+            className="meeting-join"
           >
             Join Meeting
           </button>
           <button
             onClick={() => handleDeleteMeeting(meeting._id)}
             disabled={deleteMeetingMutation.isPending}
-            className="p-1.5 bg-accent text-muted-foreground rounded hover:bg-accent/80 transition-colors"
+            className="meeting-action meeting-action--delete"
             title="Delete"
           >
             <IconTrash size={16} />
@@ -170,7 +170,7 @@ const MeetingsList = () => {
         <button
           onClick={() => handleDeleteMeeting(meeting._id)}
           disabled={deleteMeetingMutation.isPending}
-          className="p-1.5 bg-accent text-muted-foreground rounded hover:bg-accent/80 transition-colors"
+          className="meeting-action meeting-action--delete"
           title="Delete"
         >
           <IconTrash size={16} />
@@ -184,13 +184,13 @@ const MeetingsList = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="bg-gradient-to-br from-[#18181b] to-[#23272f] rounded-2xl p-8 shadow-xl backdrop-blur-xl border-none"
+      className="meeting-list"
     >
       <motion.button
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}
         onClick={() => navigate('/collaborate')}
-        className="flex items-center gap-2 mb-6 px-4 py-2 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 transition-all shadow"
+        className="meeting-back-btn"
       >
         <IconArrowLeft size={18} />
         Go Back
@@ -199,18 +199,15 @@ const MeetingsList = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5, ease: 'easeOut' }}
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+        className="meeting-list-header"
       >
-        <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow">Your Meetings</h2>
-        <div className="flex gap-2">
+        <h2 className="meeting-list-title">Your Meetings</h2>
+        <div className="meeting-tabs">
           <motion.button
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.05 }}
             onClick={() => setActiveTab('upcoming')}
-            className={`px-4 py-2 text-base font-semibold rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background
-              ${activeTab === 'upcoming'
-                ? 'bg-gradient-to-r from-primary to-blue-500 text-white shadow-lg'
-                : 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'}`}
+            className={`meeting-tab ${activeTab === 'upcoming' ? 'meeting-tab--active' : ''}`}
           >
             Upcoming
           </motion.button>
@@ -218,10 +215,7 @@ const MeetingsList = () => {
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.05 }}
             onClick={() => setActiveTab('past')}
-            className={`px-4 py-2 text-base font-semibold rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background
-              ${activeTab === 'past'
-                ? 'bg-gradient-to-r from-primary to-blue-500 text-white shadow-lg'
-                : 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'}`}
+            className={`meeting-tab ${activeTab === 'past' ? 'meeting-tab--active' : ''}`}
           >
             Past
           </motion.button>
@@ -232,11 +226,11 @@ const MeetingsList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="py-16 text-center text-red-400"
+          className="meeting-list-error"
         >
           <p>Error fetching meetings: {error.message}</p>
           <button 
-            className="mt-4 px-5 py-2 bg-zinc-700 text-white rounded-lg hover:bg-red-500/80 transition-colors shadow"
+            className="meeting-secondary-btn"
             onClick={() => queryClient.invalidateQueries(['meetings'])}
           >
             Try Again
@@ -246,13 +240,13 @@ const MeetingsList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="py-16 text-center"
+          className="meeting-list-empty"
         >
-          <div className="bg-blue-500/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <div className="meeting-empty-icon">
             <IconCalendar size={40} className="text-blue-400" />
           </div>
-          <p className="text-xl font-semibold text-white mb-2">No {activeTab} meetings</p>
-          <p className="text-zinc-400 mb-4">
+          <p className="meeting-empty-title">No {activeTab} meetings</p>
+          <p className="meeting-empty-text">
             {activeTab === 'upcoming'
               ? "You don't have any upcoming meetings scheduled."
               : "You don't have any past meetings."}
@@ -274,7 +268,7 @@ const MeetingsList = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.08, duration: 0.5, ease: 'easeOut' }}
-              className="rounded-xl p-6 bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 shadow-lg hover:shadow-2xl hover:scale-[1.015] transition-all border-none ring-1 ring-zinc-700/40"
+              className="meeting-card"
             >
               <div className="flex flex-col md:flex-row justify-between gap-6">
                 <div className="flex-1">

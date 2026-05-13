@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/layouts/AppLayout';
 import ProjectService from '../service/ProjectService';
+import authService from '../service/authService';
 import {
   IconUsers,
   IconCalendar,
@@ -42,7 +43,7 @@ const ProjectDetailPageComponent = () => {
 
   const { data: user } = useQuery({
     queryKey: ['user'],
-    queryFn: () => ProjectService.getCurrentUser(),
+    queryFn: () => authService.currentUser(),
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false,
@@ -144,13 +145,13 @@ const ProjectDetailPageComponent = () => {
 
   if (isError) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="bg-red-50 text-red-800 p-6 rounded-xl max-w-2xl mx-auto shadow-sm">
-          <h2 className="text-2xl font-bold mb-4">Error Loading Project</h2>
-          <p className="mb-6">{error.message || "Failed to load project details. Please try again later."}</p>
+      <div className="project-error-wrap">
+        <div className="project-error-card">
+          <h2 className="text-2xl font-bold mb-4 text-red-500">Unable to Load Project</h2>
+          <p className="mb-6 text-muted-foreground">{error.message || "Failed to load project details. Please try again later."}</p>
           <button
             onClick={() => navigate('/dashboard')}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            className="project-error-action"
           >
             Return to Dashboard
           </button>
@@ -160,12 +161,19 @@ const ProjectDetailPageComponent = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className=" text-center p-6 mb-8 w-fit flex items-center ">
+    <div className="project-page">
+      <div className="project-bg">
+        <div className="project-orb project-orb--one" />
+        <div className="project-orb project-orb--two" />
+        <div className="project-grid" />
+      </div>
+
+      <div className="container mx-auto px-4 py-8 project-container">
+      <div className="project-back">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
-          className="flex items-center gap-2 px-5 py-2 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/15 text-white rounded-lg shadow-md hover:from-primary/90 hover:to-primary/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="project-back-btn"
           onClick={handleGoBack}
         >
           <IconArrowLeft size={18} />
@@ -193,11 +201,11 @@ const ProjectDetailPageComponent = () => {
           animate="visible"
           exit="exit"
           variants={tabContentVariants}
-          className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-6 mb-8"
+          className="project-tab-panel"
         >
           {(isLoading || acceptRequestMutation.isPending || rejectRequestMutation.isPending || handleTeamAddMembersMutation.isPending) ? (
             <div className="flex items-center justify-center min-h-[60vh]">
-              <Loader text="Loading project details..." />
+              <Loader text="Fetching project details..." />
             </div>
           ) : (
             <>
@@ -230,10 +238,10 @@ const ProjectDetailPageComponent = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-8 flex justify-end gap-4"
+          className="project-action-bar"
         >
           <button
-            className="px-6 py-3 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors"
+            className="project-action project-action--reject"
             onClick={() => {
               setConfirmationType('reject');
               setShowConfirmation(true);
@@ -242,7 +250,7 @@ const ProjectDetailPageComponent = () => {
             Reject Project
           </button>
           <button
-            className="px-6 py-3 bg-green-100 text-green-800 font-medium rounded-lg hover:bg-green-200 transition-colors"
+            className="project-action project-action--accept"
             onClick={() => {
               setConfirmationType('accept');
               setShowConfirmation(true);
@@ -269,15 +277,15 @@ const ProjectDetailPageComponent = () => {
 
       {showConfirmation && confirmationType === 'reject' && (
         <AlertBox
-          isOpen={showConfirmation}
-          onClose={() => setShowConfirmation(false)}
-          onConfirm={onRejectRequest}
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={onRejectRequest}
           title="Reject Project"
           message="Are you sure you want to reject this project?"
           confirmText="Reject"
           cancelText="Cancel"
           type="error"
-        />
+          />
       )}
 
       {/* Project Summary Modal */}
@@ -285,7 +293,7 @@ const ProjectDetailPageComponent = () => {
         open={showSummaryModal}
         onOpenChange={setShowSummaryModal}
         projectId={projectId}
-      />
+        />
 
       {/* Project Review Modal */}
       <ProjectReviewModal
@@ -293,10 +301,13 @@ const ProjectDetailPageComponent = () => {
         onOpenChange={setShowReviewModal}
         projectId={projectId}
         isReviewMode={true}
-      />
+        />
+    </div>
     </div>
   );
 };
+
+ProjectDetailPageComponent.layoutClassName = "landing-theme";
 
 const ProjectDetailPage = AppLayout()(ProjectDetailPageComponent);
 export default ProjectDetailPage;

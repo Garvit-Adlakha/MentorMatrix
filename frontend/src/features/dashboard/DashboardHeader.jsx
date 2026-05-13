@@ -8,18 +8,18 @@ const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalF
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4"
+      className="dashboard-header"
     >
       <div>
-        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your projects and proposals</p>
+        <h1 className="dashboard-title">Dashboard</h1>
+        <p className="dashboard-subtitle">Manage your projects and proposals</p>
       </div>
       <div className="flex items-center gap-3">
         <motion.button 
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           transition={{ duration: 0.3 }}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent/50 to-accent/30 border border-accent/20 backdrop-blur-sm flex items-center gap-2 text-sm font-medium shadow-sm"
+          className="dashboard-toggle"
           onClick={toggleViewMode}
         >
           {viewMode === 'table' ? (
@@ -32,7 +32,7 @@ const DashboardHeader = ({userRole, viewMode, toggleViewMode, handleNewProposalF
         <motion.button 
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 text-sm font-medium" 
+          className="dashboard-cta"
           onClick={handleNewProposalForm}
         >
           <IconPlus size={16} />

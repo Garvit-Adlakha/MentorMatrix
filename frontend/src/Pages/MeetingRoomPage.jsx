@@ -80,22 +80,22 @@ const MeetingRoomPage = () => {
   };
 
   if (isLoading) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-t-accent rounded-full animate-spin mb-4 mx-auto"></div>
-        <p className="text-xl">Loading meeting...</p>
+    <div className="meeting-state">
+      <div className="meeting-state-card">
+        <div className="meeting-spinner"></div>
+        <p className="meeting-state-text">Loading meeting...</p>
       </div>
     </div>
   );
 
   if (isError) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center p-8 max-w-md bg-red-50 rounded-lg shadow">
-        <div className="text-red-500 text-5xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold mb-2">Meeting Error</h2>
-        <p className="text-lg text-red-500">{error?.message || 'Failed to load meeting.'}</p>
+    <div className="meeting-state">
+      <div className="meeting-state-card meeting-state-card--error">
+        <div className="meeting-state-icon">⚠️</div>
+        <h2 className="meeting-state-title">Meeting Error</h2>
+        <p className="meeting-state-text">{error?.message || 'Failed to load meeting.'}</p>
         <button 
-          className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors" 
+          className="meeting-state-action"
           onClick={() => navigate('/collaborate?tab=meetings')}
         >
           Return to Meetings
@@ -105,13 +105,13 @@ const MeetingRoomPage = () => {
   );
 
   if (!jitsiInfo || !data?.meeting) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center p-8 max-w-md bg-yellow-50 rounded-lg shadow">
-        <div className="text-yellow-500 text-5xl mb-4">🤔</div>
-        <h2 className="text-2xl font-bold mb-2">Meeting Not Found</h2>
-        <p className="text-lg">We couldn&apos;t find information for this meeting.</p>
+    <div className="meeting-state">
+      <div className="meeting-state-card meeting-state-card--warn">
+        <div className="meeting-state-icon">🤔</div>
+        <h2 className="meeting-state-title">Meeting Not Found</h2>
+        <p className="meeting-state-text">We couldn&apos;t find information for this meeting.</p>
         <button 
-          className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors" 
+          className="meeting-state-action"
           onClick={() => navigate('/collaborate?tab=meetings')}
         >
           Return to Meetings
@@ -123,22 +123,29 @@ const MeetingRoomPage = () => {
   const meeting = data.meeting;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div className="meeting-page">
+      <div className="meeting-bg">
+        <div className="meeting-orb meeting-orb--one" />
+        <div className="meeting-orb meeting-orb--two" />
+        <div className="meeting-grid" />
+      </div>
+
+      <div className="max-w-6xl mx-auto p-4 space-y-6 meeting-container">
+      <div className="meeting-header">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">{meeting.title || 'Meeting Room'}</h1>
-          <p className="text-gray-500">{meeting.description || 'No description provided'}</p>
+          <h1 className="meeting-title">{meeting.title || 'Meeting Room'}</h1>
+          <p className="meeting-subtitle">{meeting.description || 'No description provided'}</p>
         </div>
         <div className="flex gap-2">
           <button 
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors flex items-center gap-1"
+            className="meeting-btn meeting-btn--primary"
             onClick={handleCopyLink}
           >
             <IconShare className="w-5 h-5" />
             {isCopied ? 'Copied!' : 'Copy Link'}
           </button>
           <button 
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors" 
+            className="meeting-btn meeting-btn--ghost"
             onClick={() => navigate('/collaborate?tab=meetings')}
           >
             Back to Meetings
@@ -154,24 +161,24 @@ const MeetingRoomPage = () => {
             onApiReady={handleApiReady}
           />
         </div>
-        <div className="bg-neutral-900 p-4 rounded-lg shadow space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">Meeting Details</h2>
+        <div className="meeting-details">
+          <h2 className="meeting-details-title">Meeting Details</h2>
           
           <div className="flex items-start gap-3">
             <IconCalendar className="w-5 h-5 text-gray-500 mt-1" />
             <div>
-              <p className="text-sm text-gray-500">Date</p>
-              <p className="font-medium">{formatDate(meeting.startTime)}</p>
+              <p className="meeting-details-label">Date</p>
+              <p className="meeting-details-value">{formatDate(meeting.startTime)}</p>
             </div>
           </div>
           
           <div className="flex items-start gap-3">
             <IconClock className="w-5 h-5 text-gray-500 mt-1" />
             <div>
-              <p className="text-sm text-gray-500">Time</p>
-              <p className="font-medium">
+              <p className="meeting-details-label">Time</p>
+              <p className="meeting-details-value">
                 {formatTime(meeting.startTime)} - {formatTime(meeting.endTime)}
-                <span className="block text-sm text-gray-400">({meeting.durationMinutes || calculateDuration()} minutes)</span>
+                <span className="meeting-details-muted">({meeting.durationMinutes || calculateDuration()} minutes)</span>
               </p>
             </div>
           </div>
@@ -179,17 +186,17 @@ const MeetingRoomPage = () => {
           <div className="flex items-start gap-3">
             <IconUsers className="w-5 h-5 text-gray-500 mt-1" />
             <div>
-              <p className="text-sm text-gray-500">Scheduled By</p>
-              <p className="font-medium">{meeting.scheduledBy?.name || 'Unknown'}</p>
+              <p className="meeting-details-label">Scheduled By</p>
+              <p className="meeting-details-value">{meeting.scheduledBy?.name || 'Unknown'}</p>
             </div>
           </div>
 
           {meeting.participants && meeting.participants.length > 0 && (
-            <div className="pt-2 border-t">
-              <p className="text-sm text-gray-500">Participants</p>
+            <div className="meeting-details-section">
+              <p className="meeting-details-label">Participants</p>
               <div className="mt-1">
                 {meeting.participants.map((participant, index) => (
-                  <div key={index} className="text-sm font-medium">
+                  <div key={index} className="meeting-details-value">
                     {participant.name || participant.email || 'Unknown participant'}
                   </div>
                 ))}
@@ -198,23 +205,23 @@ const MeetingRoomPage = () => {
           )}
 
           {meeting.projectId && (
-            <div className="pt-2 border-t">
-              <p className="text-sm text-gray-500">Project</p>
-              <p className="font-medium">{meeting.projectId.title}</p>
+            <div className="meeting-details-section">
+              <p className="meeting-details-label">Project</p>
+              <p className="meeting-details-value">{meeting.projectId.title}</p>
             </div>
           )}
 
           {meeting.location && (
-            <div className="pt-2 border-t">
-              <p className="text-sm text-gray-500">Location</p>
-              <p className="font-medium">{meeting.location}</p>
+            <div className="meeting-details-section">
+              <p className="meeting-details-label">Location</p>
+              <p className="meeting-details-value">{meeting.location}</p>
             </div>
           )}
 
           {meeting.meetingNotes && (
-            <div className="pt-2 border-t">
-              <p className="text-sm text-gray-500 mb-1">Meeting Notes</p>
-              <div className="bg-white p-3 rounded border text-sm">
+            <div className="meeting-details-section">
+              <p className="meeting-details-label">Meeting Notes</p>
+              <div className="meeting-notes">
                 {meeting.meetingNotes}
               </div>
             </div>
@@ -222,7 +229,7 @@ const MeetingRoomPage = () => {
 
           <div className="pt-4">
             <button 
-              className="w-full px-4 py-2 bg-neutral-800 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+              className="meeting-leave"
               onClick={() => {
                 if (jitsiApi) {
                   jitsiApi.executeCommand('hangup');
@@ -236,6 +243,7 @@ const MeetingRoomPage = () => {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

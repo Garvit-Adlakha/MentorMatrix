@@ -86,10 +86,10 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
       onSubmit={handleSubmit}
-      className="bg-card rounded-xl shadow-2xl border border-primary/10 backdrop-blur-sm p-6 md:p-8 space-y-6 max-w-4xl mx-auto relative"
+      className="relative mx-auto max-w-5xl overflow-hidden rounded-[18px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_22px_50px_rgba(0,0,0,0.45)] backdrop-blur-[18px] md:p-8"
     >
       {isLoading && (
-        <div className="absolute inset-0 backdrop-blur-lg bg-neutral-900/50 rounded-xl flex items-center justify-center z-50">
+        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[18px] bg-slate-950/60 backdrop-blur-md">
           <div className="flex flex-col items-center space-y-3">
             <Loader className="w-10 h-10 text-primary animate-spin" />
             <p className="text-sm text-muted-foreground">Saving your changes...</p>
@@ -97,20 +97,20 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
         </div>
       )}
       
-      <h2 className="text-2xl font-bold text-center text-primary mb-6">Edit Your Profile</h2>
+      <h2 className="mb-6 text-center text-2xl font-bold text-orange-400 md:text-[1.6rem]">Edit Your Profile</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
         {/* Avatar Section */}
-        <div className="md:col-span-1 flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center space-y-4 md:col-span-1">
           <div className="relative group">
             <img
               src={avatarPreview || "https://res.cloudinary.com/garvitadlakha08/image/upload/v1745998142/b2nsmmeoqfyenykzeaiu.png"}
               alt="Avatar Preview"
-              className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-primary/30 shadow-lg transition-transform duration-300 group-hover:scale-105"
+              className="h-32 w-32 rounded-full border-4 border-orange-500/30 object-cover shadow-[0_14px_26px_rgba(0,0,0,0.4)] md:h-36 md:w-36"
             />
             <label
               htmlFor="avatar"
-              className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/55 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
             >
               <IconUpload size={30} className="text-white transform transition-transform duration-300 group-hover:scale-110" />
             </label>
@@ -123,13 +123,13 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
             onChange={handleAvatarChange}
             className="hidden"
           />
-          <p className="text-xs text-muted-foreground text-center">Click image to change avatar</p>
+          <p className="text-center text-xs text-white/50">Click image to change avatar</p>
         </div>
 
         {/* Details Section */}
-        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:col-span-2 sm:grid-cols-2 md:gap-5">
           <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-muted-foreground">
+            <label className="flex items-center text-sm font-semibold text-white/70">
               <IconUser size={16} className="mr-2 text-primary" />
               Full Name
             </label>
@@ -140,12 +140,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
               onChange={handleChange}
               placeholder="Your full name"
               required
-              className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-muted-foreground">
+            <label className="flex items-center text-sm font-semibold text-white/70">
               <IconMail size={16} className="mr-2 text-primary" />
               Email Address
             </label>
@@ -156,12 +156,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
               onChange={handleChange}
               placeholder="your.email@example.com"
               required
-              className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
             />
           </div>
 
           <div className="sm:col-span-2 space-y-2">
-            <label className="flex items-center text-sm font-medium text-muted-foreground">
+            <label className="flex items-center text-sm font-semibold text-white/70">
               <IconBriefcase size={16} className="mr-2 text-primary" />
               Bio
             </label>
@@ -171,12 +171,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
               onChange={handleChange}
               placeholder="Tell us a bit about yourself..."
               rows={3}
-              className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-muted-foreground">
+            <label className="flex items-center text-sm font-semibold text-white/70">
               <IconSchool size={16} className="mr-2 text-primary" />
               University
             </label>
@@ -186,12 +186,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
               value={formData.university}
               onChange={handleChange}
               placeholder="Your university name"
-              className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-muted-foreground">
+            <label className="flex items-center text-sm font-semibold text-white/70">
               <IconBook size={16} className="mr-2 text-primary" />
               Department
             </label>
@@ -201,14 +201,14 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
               value={formData.department}
               onChange={handleChange}
               placeholder="Your department"
-              className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
             />
           </div>
 
           {formData.role === 'student' && (
             <>
               <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-muted-foreground">
+                <label className="flex items-center text-sm font-semibold text-white/70">
                   <IconId size={16} className="mr-2 text-primary" />
                   Roll Number
                 </label>
@@ -218,12 +218,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
                   value={formData.roll_no}
                   onChange={handleChange}
                   placeholder="Your roll number"
-                  className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-muted-foreground">
+                <label className="flex items-center text-sm font-semibold text-white/70">
                   <IconCalendar size={16} className="mr-2 text-primary" />
                   Year of Study
                 </label>
@@ -233,12 +233,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
                   value={formData.yearOfStudy}
                   onChange={handleChange}
                   placeholder="e.g., 3rd Year"
-                  className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-muted-foreground">
+                <label className="flex items-center text-sm font-semibold text-white/70">
                   <IconSparkles size={16} className="mr-2 text-primary" />
                   CGPA
                 </label>
@@ -249,12 +249,12 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
                   value={formData.cgpa}
                   onChange={handleChange}
                   placeholder="Your CGPA"
-                  className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-muted-foreground">
+                <label className="flex items-center text-sm font-semibold text-white/70">
                   <IconSparkles size={16} className="mr-2 text-primary" />
                   Skills
                 </label>
@@ -264,16 +264,16 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
                   value={formData.skills}
                   onChange={handleChange}
                   placeholder="e.g., React, Node.js, Python"
-                  className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
                 />
-                <p className="text-xs text-muted-foreground">Separate skills with commas</p>
+                <p className="text-xs text-white/50">Separate skills with commas</p>
               </div>
             </>
           )}
 
           {formData.role === 'mentor' && (
             <div className="sm:col-span-2 space-y-2">
-              <label className="flex items-center text-sm font-medium text-muted-foreground">
+              <label className="flex items-center text-sm font-semibold text-white/70">
                 <IconSparkles size={16} className="mr-2 text-primary" />
                 Areas of Expertise
               </label>
@@ -283,21 +283,21 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
                 value={formData.expertise}
                 onChange={handleChange}
                 placeholder="e.g., Web Development, AI, Project Management"
-                className="w-full px-4 py-2.5 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/15"
               />
-              <p className="text-xs text-muted-foreground">Separate areas with commas</p>
+              <p className="text-xs text-white/50">Separate areas with commas</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-4 pt-6 border-t border-border">
+      <div className="mt-6 flex justify-end gap-3 border-t border-white/10 pt-5">
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="px-6 py-2.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-all duration-200 flex items-center group disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-xl bg-white/6 px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/10"
         >
           <IconX size={16} className="mr-2 group-hover:rotate-90 transition-transform duration-200"/>
           Cancel
@@ -305,7 +305,7 @@ const ProfileEditing = ({ initialData, onSave, onCancel }) => {
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center group disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(255,107,0,0.25)] transition hover:from-orange-600 hover:to-orange-700"
         >
           <IconDeviceFloppy size={16} className="mr-2 group-hover:animate-pulse"/>
           {isLoading ? 'Saving...' : 'Save Changes'}

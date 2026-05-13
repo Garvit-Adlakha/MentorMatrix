@@ -34,8 +34,11 @@ export const Navbar = ({ navOpen }) => {
       // Regular user navigation items
       items.push(
         { label: "Home", link: "/", className: "nav-link", id: "home" },
-        { label: "Mentor", link: "/mentor", className: "nav-link", id: "mentor" }
       );
+
+      if (user?.role !== 'mentor') {
+        items.push({ label: "Mentor", link: "/mentor", className: "nav-link", id: "mentor" });
+      }
       
       if (user) {
         items.push(
@@ -104,9 +107,11 @@ export const Navbar = ({ navOpen }) => {
       // Regular user route handling
       if (currentPath === "/") {
         setActiveSection("home");
-      } else if (currentPath === "/mentor") {
+      } else if (currentPath === "/mentor" && user?.role !== 'mentor') {
         setActiveSection("mentor");
       } else if (currentPath === "/dashboard") {
+        setActiveSection("dashboard");
+      } else if (currentPath.startsWith("/projects/")) {
         setActiveSection("dashboard");
       } else if (currentPath.startsWith("/chat")) {
         setActiveSection("chat");
@@ -114,6 +119,8 @@ export const Navbar = ({ navOpen }) => {
         setActiveSection("profile");
       } else if (currentPath === "/collaborate") {
         setActiveSection("collaborate");
+      } else {
+        setActiveSection("");
       }
     }
   }, [location.pathname, user?.role]);
@@ -124,7 +131,7 @@ export const Navbar = ({ navOpen }) => {
       ? `a[href="${activeSection}"]` 
       : `a[href="/${activeSection === 'home' ? '' : activeSection}"]`;
       
-    const activeLink = document.querySelector(linkSelector);
+    const activeLink = navRef.current?.querySelector(linkSelector);
     
     if (activeLink) {
       if (lastActiveLink.current) {
@@ -140,9 +147,11 @@ export const Navbar = ({ navOpen }) => {
 
   // Initialize the active box on mount and when navOpen changes
   useEffect(() => {
-    // Find the initial active link based on current path
-    const initialLink = document.querySelector(`a[href="${location.pathname}"]`) || 
-                        document.querySelector('a[href="/"]');
+    // Find the initial active link based on current path without defaulting to home.
+    const mentorLinkIsHidden = user?.role === 'mentor' && location.pathname === '/mentor';
+    const initialLink = !mentorLinkIsHidden
+      ? navRef.current?.querySelector(`a[href="${location.pathname}"]`)
+      : null;
                          
     if (initialLink) {
       initialLink.classList.add("active");
@@ -168,10 +177,10 @@ export const Navbar = ({ navOpen }) => {
   return (
     <nav 
       ref={navRef} 
-      className={`navbar relative w-full z-10 ${
+      className={`app-navbar ${
         navOpen 
-          ? "active flex flex-col items-stretch space-y-1 py-2 bg-background md:bg-transparent md:flex-row md:space-y-0 md:space-x-4 rounded-xl shadow-lg md:shadow-none" 
-          : "hidden md:flex items-center space-x-4"
+          ? "app-navbar--mobile"
+          : ""
       }`}
       style={navOpen ? { maxWidth: '90vw', margin: '0 auto', left: 0, right: 0 } : {}}
     >
@@ -179,16 +188,16 @@ export const Navbar = ({ navOpen }) => {
         <Link
           to={link}
           key={key}
-          className={`${className} px-4 py-3 rounded-lg transition-all duration-300 hover:bg-accent/10 
-            ${navOpen ? 'w-full text-left font-medium text-lg' : ''} 
-            ${activeSection === id ? 'text-primary font-semibold' : 'text-foreground/80'}`}
+          className={`${className} app-nav-link
+            ${navOpen ? 'app-nav-link--mobile' : ''}
+            ${activeSection === id ? 'app-nav-link--active' : ''}`}
           onClick={(e) => handleLinkClick(e, id)}
         >
           {label}
         </Link>
       ))}
       <div 
-        className="active-box absolute bg-accent/20 rounded-lg transition-all duration-300 z-0" 
+        className="app-nav-active"
         ref={activeBox} 
         style={{ opacity: navOpen ? 0 : 1 }}
       />

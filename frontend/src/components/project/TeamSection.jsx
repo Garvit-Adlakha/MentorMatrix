@@ -49,8 +49,8 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
     <div>
       {teamMembers && teamMembers.length > 0 ? (
         <div>
-          <div className='flex items-center justify-between mb-6'>
-            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+          <div className="project-section-header">
+            <h2 className="project-section-heading">
               <IconUsers className="text-primary" size={20} />
               Team Members
             </h2>
@@ -58,7 +58,7 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleOpenDialog}
-              className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium inline-flex items-center gap-2"
+              className="project-action-btn"
             >
               Add Team Members
               <IconArrowRight size={16} />
@@ -72,16 +72,16 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-4 p-4 bg-accent/10 rounded-xl border border-primary/10 hover:border-primary/30 hover:shadow-md transition-all"
+                className="project-card"
               >
-                <div className="h-12 w-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="project-avatar">
                   <IconUserCircle size={24} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{member?.name}</p>
                   <p className="text-sm text-muted-foreground">{member?.email}</p>
                   {member?.role && (
-                    <p className="text-xs text-primary mt-1">{member.role}</p>
+                    <p className="project-card-meta">{member.role}</p>
                   )}
                 </div>
               </motion.div>
@@ -89,19 +89,19 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
           </div>
         </div>
       ) : (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+        <div className="project-empty">
+          <div className="project-empty-icon">
             <IconUsers size={32} className="text-primary" />
           </div>
-          <h3 className="text-xl font-medium mb-2">No Team Members</h3>
-          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+          <h3 className="project-empty-title">No Team Members</h3>
+          <p className="project-empty-text">
             This project doesn't have any team members assigned yet.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenDialog}
-            className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium inline-flex items-center gap-2"
+            className="project-action-btn"
           >
             Add Team Members
             <IconArrowRight size={16} />
@@ -110,38 +110,38 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
       )}
       {/* Dialog Box UI */}
       {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-[#18181b] rounded-xl shadow-lg p-8 w-full max-w-md relative border border-[#27272a]">
+        <div className="project-dialog">
+          <div className="project-dialog-card">
             <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-200"
+              className="project-dialog-close"
               onClick={handleCloseDialog}
               aria-label="Close"
             >
               ×
             </button>
-            <h3 className="text-lg font-semibold mb-4 text-white">Add Team Members</h3>
+            <h3 className="project-dialog-title">Add Team Members</h3>
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                className="w-full border border-[#27272a] bg-[#232326] text-white rounded-lg px-4 py-2 mb-1 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+                className="project-dialog-input"
                 placeholder="Enter teammate emails (comma-separated)"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
               />
-              <p className="text-xs text-gray-400 mb-3">Enter multiple email addresses separated by commas</p>
-              {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
+              <p className="project-dialog-hint">Enter multiple email addresses separated by commas</p>
+              {error && <p className="project-dialog-error">{error}</p>}
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"
-                  className="px-4 py-2 rounded-lg bg-[#27272a] hover:bg-[#323236] text-gray-200"
+                  className="project-dialog-btn project-dialog-btn--ghost"
                   onClick={handleCloseDialog}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90"
+                  className="project-dialog-btn project-dialog-btn--primary"
                 >
                   Add
                 </button>
@@ -152,26 +152,26 @@ const TeamSection = ({createdBy, teamMembers, assignedMentor, handleAddTeamMembe
       )}
       {assignedMentor && (
         <div className="mt-10">
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+          <h2 className="project-section-heading">
             <IconUserCircle className="text-primary" size={20} />
             Assigned Mentor
           </h2>
-          <div className="bg-gradient-to-br from-primary/10 to-transparent p-5 rounded-xl border border-primary/20">
+          <div className="project-card project-card--accent">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="project-avatar project-avatar--lg">
                 <IconUserCircle size={32} className="text-primary" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xl font-bold">{assignedMentor.name}</p>
                 <p className="text-muted-foreground">{assignedMentor.email}</p>
                 {assignedMentor.department && (
-                  <p className="text-sm text-primary/80 mt-1">{assignedMentor.department}</p>
+                  <p className="project-card-meta">{assignedMentor.department}</p>
                 )}
               </div>
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
+                className="project-action-btn project-action-btn--ghost"
               >
                 <IconMessage size={16} />
                 <span className="font-medium">Contact</span>

@@ -8,4 +8,6 @@ const MentorPage = () => {
   )
 }
 
+MentorPage.layoutClassName = "landing-theme";
+
 export default AppLayout()(MentorPage)

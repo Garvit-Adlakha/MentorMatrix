@@ -17,26 +17,26 @@ const StatCard = ({
     primary: {
       bar: 'bg-primary/90',
       text: 'text-primary',
-      border: 'border-primary/10',
+      border: 'border-primary/20',
       iconBg: 'bg-primary/10'
     },
     teal: {
-      bar: 'bg-teal-500',
-      text: 'text-teal-600',
-      border: 'border-teal-500/10',
-      iconBg: 'bg-teal-50'
+      bar: 'bg-teal-400',
+      text: 'text-teal-200',
+      border: 'border-teal-400/25',
+      iconBg: 'bg-teal-400/10'
     },
     amber: {
-      bar: 'bg-amber-500',
-      text: 'text-amber-600',
-      border: 'border-amber-500/10',
-      iconBg: 'bg-amber-50'
+      bar: 'bg-amber-400',
+      text: 'text-amber-200',
+      border: 'border-amber-400/25',
+      iconBg: 'bg-amber-400/10'
     },
     rose: {
-      bar: 'bg-rose-500',
-      text: 'text-rose-600',
-      border: 'border-rose-500/10',
-      iconBg: 'bg-rose-50'
+      bar: 'bg-rose-400',
+      text: 'text-rose-200',
+      border: 'border-rose-400/25',
+      iconBg: 'bg-rose-400/10'
     }
   };
 
@@ -45,7 +45,7 @@ const StatCard = ({
   return (
     <motion.div 
       whileHover={{ scale: 1.02, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
-      className={`bg-gradient-to-br from-card to-background/60 backdrop-blur-sm rounded-xl shadow-md relative overflow-hidden ${classes.border}`}
+      className={`dashboard-stat ${classes.border}`}
     >
       <div className={`absolute top-0 left-0 h-full w-1.5 ${classes.bar}`}></div>
       <div className="p-6">

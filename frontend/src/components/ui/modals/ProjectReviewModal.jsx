@@ -104,48 +104,49 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 bg-black/70 shadow-2xl backdrop-blur-2xl z-50"
+            className="modal-backdrop"
             aria-hidden="true"
             onClick={() => onOpenChange(false)}
-          />
-          {/* Modal */}
-          <motion.div
-            ref={modalRef}
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.96 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
+          >
+            {/* Modal */}
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.96 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
               duration: 0.3
             }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-review-title"
-            className="fixed z-[100] top-[10%] left-1/2 transform -translate-x-1/2 w-[95vw] sm:w-[90vw] max-w-4xl max-h-[80vh] overflow-hidden bg-gradient-to-br from-card to-card/95 border border-primary/20 rounded-2xl shadow-2xl shadow-primary/10 focus:outline-none"
+            className="modal-shell modal-shell--review"
             tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Decorative elements */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
-            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+            <div className="modal-orb modal-orb--top"></div>
+            <div className="modal-orb modal-orb--bottom"></div>
             
             {/* Modal header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border/20 bg-gradient-to-r from-card to-card/90 backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-primary/10">
+            <div className="modal-header modal-header--sticky">
+              <div className="modal-header-group">
+                <div className="modal-header-icon">
                   <IconFileDescription size={20} className="text-primary" />
                 </div>
                 <h2 
                   id="project-review-title" 
-                  className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70"
+                  className="modal-title"
                 >
                   Project Review
                 </h2>
               </div>
               <button
                 ref={closeBtnRef}
-                className="p-2 rounded-full hover:bg-primary/10 hover:text-primary transition-all transform active:scale-95 focus:ring-2 focus:ring-primary/30 focus:outline-none duration-150"
+                className="modal-close"
                 onClick={() => onOpenChange(false)}
                 aria-label="Close review modal"
                 title="Close"
@@ -155,7 +156,7 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
             </div>
             
             {/* Modal content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(80vh-130px)] relative thin-scrollbar scroll-smooth">
+            <div className="modal-body modal-body--review">
               <FadeIn className="space-y-6">
                 <ProjectReviewDetails 
                   reviewText={reviewText} 
@@ -168,14 +169,14 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="bg-blue-50/70 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 p-4 rounded-lg text-blue-800 dark:text-blue-300 flex items-start gap-3 shadow-sm"
+                    className="modal-note"
                   >
-                    <div className="p-1.5 bg-blue-100 dark:bg-blue-800/30 rounded-full flex-shrink-0 mt-0.5">
-                      <IconSparkles size={16} className="text-blue-600 dark:text-blue-400" />
+                    <div className="modal-note-icon">
+                      <IconSparkles size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-medium mb-0.5">AI-Generated Review</p>
-                      <p className="text-xs text-blue-700/80 dark:text-blue-300/80">
+                      <p className="modal-note-title">AI-Generated Review</p>
+                      <p className="modal-note-text">
                         This review is based on the project details. It may not capture all nuances or details of the project.
                       </p>
                     </div>
@@ -185,13 +186,13 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
             </div>
             
             {/* Modal footer */}
-            <div className="sticky bottom-0 z-10 border-t border-border/20 p-4 flex flex-wrap justify-end gap-3 bg-gradient-to-r from-card to-card/95 backdrop-blur-md">
+            <div className="modal-footer modal-footer--sticky">
               {!loading && !error && reviewText && (
                 <>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="px-4 py-2.5 flex items-center gap-2 text-sm font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all duration-200 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                    className="modal-btn modal-btn--ghost"
                     onClick={handleCopyToClipboard}
                     aria-label="Copy review to clipboard"
                     title="Copy to clipboard"
@@ -202,7 +203,7 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="px-4 py-2.5 flex items-center gap-2 text-sm font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all duration-200 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                    className="modal-btn modal-btn--ghost"
                     onClick={handleDownload}
                     aria-label="Download review as text file"
                     title="Download review"
@@ -215,7 +216,7 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-5 py-2.5 text-sm font-medium rounded-lg bg-gradient-to-r from-primary to-primary/90 text-white hover:from-primary/90 hover:to-primary/80 transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/30 focus:outline-none"
+                className="modal-btn modal-btn--solid"
                 onClick={() => onOpenChange(false)}
                 aria-label="Close modal"
                 title="Close"
@@ -223,6 +224,7 @@ const ProjectReviewModal = ({ open, onOpenChange, projectId }) => {
                 Close
               </motion.button>
             </div>
+            </motion.div>
           </motion.div>
         </>
       )}

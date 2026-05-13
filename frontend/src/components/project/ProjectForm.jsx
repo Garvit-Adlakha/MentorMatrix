@@ -272,7 +272,7 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 backdrop-blur-xl shadow-2xl bg-black/70 z-[9999]"
+            className="fixed inset-0 backdrop-blur-xl shadow-2xl bg-black/80 z-[9999]"
             aria-hidden="true"
             onClick={handleBackdropClick}
           />
@@ -296,28 +296,28 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
             aria-describedby="project-form-description"
           >
             <div
-              className="bg-gradient-to-br from-card to-card/95 p-8 rounded-2xl shadow-2xl w-full  max-w-2xl overflow-y-auto no-scrollbar max-h-[90vh] border border-primary/10 transition-all duration-300 relative"
+              className="bg-gradient-to-br from-slate-900 to-slate-900/95 p-8 rounded-2xl shadow-2xl w-full  max-w-2xl overflow-y-auto no-scrollbar max-h-[90vh] border border-orange-500/20 transition-all duration-300 relative"
             >
               {/* Decorative elements */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl opacity-70 pointer-events-none" aria-hidden="true"></div>
-              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" aria-hidden="true"></div>
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl opacity-70 pointer-events-none" aria-hidden="true"></div>
+              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl opacity-50 pointer-events-none" aria-hidden="true"></div>
               
               {/* Modal header with improved styling */}
               <div className="flex justify-between items-center mb-6 relative z-10">
-                <h2 id="project-form-title" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                <h2 id="project-form-title" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-orange-400">
                   Create New Project
                 </h2>
                 <button
                   ref={closeBtnRef}
                   onClick={() => onOpenChange(false)}
-                  className="p-2 rounded-full hover:bg-accent/30 transition-colors transform active:scale-95 focus:ring-2 focus:ring-primary/30 focus:outline-none duration-150"
+                  className="p-2 rounded-full hover:bg-orange-500/10 transition-colors transform active:scale-95 focus:ring-2 focus:ring-orange-500/30 focus:outline-none duration-150"
                   aria-label="Close project form"
                 >
                   <IconX size={18} />
                 </button>
               </div>
 
-              <p id="project-form-description" className="text-muted-foreground text-sm mb-8 relative z-10">
+              <p id="project-form-description" className="text-slate-400 text-sm mb-8 relative z-10">
                 Complete the form below to create a new project proposal.
               </p>
 
@@ -326,24 +326,24 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                 className="space-y-8 relative z-10"
                 aria-label="Project creation form"
               >
-                <div className="bg-gradient-to-br from-primary/20 via-primary/5 to-transparent p-5 rounded-xl space-y-6">
+                <div className="bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent p-5 rounded-xl space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Project Title</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Project Title</label>
                     <input
                       type="text"
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       placeholder="Enter a descriptive title for your project"
                       {...register("title")}
                     />
-                    {errors.title && <p className="mt-2 text-sm text-destructive font-medium">{errors.title.message}</p>}
+                    {errors.title && <p className="mt-2 text-sm text-red-400 font-medium">{errors.title.message}</p>}
                   </div>
 
                   <div className="relative">
-                    <label className="block text-sm font-semibold text-foreground mb-2">Preferred Faculty (Optional)</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Preferred Faculty (Optional)</label>
                     <input
                       type="text"
                       ref={mentorInputRef}
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       placeholder="Start typing mentor name..."
                       {...register("targetFaculty")}
                       onClick={() => {
@@ -358,7 +358,7 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                      (
                       <div 
                         ref={mentorDropdownRef}
-                        className="absolute z-120 w-full mt-1 bg-zinc-900 border border-border rounded-lg max-h-60 overflow-y-auto"
+                        className="absolute z-120 w-full mt-1 bg-slate-800 border border-orange-500/20 rounded-lg max-h-60 overflow-y-auto"
                         role="listbox"
                         aria-labelledby="mentor-dropdown"
                       >
@@ -366,14 +366,14 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                           {mentorSuggestions.map((mentor, index) => (
                             <li 
                               key={mentor._id} 
-                              className={`px-4 py-3 hover:bg-primary/10 cursor-pointer flex items-center gap-3 border-b border-border/40 last:border-b-0 ${
-                                activeMentorIndex === index ? "bg-primary/10" : ""
+                              className={`px-4 py-3 hover:bg-orange-500/10 cursor-pointer flex items-center gap-3 border-b border-orange-500/10 last:border-b-0 ${
+                                activeMentorIndex === index ? "bg-orange-500/10" : ""
                               }`}
                               onClick={() => handleSelectMentor(mentor)}
                               role="option"
                               aria-selected={selectedMentor?._id === mentor._id}
                             >
-                              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                              <div className="h-8 w-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
                                 {mentor.profilePic ? (
                                   <img 
                                     src={mentor.profilePic} 
@@ -381,14 +381,14 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                                     className="h-8 w-8 rounded-full object-cover"
                                   />
                                 ) : (
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                   </svg>
                                 )}
                               </div>
                               <div>
-                                <p className="font-medium text-foreground">{mentor.name}</p>
-                                <p className="text-xs text-muted-foreground">{mentor.department || "Faculty"}</p>
+                                <p className="font-medium text-slate-100">{mentor.name}</p>
+                                <p className="text-xs text-slate-400">{mentor.department || "Faculty"}</p>
                               </div>
                             </li>
                           ))}
@@ -396,14 +396,14 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                       </div>
                     )}
                     {mentorSuggestions.length === 0 && watch("targetFaculty")?.trim().length > 2 && (
-                      <p className="mt-2 text-xs text-muted-foreground">No mentors found with that name. Try a different search.</p>
+                      <p className="mt-2 text-xs text-slate-400">No mentors found with that name. Try a different search.</p>
                     )}
                     {selectedMentor && (
-                      <div className="mt-2 flex items-center gap-2 bg-primary/10 p-2 rounded-md">
-                        <span className="text-sm text-primary font-medium">Selected: {selectedMentor.name}</span>
+                      <div className="mt-2 flex items-center gap-2 bg-orange-500/10 p-2 rounded-md">
+                        <span className="text-sm text-orange-400 font-medium">Selected: {selectedMentor.name}</span>
                         <button 
                           type="button"
-                          className="ml-auto text-muted-foreground hover:text-destructive"
+                          className="ml-auto text-slate-400 hover:text-red-400"
                           onClick={() => {
                             setSelectedMentor(null);
                             setValue("targetFaculty", "");
@@ -418,20 +418,20 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Team Members (Optional)</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Team Members (Optional)</label>
                     <input
                       type="text"
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       placeholder="Comma-separated list of email addresses or roll numbers"
                       {...register("teamMembers")}
                     />
-                    <p className="mt-2 text-xs text-muted-foreground">Enter email addresses or roll numbers separated by commas</p>
+                    <p className="mt-2 text-xs text-slate-400">Enter email addresses or roll numbers separated by commas</p>
                   </div>
                 </div>
 
-                <div className="bg-primary/5 p-5 rounded-xl space-y-6">
-                  <h3 className="text-lg font-semibold text-foreground flex items-center">
-                    <span className="bg-primary/20 rounded-full w-7 h-7 flex items-center justify-center mr-2 text-primary">
+                <div className="bg-orange-500/10 p-5 rounded-xl space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-100 flex items-center">
+                    <span className="bg-orange-500/20 rounded-full w-7 h-7 flex items-center justify-center mr-2 text-orange-500">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                       </svg>
@@ -440,65 +440,65 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                   </h3>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Project Abstract</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Project Abstract</label>
                     <textarea
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       rows="3"
                       placeholder="A brief overview of your project"
                       {...register("description.abstract")}
                     />
                     {errors.description?.abstract && (
-                      <p className="mt-2 text-sm text-destructive font-medium">{errors.description.abstract.message}</p>
+                      <p className="mt-2 text-sm text-red-400 font-medium">{errors.description.abstract.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Problem Statement</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Problem Statement</label>
                     <textarea
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       rows="3"
                       placeholder="What problem does your project solve?"
                       {...register("description.problemStatement")}
                     />
                     {errors.description?.problemStatement && (
-                      <p className="mt-2 text-sm text-destructive font-medium">{errors.description.problemStatement.message}</p>
+                      <p className="mt-2 text-sm text-red-400 font-medium">{errors.description.problemStatement.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Proposed Methodology</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Proposed Methodology</label>
                     <textarea
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       rows="3"
                       placeholder="How do you plan to implement your solution?"
                       {...register("description.proposedMethodology")}
                     />
                     {errors.description?.proposedMethodology && (
-                      <p className="mt-2 text-sm text-destructive font-medium">{errors.description.proposedMethodology.message}</p>
+                      <p className="mt-2 text-sm text-red-400 font-medium">{errors.description.proposedMethodology.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Tech Stack</label>
+                    <label className="block text-sm font-semibold text-slate-100 mb-2">Tech Stack</label>
                     <input
                       type="text"
-                      className="block w-full px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
+                      className="block w-full px-4 py-3 rounded-lg border border-orange-500/20 bg-slate-800/50 backdrop-blur-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50 transition-all duration-200"
                       placeholder="e.g., React, Node.js, MongoDB"
                       {...register("description.techStack")}
                     />
-                    <p className="mt-2 text-xs text-muted-foreground">Enter technologies separated by commas</p>
+                    <p className="mt-2 text-xs text-slate-400">Enter technologies separated by commas</p>
                     {errors.description?.techStack && (
-                      <p className="mt-2 text-sm text-destructive font-medium">{errors.description.techStack.message}</p>
+                      <p className="mt-2 text-sm text-red-400 font-medium">{errors.description.techStack.message}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="border-t border-border/20 pt-6 flex justify-end gap-4 bg-gradient-to-r from-transparent to-primary/5">
+                <div className="border-t border-orange-500/10 pt-6 flex justify-end gap-4 bg-gradient-to-r from-transparent to-orange-500/5">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     type="button"
-                    className="px-6 py-2.5 rounded-lg text-foreground bg-accent/50 hover:bg-accent/70 font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="px-6 py-2.5 rounded-lg text-slate-200 bg-slate-700/50 hover:bg-slate-700/70 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200"
                     onClick={() => onOpenChange(false)}
                     disabled={isSubmitting}
                   >
@@ -508,7 +508,7 @@ const ProjectForm = ({ open, onOpenChange, onSuccess }) => {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     type="submit"
-                    className="px-6 py-2.5 rounded-lg text-primary-foreground bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70"
+                    className="px-6 py-2.5 rounded-lg text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/30 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

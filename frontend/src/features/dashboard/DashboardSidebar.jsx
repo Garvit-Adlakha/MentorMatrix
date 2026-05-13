@@ -12,30 +12,30 @@ import {
 
 const UpcomingEvent = ({ color, icon, date, title }) => {
   return (
-    <div className={`border-l-2 border-${color}/70 pl-4 py-2 hover:bg-accent/10 rounded-r-lg transition-colors`}>
+    <div className={`border-l-2 border-orange-500/50 pl-4 py-2 hover:bg-orange-500/5 rounded-r-lg transition-colors`}>
       <div className="flex items-center gap-2 mb-1">
         {icon}
-        <p className="text-xs text-muted-foreground">{date}</p>
+        <p className="text-xs text-slate-400">{date}</p>
       </div>
-      <p className="font-medium text-sm break-words">{title}</p>
+      <p className="font-medium text-sm break-words text-slate-200">{title}</p>
     </div>
   );
 };
 
 const NotificationItem = ({ icon, iconBg, title, message, time, isUnread = false }) => {
   return (
-    <div className={`${isUnread ? 'bg-accent/30 hover:bg-accent/40 border-l-2 border-primary' : 'bg-accent/20 hover:bg-accent/30'} p-3 rounded-lg transition-colors cursor-pointer shadow-sm`}>
+    <div className={`${isUnread ? 'bg-orange-500/15 hover:bg-orange-500/25 border-l-2 border-orange-500' : 'bg-orange-500/5 hover:bg-orange-500/10'} p-3 rounded-lg transition-colors cursor-pointer shadow-sm`}>
       <div className="flex items-start gap-3">
         <div className={`p-2 ${iconBg} rounded-full relative`}>
           {icon}
           {isUnread && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className={`text-sm ${isUnread ? 'font-bold' : 'font-medium'} break-words`}>{title}</p>
-          <p className="text-xs text-muted-foreground mt-1 break-words line-clamp-2">{message}</p>
-          <p className="text-xs text-primary/80 mt-2">{time}</p>
+          <p className={`text-sm ${isUnread ? 'font-bold text-slate-100' : 'font-medium text-slate-200'} break-words`}>{title}</p>
+          <p className="text-xs text-slate-400 mt-1 break-words line-clamp-2">{message}</p>
+          <p className="text-xs text-orange-400 mt-2">{time}</p>
         </div>
       </div>
     </div>
@@ -88,13 +88,13 @@ const DashboardSidebar = () => {
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-card rounded-xl shadow-md sticky top-24"
+        className="bg-gradient-to-br from-slate-900/80 to-slate-900/60 backdrop-blur-xl rounded-xl shadow-lg sticky top-24 border border-orange-500/20"
       >
         {/* Upcoming Events Section */}
-        <div className="p-6 border-b border-border/10">
+        <div className="p-6 border-b border-orange-500/10">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Upcoming</h3>
-            <span className="px-2.5 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+            <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-orange-400">Upcoming</h3>
+            <span className="px-2.5 py-0.5 text-xs rounded-full bg-orange-500/20 text-orange-400">
               This Week
             </span>
           </div>
@@ -127,9 +127,9 @@ const DashboardSidebar = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">Notifications</h3>
+              <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-orange-400">Notifications</h3>
               {unreadCount > 0 && (
-                <span className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/90 text-white text-xs font-medium">
+                <span className="h-5 w-5 flex items-center justify-center rounded-full bg-orange-500/90 text-white text-xs font-medium">
                   {unreadCount}
                 </span>
               )}
@@ -138,7 +138,7 @@ const DashboardSidebar = () => {
             {unreadCount > 0 && (
               <button 
                 onClick={handleMarkAllAsRead}
-                className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+                className="text-xs text-orange-500 hover:text-orange-400 font-medium flex items-center gap-1"
                 aria-label="Mark all notifications as read"
               >
                 <IconCheck size={12} />
@@ -164,7 +164,7 @@ const DashboardSidebar = () => {
           <motion.button 
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full mt-5 px-4 py-2.5 rounded-lg bg-card bg-gradient-to-r from-primary/10 to-transparent hover:from-primary/20 transition-colors text-sm font-medium flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+            className="w-full mt-5 px-4 py-2.5 rounded-lg bg-gradient-to-r from-orange-500/20 to-orange-500/5 hover:from-orange-500/30 hover:to-orange-500/10 transition-colors text-sm font-medium flex items-center justify-center gap-2 text-orange-400 focus:ring-2 focus:ring-orange-500/30 focus:outline-none"
           >
             View All Notifications
             <IconArrowRight size={14} />

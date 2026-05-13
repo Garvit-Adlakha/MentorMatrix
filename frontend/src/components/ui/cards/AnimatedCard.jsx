@@ -55,7 +55,7 @@ const AnimatedCard = ({
       whileTap={onClick ? "tap" : undefined}
       variants={variants || defaultVariants}
       onClick={onClick}
-      className={`bg-card/95 backdrop-blur-sm border border-border/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
+      className={`app-card ${className}`}
       {...rest}
     >
       {children}

@@ -16,7 +16,7 @@ const ChatHeader = ({ activeChat, toggleSidebar, socketConnected }) => {
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="p-4 shadow-2xl rounded-2xl  bg-background/60 backdrop-blur-2xl flex items-center justify-between sticky top-0 z-10"
+        className="chat-header"
       >
         <div className="flex items-center gap-3">
           <button
@@ -29,14 +29,14 @@ const ChatHeader = ({ activeChat, toggleSidebar, socketConnected }) => {
           <div className="flex items-center gap-3">
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 shadow-sm border border-primary/10"
+              className="chat-header-avatar"
             >
               <span className="font-medium text-neutral-200 text-lg">
                 {activeChat?.name?.substring(0, 2)?.toUpperCase() || 'GC'}
               </span>
             </motion.div>
             <div>
-              <h3 className="font-medium text-lg bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 to-neutral-200/70">
+              <h3 className="chat-header-title">
                 {activeChat?.name || 'Project Chat'}
               </h3>
             </div>

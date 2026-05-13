@@ -146,26 +146,34 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
     return match ? match[1] : null;
   }
 
+  // Normalize score for display: remove trailing .0 and determine if badge should show
+  function normalizeScore(scoreStr) {
+    if (!scoreStr) return { display: null, showBadge: false };
+    const num = Number(scoreStr);
+    if (Number.isNaN(num)) return { display: scoreStr, showBadge: !scoreStr.includes('.') };
+    if (Number.isInteger(num)) return { display: String(num), showBadge: true };
+    if (Math.abs(num - Math.round(num)) < 1e-9) return { display: String(Math.round(num)), showBadge: true };
+    return { display: String(num), showBadge: false };
+  }
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-primary animate-pulse">✨</div>
-          </div>
+      <div className="review-loading">
+        <div className="modal-spinner">
+          <div className="modal-spinner-ring"></div>
+          <div className="modal-spinner-icon">✨</div>
         </div>
-        <p className="mt-6 text-muted-foreground text-base font-medium">Generating AI review...</p>
-        <p className="mt-2 text-sm text-muted-foreground/70">This might take a few moments</p>
+        <p className="modal-loading-title">Generating AI review...</p>
+        <p className="modal-loading-subtitle">This might take a few moments</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 p-6 rounded-xl border border-red-200 dark:border-red-800/30 flex flex-col items-start gap-3">
-        <h3 className="font-semibold text-lg flex items-center gap-2">
-          <span className="text-red-500">✕</span>
+      <div className="modal-error">
+        <h3 className="modal-error-title">
+          <span>✕</span>
           Unable to generate review
         </h3>
         <p>We couldn't generate a review for this project at the moment. Please try again later.</p>
@@ -177,14 +185,15 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
   console.log(sections);
   
   // Extract score regardless of section parsing
-  const overallScore = sections.find(s => s.title === 'Overall Score') ? 
+  const rawOverall = sections.find(s => s.title === 'Overall Score') ?
     extractScore(sections.find(s => s.title === 'Overall Score').content) : 
     extractScoreFromFullText(reviewText);
+  const { display: overallScore, showBadge: overallShowBadge } = normalizeScore(rawOverall);
 
   // If no sections were parsed, create a simple structure with the score
   if (sections.length === 0 && reviewText) {
     return (
-      <div className="space-y-8 mx-auto">
+      <div className="review-details">
         {/* Score Circle */}
         {overallScore && (
           <motion.div
@@ -195,28 +204,26 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
               stiffness: 100,
               damping: 15
             }}
-            className="relative bg-gradient-to-br from-background/95 to-card/70 p-6 md:p-8 rounded-2xl border border-primary/10 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
+            className="review-section review-section--score"
           >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="rounded-full bg-primary/10 p-2.5 shadow-sm">
+            <div className="review-section-header">
+              <div className="review-section-icon">
                 <IconStar size={24} className="text-yellow-500" />
               </div>
-              <h3 className="font-bold text-xl md:text-2xl tracking-tight text-foreground font-display">
+              <h3 className="review-section-title">
                 Overall Score
               </h3>
             </div>
             
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-3">
-              <div className="flex-shrink-0 relative">
-                <div className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-xl border-4 border-yellow-200 dark:border-yellow-700/50">
-                  <span className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">
+            <div className="review-score">
+              <div className="review-score-ring">
+                <span className="review-score-value">
                     {overallScore || '?'}
-                  </span>
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 text-xs font-bold py-1 px-2 rounded-full shadow-md">
-                  /10
-                </div>
+                </span>
               </div>
+              {overallShowBadge && (
+                <div className="review-score-badge">/10</div>
+              )}
             </div>
           </motion.div>
         )}
@@ -231,18 +238,18 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
             stiffness: 100,
             damping: 15
           }}
-          className="relative bg-gradient-to-br from-background/95 to-card/70 p-6 md:p-8 rounded-2xl border border-primary/10 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
+          className="review-section"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="rounded-full bg-primary/10 p-2.5 shadow-sm">
+          <div className="review-section-header">
+            <div className="review-section-icon">
               <IconFileDescription size={24} className="text-primary" />
             </div>
-            <h3 className="font-bold text-xl md:text-2xl tracking-tight text-foreground font-display">
+            <h3 className="review-section-title">
               Project Review
             </h3>
           </div>
           
-          <div className="prose prose-base md:prose-lg max-w-none dark:prose-invert pl-4 border-l-4 border-primary/20">
+          <div className="review-content">
             <div dangerouslySetInnerHTML={{ __html: formatContent(reviewText) }} />
           </div>
         </motion.div>
@@ -251,7 +258,7 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="review-details">
       {sections.map((section, idx) => (
         <motion.div
           key={section.title + idx}
@@ -263,37 +270,36 @@ const ProjectReviewDetails = ({ reviewText, loading, error }) => {
             stiffness: 100,
             damping: 15
           }}
-          className="relative bg-gradient-to-br from-background/95 to-card/70 p-6 md:p-8 rounded-2xl border border-primary/10 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
+          className="review-section"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="rounded-full bg-primary/10 p-2.5 shadow-sm">
+          <div className="review-section-header">
+            <div className="review-section-icon">
               {sectionIcons[section.title] || <IconFileDescription size={24} className="text-primary" />}
             </div>
-            <h3 className="font-bold text-xl md:text-2xl tracking-tight text-foreground font-display">
+            <h3 className="review-section-title">
               {section.title}
             </h3>
           </div>
           
           {section.title === 'Overall Score' ? (
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-3">
-              <div className="flex-shrink-0 relative">
-                <div className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-xl border-4 border-yellow-200 dark:border-yellow-700/50">
-                  <span className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-md">
-                    {extractScore(section.content) || '?'}
-                  </span>
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 text-xs font-bold py-1 px-2 rounded-full shadow-md">
-                  /10
-                </div>
+            <div className="review-score">
+              <div className="review-score-ring">
+                <span className="review-score-value">
+                    {normalizeScore(extractScore(section.content)).display || '?'}
+                </span>
               </div>
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                <p className="text-lg font-medium leading-relaxed text-gray-700 dark:text-gray-200">
-                  {section.content.replace(/\d+(?:\/\d+)?/, '').trim()}
-                </p>
-              </div>
+              {(() => {
+                const { display, showBadge } = normalizeScore(extractScore(section.content));
+                return display && showBadge ? (
+                  <div className="review-score-badge">/10</div>
+                ) : null;
+              })()}
+              <p className="review-score-note">
+                {section.content.replace(/\d+(?:\/\d+)?/, '').trim()}
+              </p>
             </div>
           ) : (
-            <div className="prose prose-base md:prose-lg max-w-none dark:prose-invert pl-4 border-l-4 border-primary/20">
+            <div className="review-content">
               <div dangerouslySetInnerHTML={{ __html: formatContent(section.content) }} />
             </div>
           )}

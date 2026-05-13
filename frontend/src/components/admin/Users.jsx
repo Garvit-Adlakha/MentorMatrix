@@ -28,40 +28,40 @@ const UserRow = ({ user, onStatusChange }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors"
+            className="admin-table-row"
         >
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center space-x-3">
+                <div className="admin-user">
                     <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center">
-                            <IconUser className="h-6 w-6 text-gray-400" />
+                        <div className="admin-user-avatar">
+                            <IconUser className="h-6 w-6" />
                         </div>
                     </div>
                     <div>
-                        <div className="text-sm font-medium text-white">{user.name}</div>
-                        <div className="text-sm text-gray-400">{user.email}</div>
+                        <div className="admin-user-name">{user.name}</div>
+                        <div className="admin-user-email">{user.email}</div>
                     </div>
                 </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${user.role === 'mentor' ? 'bg-purple-900/50 text-purple-300' : 'bg-blue-900/50 text-blue-300'}`}>
+                <span className={`admin-pill ${user.role === 'mentor' ? 'admin-pill--mentor' : 'admin-pill--student'}`}>
                     {user.role}
                 </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${user.status === 'active' ? 'bg-green-900/50 text-green-300' : 
-                    user.status === 'pending' ? 'bg-yellow-900/50 text-yellow-300' : 'bg-red-900/50 text-red-300'}`}>
+                <span className={`admin-pill ${
+                    user.status === 'active' ? 'admin-pill--active' :
+                    user.status === 'pending' ? 'admin-pill--pending' : 'admin-pill--danger'}`}
+                >
                     {user.status}
                 </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex justify-end space-x-2">
+                <div className="admin-actions">
                     <button
                         onClick={() => updateStatus({ userId: user._id, status: 'active' })}
                         disabled={isLoading || user.status === 'active'}
-                        className="p-2 text-green-400 hover:bg-green-900/30 rounded-lg transition-colors disabled:opacity-50"
+                        className="admin-action admin-action--success"
                         title="Activate User"
                     >
                         <IconUserCheck className="w-5 h-5" />
@@ -69,7 +69,7 @@ const UserRow = ({ user, onStatusChange }) => {
                     <button
                         onClick={() => updateStatus({ userId: user._id, status: 'inactive' })}
                         disabled={isLoading || user.status === 'inactive'}
-                        className="p-2 text-gray-400 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                        className="admin-action"
                         title="Deactivate User"
                     >
                         <IconUserOff className="w-5 h-5" />
@@ -77,7 +77,7 @@ const UserRow = ({ user, onStatusChange }) => {
                     <button
                         onClick={() => updateStatus({ userId: user._id, status: 'rejected' })}
                         disabled={isLoading || user.status === 'rejected'}
-                        className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                        className="admin-action admin-action--danger"
                         title="Reject User"
                     >
                         <IconUserX className="w-5 h-5" />
@@ -152,32 +152,32 @@ const Users = () => {
     }
 
     return (
-        <div className="p-6 bg-[background] min-h-screen">
+        <div className="admin-page">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-8"
+                className="admin-header"
             >
-                <h1 className="text-3xl font-bold text-white">Users Management</h1>
-                <p className="text-gray-400 mt-2">Manage and monitor all users in your platform</p>
+                <h1 className="admin-title">Users Management</h1>
+                <p className="admin-subtitle">Manage and monitor all users in your platform</p>
             </motion.div>
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-gray-800 rounded-xl shadow-lg p-6 mb-6"
+                className="admin-card"
             >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="admin-filters">
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <IconSearch className="h-5 w-5 text-gray-400" />
+                            <IconSearch className="h-5 w-5" />
                         </div>
                         <input
                             type="text"
                             placeholder="Search users..."
-                            className="pl-10 w-full rounded-lg bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            className="admin-filter-input"
                             name="search"
                             value={filters.search}
                             onChange={handleFilterChange}
@@ -185,10 +185,10 @@ const Users = () => {
                     </div>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <IconUser className="h-5 w-5 text-gray-400" />
+                            <IconUser className="h-5 w-5" />
                         </div>
                         <select
-                            className="pl-10 w-full rounded-lg bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            className="admin-filter-input"
                             name="role"
                             value={filters.role}
                             onChange={handleFilterChange}
@@ -200,10 +200,10 @@ const Users = () => {
                     </div>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <IconFilter className="h-5 w-5 text-gray-400" />
+                            <IconFilter className="h-5 w-5" />
                         </div>
                         <select
-                            className="pl-10 w-full rounded-lg bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            className="admin-filter-input"
                             name="status"
                             value={filters.status}
                             onChange={handleFilterChange}
@@ -221,7 +221,7 @@ const Users = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+                className="admin-card admin-card--table"
             >
                 {isLoading && (
                     <div className="flex justify-center items-center min-h-[60vh]">
@@ -230,24 +230,24 @@ const Users = () => {
                     </div>
                 )}
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-700">
-                        <thead className="bg-gray-800">
+                    <table className="admin-table">
+                        <thead>
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                <th className="admin-table-head">
                                     User
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                <th className="admin-table-head">
                                     Role
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                <th className="admin-table-head">
                                     Status
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                <th className="admin-table-head admin-table-head--right">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-gray-800 divide-y divide-gray-700">
+                        <tbody>
                             <AnimatePresence>
                                 {data?.users.map(user => (
                                     <UserRow
@@ -266,23 +266,23 @@ const Users = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mt-4 flex justify-between items-center bg-gray-800 rounded-lg shadow-lg p-4"
+                className="admin-pagination"
             >
-                <div className="text-sm text-gray-400">
+                <div className="admin-pagination-text">
                     Showing {((page - 1) * 10) + 1} to {Math.min(page * 10, data?.pagination.total)} of {data?.pagination.total} results
                 </div>
-                <div className="flex space-x-2">
+                <div className="admin-pagination-actions">
                     <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="p-2 border border-gray-700 rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors text-gray-400"
+                        className="admin-pagination-btn"
                     >
                         <IconChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => setPage(p => p + 1)}
                         disabled={page >= data?.pagination.pages}
-                        className="p-2 border border-gray-700 rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors text-gray-400"
+                        className="admin-pagination-btn"
                     >
                         <IconChevronRight className="w-5 h-5" />
                     </button>

@@ -15,13 +15,10 @@ const ProjectTable = ({ proposals, userRole, handleViewDetails }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="overflow-auto rounded-xl shadow-xl backdrop-blur-2xl no-scrollbar"
+      className="dashboard-table"
     >
       <table className="w-full overflow-visible">
-        <thead className="bg-gradient-to-br from-primary/20 via-primary/5 to-transparent text-foreground
-          shadow-2xl rounded-t-xl backdrop-blur-xl
-          text-center"
-        >
+        <thead className="dashboard-table-head">
           <tr>
             <th className="px-6 py-4 text-sm font-semibold text-left">{userRole === 'student' ? 'Faculty' : 'Student'}</th>
             <th className="px-6 py-4 text-sm font-semibold text-left">Title</th>
@@ -30,7 +27,7 @@ const ProjectTable = ({ proposals, userRole, handleViewDetails }) => {
             <th className="px-6 py-4 text-sm font-semibold text-left">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-card">
+        <tbody className="dashboard-table-body">
           {proposals.map((proposal, index) => (
             <ProjectTableRow 
               key={proposal.id}
@@ -63,17 +60,7 @@ const ProjectTableRow = ({ proposal, userRole, index, handleViewDetails }) => {
         stiffness: 120, 
         damping: 14 
       }}
-      className="cursor-pointer text-sm text-muted-foreground
-        hover:font-bold
-        hover:shadow-2xl
-        hover:border-0
-        hover:bg-gradient-to-br
-        from-primary/20 via-primary/5 to-transparent  
-        hover:bg-opacity-50
-        hover:rounded-2xl
-        hover:backdrop-blur-xl
-        relative
-        transition-colors  border-b border-neutral-700 last:border-0 overflow-hidden"
+      className="dashboard-table-row"
       style={{
         transformOrigin: "center",
         transform: "translateZ(0)", // Force GPU acceleration
@@ -134,14 +121,14 @@ const StatusBadge = ({ status }) => {
   const getStatusClasses = () => {
     switch (status) {
       case 'approved':
-        return 'bg-teal-50 text-teal-700';
+        return 'bg-teal-400/15 text-teal-200 border border-teal-400/30';
       case 'rejected':
-        return 'bg-rose-50 text-rose-700';
+        return 'bg-rose-400/15 text-rose-200 border border-rose-400/30';
       case 'completed':
-        return 'bg-blue-50 text-blue-700';
+        return 'bg-sky-400/15 text-sky-200 border border-sky-400/30';
       case 'pending':
       default:
-        return 'bg-amber-50 text-amber-700';
+        return 'bg-amber-400/15 text-amber-200 border border-amber-400/30';
     }
   };
 

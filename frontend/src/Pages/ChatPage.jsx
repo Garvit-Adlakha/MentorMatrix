@@ -9,17 +9,51 @@ import io from 'socket.io-client';
 
 const ChatPage = () => {
 
-  const {setSocket,setUser}=useChatStore()
+  const { setSocket, setUser, setSocketConnected } = useChatStore()
+
+  const getSocketUrl = () => {
+    if (import.meta.env.VITE_SOCKET_URL) {
+      return import.meta.env.VITE_SOCKET_URL;
+    }
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    return apiUrl.replace(/\/api\/v\d+\/?$/, '');
+  };
 
   useEffect(()=>{
-    const socket=io(import.meta.env.VITE_SERVER_URL)
+    const socketUrl = getSocketUrl();
+    console.log('[Socket] Connecting to:', socketUrl);
+
+    const socket = io(socketUrl, {
+      withCredentials: true,
+      transports: ['websocket'], // Force websocket only, disable polling for better performance
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+    });
+
+    socket.on('connect', () => {
+      console.log('[Socket] Connected! Transport:', socket.io.engine.transport.name);
+      setSocketConnected(true);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('[Socket] Disconnected');
+      setSocketConnected(false);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('[Socket] Connection error:', error.message);
+    });
 
     setSocket(socket)
     return()=>{
       socket.disconnect()
       setSocket(null)
+      setSocketConnected(false)
     }
-  },[setSocket])
+  },[setSocket, setSocketConnected])
 
 
   // Get current user
@@ -29,7 +63,7 @@ const ChatPage = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 
-  const user = userData?.user
+  const user = userData
   
   // Set user in chat store
   useEffect(() => {
@@ -38,9 +72,23 @@ const ChatPage = () => {
     }
   }, [user, setUser])
 
+  // Authenticate socket with user id once both are available
+  useEffect(() => {
+    const { socket } = useChatStore.getState();
+    if (socket && user?._id) {
+      if (socket.connected) {
+        socket.emit('authenticate', { userId: user._id });
+      } else {
+        socket.once('connect', () => {
+          socket.emit('authenticate', { userId: user._id });
+        });
+      }
+    }
+  }, [user]);
+
   return (
     <motion.div 
-      className="flex flex-col h-screen"
+      className="chat-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}

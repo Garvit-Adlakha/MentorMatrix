@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MessageList = ({ groupedMessages, user, isAnyoneTyping, getTypingString, isScrolledToBottom, scrollToBottom, messagesEndRef, handleScroll, messagesContainerRef }) => (
   <div 
-    className="flex-1 overflow-y-auto p-6 min-h-0 relative rounded-2xl shadow-inner"
+    className="chat-messages"
     onScroll={handleScroll}
     ref={messagesContainerRef}
   >
@@ -18,7 +18,7 @@ const MessageList = ({ groupedMessages, user, isAnyoneTyping, getTypingString, i
         >
           <div className="sticky top-2 z-10 text-center mb-6">
             <motion.span 
-              className="px-5 py-2 bg-black/60 text-neutral-200 text-xs rounded-full shadow-lg backdrop-blur-md border border-neutral-700/50"
+              className="chat-date-pill"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -41,12 +41,12 @@ const MessageList = ({ groupedMessages, user, isAnyoneTyping, getTypingString, i
             >
               {message.sender._id !== user?._id && (
                 <div className="flex-shrink-0 mr-3">
-                  <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-base font-semibold text-white shadow-md">
+                  <div className="chat-avatar">
                     {message.sender.name ? message.sender.name.charAt(0).toUpperCase() : '?'}
                   </div>
                 </div>
               )}
-              <div className={`max-w-[70%] ${message.sender._id === user?._id ? 'bg-primary/90 text-white' : 'bg-zinc-800/90 text-zinc-100'} px-5 py-3 rounded-2xl shadow-lg ${message.sender._id === user?._id ? 'rounded-tr-md' : 'rounded-tl-md'} group relative transition-all duration-200`}
+              <div className={`chat-bubble ${message.sender._id === user?._id ? 'chat-bubble--mine' : 'chat-bubble--theirs'}`}
                 tabIndex={0}
               >
                 {message.sender._id !== user?._id && (
@@ -55,13 +55,13 @@ const MessageList = ({ groupedMessages, user, isAnyoneTyping, getTypingString, i
                   </div>
                 )}
                 <div>{message.content}</div>
-                <div className="text-[10px] text-right mt-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="chat-bubble-time">
                   {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
               {message.sender._id === user?._id && (
                 <div className="flex-shrink-0 ml-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/30 flex items-center justify-center text-base font-semibold text-white shadow-md">
+                  <div className="chat-avatar chat-avatar--self">
                     {user?.name ? user.name.charAt(0).toUpperCase() : 'Y'}
                   </div>
                 </div>
@@ -77,7 +77,7 @@ const MessageList = ({ groupedMessages, user, isAnyoneTyping, getTypingString, i
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="flex items-center text-xs text-primary/80 mb-2 pl-12 gap-2"
+          className="chat-typing"
         >
           <div className="flex space-x-1 mr-2">
             <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></div>

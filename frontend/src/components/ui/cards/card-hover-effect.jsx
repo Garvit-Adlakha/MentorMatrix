@@ -27,7 +27,7 @@ export const HoverEffect = ({
           <AnimatePresence>
             {hoveredIndex === idx && (
               <motion.span
-                className="absolute inset-0 h-full w-full bg-neutral-200 dark:bg-slate-800/[0.8] block rounded-3xl"
+                className="hover-effect-bg absolute inset-0 h-full w-full block rounded-3xl"
                 layoutId="hoverBackground"
                 initial={{ opacity: 0 }}
                 animate={{
@@ -66,13 +66,13 @@ export const ProjectCard = ({
   const getStatusBadgeClasses = (status) => {
     switch (status) {
       case 'approved':
-        return 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60';
+        return 'bg-emerald-400/15 text-emerald-200 border border-emerald-400/30';
       case 'rejected':
-        return 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60';
+        return 'bg-rose-400/15 text-rose-200 border border-rose-400/30';
       case 'completed':
-        return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60';
+        return 'bg-sky-400/15 text-sky-200 border border-sky-400/30';
       default:
-        return 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60';
+        return 'bg-amber-400/15 text-amber-200 border border-amber-400/30';
     }
   };
 
@@ -122,16 +122,16 @@ export const ProjectCard = ({
           
           {/* Meta information (student/faculty name, date) */}
           {(item.studentName || item.facultyName || item.createdAt) && (
-            <div className="flex flex-col gap-1.5 my-4 text-gray-400 opacity-70">
+            <div className="flex flex-col gap-1.5 my-4 text-white/55">
               {item.studentName && (
                 <p className="text-sm font-medium break-words line-clamp-1 hover:line-clamp-none transition-all">
-                  Student: <span className="text-gray-300">{item.studentName}</span>
+                  Student: <span className="text-white/80">{item.studentName}</span>
                 </p>
               )}
               
               {item.facultyName && (
                 <p className="text-sm font-medium break-words line-clamp-1 hover:line-clamp-none transition-all">
-                  Mentor: <span className="text-gray-300">{item.facultyName || 'Unassigned'}</span>
+                  Mentor: <span className="text-white/80">{item.facultyName || 'Unassigned'}</span>
                 </p>
               )}
               
@@ -152,7 +152,7 @@ export const ProjectCard = ({
         <div className="p-4 pt-0 mt-auto">
           <div className="pt-4 border-t border-zinc-800/50">
             <button 
-              className="w-full px-4 py-2.5 rounded-lg bg-black/10 hover:bg-black/80 text-primary border border-primary/30 transition-all duration-200 text-sm font-medium inline-flex items-center justify-center gap-2 group hover:shadow-lg hover:shadow-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1"
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-primary border border-primary/30 transition-all duration-200 text-sm font-medium inline-flex items-center justify-center gap-2 group hover:shadow-lg hover:shadow-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1"
               aria-label={`View details for project: ${item.title}`}
               tabIndex={0}
             >
