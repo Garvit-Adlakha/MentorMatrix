@@ -136,7 +136,7 @@ const MentorSignUp = () => {
                                 <span className="auth-highlight">Expertise &amp; Lead.</span>
                             </h2>
                             <p className="auth-left-sub">
-                                Become a mentor on Campus Connect and make a real difference in students' academic journeys.
+                                Become a mentor on Mentor Matrix and make a real difference in students' academic journeys.
                             </p>
                         </motion.div>
 

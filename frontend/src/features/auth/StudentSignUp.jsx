@@ -48,7 +48,7 @@ const StudentSignIn = () => {
             return authService.registerStudent(signupData);
         },
         onSuccess: () => {
-            toast.success('Welcome to Campus Connect! 🎉');
+            toast.success('Welcome to Mentor Matrix! 🎉');
             queryClient.invalidateQueries(['user']);
             navigate('/');
         },
@@ -156,7 +156,7 @@ const StudentSignIn = () => {
                                 Student
                             </div>
                             <h1 className="auth-card-title">Create Account</h1>
-                            <p className="auth-card-sub">Join Campus Connect as a student</p>
+                            <p className="auth-card-sub">Join Mentor Matrix as a student</p>
                         </div>
 
                         <AnimatePresence>

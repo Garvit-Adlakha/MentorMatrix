@@ -146,7 +146,7 @@ const Login = () => {
           <div className="auth-card">
             <div className="auth-card-header">
               <h1 className="auth-card-title">Welcome back</h1>
-              <p className="auth-card-sub">Sign in to your Campus Connect account</p>
+              <p className="auth-card-sub">Sign in to your Mentor Matrix account</p>
             </div>
 
             <AnimatePresence mode="wait">
